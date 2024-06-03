@@ -8,6 +8,8 @@
 		_ form_gen & form_process are silent by default to integrate with templates
 		_ changed the return of form_process to be array of success+content + errors
 		_ added an email type (gen=text, proc= automatic regular expressions \n detection
+
+   more here for legacy until update;
    */
 
 if(!isset($lstmonths))
