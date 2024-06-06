@@ -2,6 +2,16 @@
 
 class SimpleDebug {
     private $template_file = '';
+    private $debug_style = '<style>
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px;}
+        th, td { padding: 8px 12px; border: 1px solid #cdbcbc; text-align: left; }
+        th { background-color: #4f4837; color: white; }
+        tr:nth-child(odd) { background-color: #e5e0d3; }
+        .firstcol { color: #c96666; font-weight: bold; }
+        tr:nth-child(even) { background-color: #fffdf3; }
+        .id-cell { font-weight: bold; color: #ff0000; }
+        .tabledetails  {text-align: center; background-color:  #4f4837;color: white}
+      </style>';
     private $default_template = 'templates/debug.html';
     function setTemplate($var) {
         $this->template = $var;
@@ -57,8 +67,42 @@ class SimpleDebug {
     
         return $output;
     }
+    /* debug a query by printing results as a table */
+    function printQueryResults($results) {
+            if (!empty($results)) {
+                echo $this->debug_style;
+                echo '<table>';
+                
+                // Print headers
+                echo '<tr>';
+                $headers = array_keys($results[0]);
+                foreach ($headers as $header) {
+                    echo '<th>' . htmlspecialchars($header) . '</th>';
+                }
+                echo '</tr>';
+        
+                // Print rows
+                foreach ($results as $row) {
+                    echo '<tr>';
+                    $idx=0;
+                    foreach ($headers as $key) {
+                        $class = $key === 'id' ? 'id-cell' : '';
+                        if($idx==0) {
+                            $class='firstcol';
+                            $idx++;
+                        }
+                        echo '<td class="' . $class . '">' . htmlspecialchars($row[$key]) . '</td>';
+                    }
+                    echo '</tr>';
+                }
+                echo '</table>';
+            } else {
+                echo 'No results found.';
+            }
+    }
+
     /* simple function to highlight sql code to make it easier to read*/
-    function highlight_sql($query) {
+    function highlightSql($query) {
             // Define CSS classes
             $keywordClass = 'sql-keyword';
             $stringClass = 'sql-string';
