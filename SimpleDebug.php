@@ -57,6 +57,48 @@ class SimpleDebug {
     
         return $output;
     }
-
+    /* simple function to highlight sql code to make it easier to read*/
+    function highlight_sql($query) {
+            // Define CSS classes
+            $keywordClass = 'sql-keyword';
+            $stringClass = 'sql-string';
+            $backtickClass = 'sql-backtick';
+            $parenthesisClass = 'sql-parenthesis';
+            $operatorClass = 'sql-operator';
+        
+            // Define SQL keywords
+            $keywords = [
+                'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'NULL',
+                'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'ON', 'AS', 'IN', 'IS', 'BY', 'GROUP', 'ORDER', 
+                'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'DISTINCT', 'COUNT', 'AVG', 'MIN', 'MAX', 'SUM'
+            ];
+            $keywordsPattern = implode('|', array_map('preg_quote', $keywords));
+        
+            // Tokenize and highlight the SQL query
+            $pattern = "/('(?:''|[^'])*'|\"(?:\"\"|[^\"])*\"|`[^`]*`|\b($keywordsPattern)\b|[()=])/i";
+            $highlightedQuery = preg_replace_callback($pattern, function($matches) use ($keywordClass, $stringClass, $backtickClass, $parenthesisClass, $operatorClass) {
+                if (isset($matches[2])) {
+                    return '<span class="' . $keywordClass . '">' . htmlspecialchars($matches[2]) . '</span>';
+                } elseif (preg_match("/^'.*'$/s", $matches[0]) || preg_match('/^".*"$/s', $matches[0])) {
+                    return '<span class="' . $stringClass . '">' . htmlspecialchars($matches[0], ENT_QUOTES) . '</span>';
+                } elseif (preg_match("/^`.*`$/", $matches[0])) {
+                    return '<span class="' . $backtickClass . '">' . htmlspecialchars($matches[0], ENT_QUOTES) . '</span>';
+                } elseif ($matches[0] === '(' || $matches[0] === ')') {
+                    return '<span class="' . $parenthesisClass . '">' . htmlspecialchars($matches[0]) . '</span>';
+                } elseif ($matches[0] === '=') {
+                    return '<span class="' . $operatorClass . '">' . htmlspecialchars($matches[0]) . '</span>';
+                } else {
+                    return htmlspecialchars($matches[0]);
+                }
+            }, $query);
+            $highlightedQuery .= "\n<style>
+            .sql-keyword { color: #0b0bc7; font-weight: bold; }
+            .sql-string { color: #2eb92e; font-weight: bold; padding: 2px;padding-left:5px; padding-right:5px;background-color: #e9e9e9 }
+            .sql-backtick { color: brown; }
+            .sql-parenthesis { color: #ff1bff; font-weight: bold;}
+            .sql-operator { color: #c73232  ; }
+            </style>";        
+            return '<pre>' . $highlightedQuery . '</pre>';
+    }
 
 }
