@@ -18,3 +18,4 @@ This repository contains a simple demo of a login zone with a simple template en
 
 - **editpasswd.php** - Edit your password form, in progress
 - **SimpleForm.php** - Needs update, here mostly until I extract a more modern version. a simple forms generation engine with the option to validate input
+- **CompiledTemplate.php** - experimental Template that compiles templates to php and handles recursive blocks for more complex scenarios. Works but needs to be vetted
