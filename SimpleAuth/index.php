@@ -1,8 +1,10 @@
 <?php
 	/* basically include and require login before any password protected page */
+	$simplicity_dir = dirname(__DIR__) . "/lib";
 	require_once(__DIR__ . "/AuthInclude.php");
-	require_once(__DIR__ . "/SimpleTemplate.php");
-	require_once(__DIR__ . "/SimpleDebug.php");
+	require_once("$simplicity_dir/SimpleTemplate.php");
+	//print $simplicity_dir;exit;
+	require_once("$simplicity_dir/SimpleDebug.php");
 
 	$auth->require_login();
 	$debug = new SimpleDebug();
