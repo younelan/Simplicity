@@ -1,5 +1,15 @@
 # Simplicity PHP Framework
-This is *Simple* PHP Login with templates. There are more complex frameworks but this is probably as simple as you can get to understand
+This is *Simple* PHP Framework started as Login with templates. I am currently turning it into a more evolved framework to simplify dweb development. 
+
+The framework is meant to centralize code I have used on other projects to maximize reuse and turbo charge development
+
+This features:
+_ **base**: a base controller/plugin framework
+_ **SimpleAuth**: a simple auth library for providing authentication
+_ **SimpleTemplate**: a simple theme engine
+_ **SimpleForm**: a simple form engine
+
+There are more complex frameworks but this is probably as simple as you can get to understand
 (c) Youness El Andaloussi
 MIT License, no warranty applies
 
