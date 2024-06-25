@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Scheduler</title>
+</head>
+<body>
+    <h1>Schedule a Task</h1>
+    <form action="submit_task.php" method="post">
+        <label for="description">Task Description:</label>
+        <input type="text" id="description" name="description" required>
+        <input type="submit" value="Schedule Task">
+    </form>
+    <hr>
+    <h1>Task List</h1>
+    <table id="task-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+            </tr>
+        </thead>
+        <tbody id="task-rows">
+            <!-- Task rows will be inserted here -->
+        </tbody>
+    </table>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const tasks = {{tasks}};
+            const taskRows = tasks.map(task => {
+                const data = task.data;
+                return `
+                    <tr>
+                        <td>${task.id}</td>
+                        <td>${data.description}</td>
+                        <td>${task.status}</td>
+                        <td>${task.created_at}</td>
+                        <td>${task.updated_at}</td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('task-rows').innerHTML = taskRows;
+        });
+    </script>
+</body>
+</html>
+
