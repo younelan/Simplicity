@@ -3,13 +3,19 @@ This is *Simple* PHP Framework started as Login with templates. I am currently t
 
 The framework is meant to centralize code I have used on other projects to maximize reuse and turbo charge development
 
-This features:
-_ **base**: a base controller/plugin framework
-_ **SimpleAuth**: a simple auth library for providing authentication
-_ **SimpleTemplate**: a simple theme engine
-_ **SimpleForm**: a simple form engine
+**Primary Folders**:
+- **lib** directory: Simplicity Framework Files
+    - **SimpleAuth**: a simple auth library for providing authentication
+    - **SimpleTemplate**: a simple theme engine
+    - **SimpleForm**: a simple form engine
+    - **SimpleDebug**: a collapsible prettier alternative to print_r
+- **demo** directory: Samples using the simplicity Framework
+    - **SimpleAuth** : Authentication Demo using SimpleAuth, SimpleTemplate
+    - **SimpleTask** : Simple Task Manager with repeating tasks
 
 There are more complex frameworks but this is probably as simple as you can get to understand
+
+## License
 (c) Youness El Andaloussi
 MIT License, no warranty applies
 
@@ -19,6 +25,8 @@ This repository contains a simple demo of a login zone with a simple template en
 ## files
 - SimpleTemplate.php - a simple theme engine - basically substitutes variables in the template. If you need something sophisticated, I recommend either tinybutstrong or smarty
 - **SimpleAuth.php** - simple auth class
+- **base**: a base controller/plugin framework
+
 - **SimpleDebug.php** - simple debug class to print arrays in a much more user Friendly Format
     - require SimpleDebug.php
     - $debug = new SimpleDebug()
