@@ -1,4 +1,5 @@
 <?php
+namespace Opensitez\Simplicity;
 
 class SimpleDebug {
     private $template_file = '';

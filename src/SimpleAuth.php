@@ -1,4 +1,6 @@
 <?php
+namespace Opensitez\Simplicity;
+
 class SimpleAuth {
     private $config = [];
     private $users;

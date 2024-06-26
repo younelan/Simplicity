@@ -1,7 +1,12 @@
 <?php
+	$vendor_dir = dirname(dirname(__DIR__)) . "/vendor";
 	/* demo implementation of the auth Class */
 	$simplicity_dir = dirname(dirname(__DIR__)) . "/src";
-	require_once("$simplicity_dir/SimpleAuth.php");
+
+	require_once("$vendor_dir/autoload.php");
+
+
+	//require_once("$simplicity_dir/SimpleAuth.php");
 	/* list of users, for the demo an array of user */
 	require_once(__DIR__ .  "/users.php");
 	/* translations for the demo and template*/
@@ -22,7 +27,7 @@
 			$vars = $this->config['vars']??[];
 			$auth_translations = $config['translations']??[];
 
-			$this->simple_auth = new SimpleAuth($config);
+			$this->simple_auth = new \Opensitez\Simplicity\SimpleAuth($config);
 			$login_template = $config['login_template']??"login.html";
 			$this->simple_auth->set_template(file_get_contents(__DIR__ . "/templates/$login_template"));		
 		}

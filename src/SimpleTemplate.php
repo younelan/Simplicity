@@ -1,4 +1,5 @@
 <?php
+namespace Opensitez\Simplicity;
 /*
     $content="hello world of themes";
     $theme="bootstrap";
