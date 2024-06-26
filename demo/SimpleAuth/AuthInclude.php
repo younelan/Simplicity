@@ -1,6 +1,6 @@
 <?php
 	/* demo implementation of the auth Class */
-	$simplicity_dir = dirname(dirname(__DIR__)) . "/lib";
+	$simplicity_dir = dirname(dirname(__DIR__)) . "/src";
 	require_once("$simplicity_dir/SimpleAuth.php");
 	/* list of users, for the demo an array of user */
 	require_once(__DIR__ .  "/users.php");

@@ -1,6 +1,6 @@
 <?php
 	/* basically include and require login before any password protected page */
-	//$simplicity_dir = dirname(__DIR__) . "/lib";
+	//$simplicity_dir = dirname(__DIR__) . "/src";
 	require_once(__DIR__ . "/AuthInclude.php");
 	require_once("$simplicity_dir/SimpleTemplate.php");
 	//print $simplicity_dir;exit;
