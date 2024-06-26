@@ -1,4 +1,6 @@
 <?php
+namespace Opensitez\Simplicity;
+
 class PHPTemplate {
     private $template;
     private $data = [];
