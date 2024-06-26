@@ -1,0 +1,6 @@
+vendor
+*.swap
+*.swp
+*.tmp
+temp
+tmp

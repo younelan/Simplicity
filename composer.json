@@ -1,0 +1,19 @@
+{
+    "name": "opensitez/simplicity",
+    "description": "Simple PHP Framework",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Opensitez\\Simplicity\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Youness El Andaloussi",
+            "email": "youness@elandaloussi.net"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
