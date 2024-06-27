@@ -95,7 +95,8 @@ class SimpleTemplate {
             '/nocache'=>'',
         ];
 
-        $retval = $this->substitute_vars($retval,$vars);
+	$retval = $this->substitute_vars($retval,$vars);
+	$retval = $this->substitute_vars($retval,$templatedefaults,"{{","}}");
         $this->parsed = $this->substitute_vars($retval,$vars);
         return $this->parsed;
     }
