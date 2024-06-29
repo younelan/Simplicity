@@ -9,6 +9,8 @@ The framework is meant to centralize code I have used on other projects to maxim
     - **SimpleTemplate**: a simple theme engine
     - **SimpleForm**: a simple form engine
     - **SimpleDebug**: a collapsible prettier alternative to print_r
+    - **SimpleCache**: caches a file for a specified amount of time
+    - **SimpleHttpRequest**: uses curl to fetch a file
 - **demo** directory: Samples using the simplicity Framework
     - **SimpleAuth** : Authentication Demo using SimpleAuth, SimpleTemplate
     - **SimpleTask** : Simple Task Manager with repeating tasks
