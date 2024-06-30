@@ -8,12 +8,11 @@ namespace Opensitez\Simplicity;
     $mytemplate -> render();
 */
 class SimpleTemplate {
-    var $FileName;
-    var $contents;
-    var $parsed;
-    var $templatevars;
-    var $templatevalues;
-    var $leftdelim="{{\$";
+    private $FileName;
+    private $contents;
+    private $parsed;
+    private $vars = [];
+    var $leftdelim="{{";
     var $rightdelim="}}";
 
     function __construct($templateName="") {
@@ -27,6 +26,15 @@ class SimpleTemplate {
             $this->contents=file_get_contents($templateName);
         }
       
+    }
+    public function setLeftDelim($leftdelim) {
+        $this->leftdelim =$leftdelim;
+    }
+    public function setRightDelim($rightdelim) {
+        $this->rightdelim =$rightdelim;
+    }
+    public function assign($var, $value) {
+        $this->vars[$var] = $value;
     }
     /* function setVars - this will set variable from an array key->value */
     function setVars($templatevars) {
@@ -73,6 +81,11 @@ class SimpleTemplate {
 
         $keys = array_map(fn($key) => $leftdelim . $key . $rightdelim, array_keys($vars));
         $values = array_values($vars);
+        foreach($values as $key=>$value) {
+            if(is_array($value)) {
+                $values[$key]="<<array>>";
+            }
+        }
         
         
         $contents = str_replace($keys,$values,$contents);
