@@ -1,24 +1,23 @@
 <?php
-	require_once("passwd.php");
-	require_once("backend/defaults.php");
-	require_once("adminprefs.php");
+require_once("passwd.php");
+require_once("backend/defaults.php");
+require_once("adminprefs.php");
 
-	// $auth->require_login();	
-	// print_r($_POST);
-	// print_r($_SESSION);
-	//exit;
-	if($_SERVER['REQUEST_METHOD']=='POST') {
-		$success = $auth->edit_password();
-		if(!$success) {
-			$auth->show_edit_password_form();
-			exit;
-		} else {
-			$vars['contentafter'] = nl2br(htmlentities($auth->generate_password_file()));
-			$auth->set_vars($vars);
-		}
-
+// $auth->require_login();	
+// print_r($_POST);
+// print_r($_SESSION);
+//exit;
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	$success = $auth->edit_password();
+	if (!$success) {
+		$auth->show_edit_password_form();
+		exit;
+	} else {
+		$vars['contentafter'] = nl2br(htmlentities($auth->generate_password_file()));
+		$auth->set_vars($vars);
 	}
-		$success = $auth->show_edit_password_form();
+}
+$success = $auth->show_edit_password_form();
 	// }
 	// print "success";
 /*

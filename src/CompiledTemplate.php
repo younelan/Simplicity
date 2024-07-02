@@ -1,24 +1,30 @@
 <?php
+
 namespace Opensitez\Simplicity;
 
-class PHPTemplate {
+class PHPTemplate
+{
     private $template;
     private $data = [];
 
-    public function __construct($template) {
+    public function __construct($template)
+    {
         $this->template = $template;
     }
 
-    public function assign($variable, $value) {
+    public function assign($variable, $value)
+    {
         $this->data[$variable] = $value;
     }
 
-    public function render() {
+    public function render()
+    {
         $output = $this->renderTemplate($this->template, $this->data);
         eval(' ?>' . $output . '<?php ');
     }
 
-    private function renderTemplate($template, $data) {
+    private function renderTemplate($template, $data)
+    {
         $output = preg_replace_callback('/{{(.*?)}}(.*?){{\/\1}}/s', function ($matches) use ($data) {
             $blockName = trim($matches[1]);
             $blockContent = $matches[2];
