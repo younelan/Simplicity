@@ -37,29 +37,29 @@ class SimpleAuth
 
         $this->translations = $config['translations'] ?? [];
 
-        $this->template = $this->config['template'] ?? '{{$content}}';  // Default page template
+        $this->template = $this->config['template'] ?? '{{content}}';  // Default page template
         $this->form_template = '
-            <h1 class="widgetheader">{{$Please Login}}</h1>
+            <h1 class="widgetheader">{{Please Login}}</h1>
 			<table class="loginform">
             <form method="POST" action="">
-                <input type="hidden" name="csrf_token" value="{{$csrf_token}}" />
-                <tr><td><label>{{$Login}}</label></td><td><input type="text" name="login" /></td></tr>
-                <tr><td><label>{{$Password}}</label></td><td><input type="password" name="password" /></td></tr>
-                <tr class=trailer><td colspan=2>{{$trailer}}</td></tr>
-                <tr><td colspan=2 align=right><button type="submit">{{$Connect}}</button></td></tr>
+                <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
+                <tr><td><label>{{Login}}</label></td><td><input type="text" name="login" /></td></tr>
+                <tr><td><label>{{Password}}</label></td><td><input type="password" name="password" /></td></tr>
+                <tr class=trailer><td colspan=2>{{trailer}}</td></tr>
+                <tr><td colspan=2 align=right><button type="submit">{{Connect}}</button></td></tr>
             </form>
 			</table>
         ';
         $this->edit_password_template = '
-            <h1 class="widgetheader">{{$Update Password}}</h1>
+            <h1 class="widgetheader">{{Update Password}}</h1>
             <form method="POST" action="?action=change_password">
-                <input type="hidden" name="csrf_token" value="{{$csrf_token}}" />
+                <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
                 <table class="loginform">
-                <tr><td><label>{{$Current Password}}</label></td><td><input type="password" name="current_password" /></td></tr>
-                <tr><td><label>{{$New Password}}</label></td><td><input type="password" name="new_password" /></td></tr>
-                <tr><td><label>{{$Confirm Password}}</label></td><td><input type="password" name="confirm_password" /></td></tr>
-                <tr><td colspan=2 align=right><button type="submit">{{$Update Password}}</button></td></tr>
-                <tr class=trailer><td colspan=2>{{$trailer}}</td></tr>
+                <tr><td><label>{{Current Password}}</label></td><td><input type="password" name="current_password" /></td></tr>
+                <tr><td><label>{{New Password}}</label></td><td><input type="password" name="new_password" /></td></tr>
+                <tr><td><label>{{Confirm Password}}</label></td><td><input type="password" name="confirm_password" /></td></tr>
+                <tr><td colspan=2 align=right><button type="submit">{{Update Password}}</button></td></tr>
+                <tr class=trailer><td colspan=2>{{trailer}}</td></tr>
                 </table>
             </form>
         ';
@@ -115,7 +115,7 @@ class SimpleAuth
         }
         foreach ($vars ?? [] as $key => $value) {
             if (!is_array($value)) {
-                $template = str_replace('{{$' . $key . "}}", $value, $template);
+                $template = str_replace('{{' . $key . "}}", $value, $template);
             }
         }
         $template = str_replace("{{nocache}}", "", $template);
