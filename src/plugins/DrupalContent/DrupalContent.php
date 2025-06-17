@@ -1,10 +1,21 @@
 <?php
 
-namespace Opensitez\Plugins;
+namespace Opensitez\Simplicity\Plugins;
 
-class DrupalContent extends DBLayer
+use Opensitez\Simplicity\MSG;
+
+class DrupalContent extends \Opensitez\Simplicity\DBLayer
 {
-
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->plugins->register('contentprovider', 'drupal');
+                break;
+        }
+        return parent::on_event($event);
+    }
+    
     function fetch_data($app)
     {
         $dbprefix = $app['dbprefix'] ?? "";

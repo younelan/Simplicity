@@ -1,9 +1,24 @@
 <?php
 
-namespace Opensitez\Plugins;
+namespace Opensitez\Simplicity\Plugins;
 
-class WPContent extends DBLayer
+use Opensitez\Simplicity\MSG;
+
+class WPContent extends \Opensitez\Simplicity\DBLayer
 {
+    public $name = "WPContent";
+    public $description = "WordPress Content Provider";
+
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a content provider for WordPress
+                $this->plugins->register('contentprovider', 'wordpress');
+                break;
+        }
+        return parent::on_event($event);
+    }
 
     function fetch_data($app)
     {

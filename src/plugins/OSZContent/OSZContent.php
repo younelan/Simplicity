@@ -1,9 +1,21 @@
 <?php
 
-namespace Opensitez\Plugins;
+namespace Opensitez\Simplicity\Plugins;
 
-class OSZContent extends DBLayer
+use Opensitez\Simplicity\MSG;
+
+class OSZContent extends \Opensitez\Simplicity\DBLayer
 {
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a content provider for OpenSite
+                $this->plugins->register('contentprovider', 'opensite');
+                break;
+        }
+        return parent::on_event($event);
+    }
 
     function fetch_data($app)
     {
