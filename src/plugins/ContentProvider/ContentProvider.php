@@ -12,6 +12,18 @@
         public $description="Adds a blog to the site";
         var $config=[];
         var $node_types=array();
+        
+        function on_event($event)
+        {
+            switch ($event['type']) {
+                case MSG::PluginLoad:
+                    // Register this plugin as a route type handler for blogs
+                    $this->plugins->register('routetype', 'blog');
+                    break;
+            }
+            return parent::on_event($event);
+        }
+        
         function get_menus($app=[]) {
             $menus = [
                 "content" => [
