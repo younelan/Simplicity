@@ -17,9 +17,6 @@ class Handler
         }
         // Load default plugins from library
         $this->load_default_plugins();
-        
-        // Second pass: call on_plugin_load for all loaded plugins
-        $this->initialize_plugins();
     }
     function getConfigObject()
     {
@@ -30,20 +27,24 @@ class Handler
     }
     function on_event($event)
     {
-        foreach ($this->plugins ?? [] as $name => $plugin) {
-            //print $plugin->name . " - $name <br/>";
-            if ($plugin->enabled) {
-                $plugin->on_event($event);
-            } else {
-                //print("$name not enabled");
+        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $plugin) {
+                //print $plugin->name . " - $name <br/>";
+                if ($plugin->enabled) {
+                    $plugin->on_event($event);
+                } else {
+                    //print("$name not enabled");
+                }
             }
         }
     }
     function set_handler($plugin_handler)
     {
-        foreach ($this->plugins ?? [] as $name => $plugin) {
-            if ($plugin) {
-                $plugin->set_handler($plugin_handler);
+        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $plugin) {
+                if ($plugin) {
+                    $plugin->set_handler($plugin_handler);
+                }
             }
         }
     }
@@ -59,17 +60,21 @@ class Handler
     }
     function load_default_plugins()
     {
-        // Load plugins from the default library plugins folder
+        // Load plugins from the default library plugins folder into 'core' group
         $default_plugins_path = __DIR__ . '/plugins';
         if (is_dir($default_plugins_path)) {
-            $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins');
+            $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins', 'core');
         }
     }
 
-    function load_plugins($curpath, $namespace = 'Opensitez\\Plugins')
+    function load_plugins($curpath, $namespace = 'Opensitez\\Plugins', $group = 'local')
     {
         if (!is_dir($curpath)) {
             return false;
+        }
+
+        if (!isset($this->plugins[$group])) {
+            $this->plugins[$group] = [];
         }
 
         $config_object = $this->getConfigObject();
@@ -90,10 +95,10 @@ class Handler
 
                     if (class_exists($classname)) {
                         $plugin_instance = new $classname($this->config_object);
-                        $this->plugins[strtolower($file)] = $plugin_instance;
+                        $this->plugins[$group][strtolower($file)] = $plugin_instance;
                         $plugin_instance->set_handler($this);
 
-                        echo "Loaded plugin: $file from namespace: $namespace\n<br/>";
+                        //echo "Loaded plugin: $file from namespace: $namespace into group: $group\n<br/>";
                     } else {
                         echo "Class $classname not found in $plugin_file\n<br/>";
                     }
@@ -108,8 +113,14 @@ class Handler
 
     function initialize_plugins()
     {
-        // Second pass: send plugin-load event to all loaded plugins
-        $this->on_event(['type' => MSG::PluginLoad]);
+        // Second pass: send plugin-load event to all loaded plugins in all groups
+        foreach ($this->plugins as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $plugin) {
+                if ($plugin && method_exists($plugin, 'on_event')) {
+                    $plugin->on_event(['type' => MSG::PluginLoad]);
+                }
+            }
+        }
     }
 
     function load_external_plugins($plugin_paths = [])
@@ -117,10 +128,11 @@ class Handler
         foreach ($plugin_paths as $path_config) {
             $path = $path_config['path'] ?? '';
             $namespace = $path_config['namespace'] ?? 'Opensitez\\Plugins';
+            $group = $path_config['group'] ?? 'local';
 
             if ($path && is_dir($path)) {
-                echo "Loading external plugins from: $path with namespace: $namespace\n<br/>";
-                $this->load_plugins($path, $namespace);
+                //echo "Loading external plugins from: $path with namespace: $namespace into group: $group\n<br/>";
+                $this->load_plugins($path, $namespace, $group);
             }
         }
     }
@@ -139,10 +151,12 @@ class Handler
         if (!$plugin_name) {
             // Find which plugin is calling this by looking at the backtrace
             $backtrace = debug_backtrace();
-            foreach ($this->plugins as $name => $plugin) {
-                if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $plugin) {
-                    $plugin_name = $name;
-                    break;
+            foreach ($this->plugins as $group => $group_plugins) {
+                foreach ($group_plugins as $name => $plugin) {
+                    if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $plugin) {
+                        $plugin_name = "$group.$name";
+                        break 2;
+                    }
                 }
             }
         }
@@ -152,7 +166,7 @@ class Handler
         }
         
         $this->registry[$type][$key] = ['plugin' => $plugin_name];
-        echo "Registered $type: $key -> $plugin_name\n<br/>";
+        //echo "Registered $type: $key -> $plugin_name\n<br/>";
     }
     
     function get_registered($type, $key)
@@ -171,14 +185,33 @@ class Handler
     
     function get_plugin($name)
     {
-        // foreach(array_keys($this->plugins) as $key) {
-        //   print $key . "<br>";
-        // }
-        if (isset($this->plugins[$name])) {
-            return $this->plugins[$name];
-        } else {
+        // Check if name contains dot notation (group.plugin)
+        if (strpos($name, '.') !== false) {
+            list($group, $plugin_name) = explode('.', $name, 2);
+            if (isset($this->plugins[$group][$plugin_name])) {
+                return $this->plugins[$group][$plugin_name];
+            }
             return false;
         }
+        
+        // No dot notation - search through all groups in order: core, local, then others
+        $search_order = ['core', 'local'];
+        
+        // Add any other groups to the search order
+        foreach (array_keys($this->plugins) as $group) {
+            if (!in_array($group, $search_order)) {
+                $search_order[] = $group;
+            }
+        }
+        
+        // Search through groups in order
+        foreach ($search_order as $group) {
+            if (isset($this->plugins[$group][$name])) {
+                return $this->plugins[$group][$name];
+            }
+        }
+        
+        return false;
     }
     function get_route_types()
     {
