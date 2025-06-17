@@ -6,17 +6,20 @@ class Handler
 {
     private $plugins = [];
     private $config_object = null;
+    private $registry = [];
 
     function on_init($config_object = null)
     {
         if ($config_object) {
             $this->config_object = $config_object;
         } else {
-            $this->config_object = new \Opensitez\Plugins\Config();
+            $this->config_object = new \Opensitez\Simplicity\Config();
         }
-        $this->config_object->on_init();
-        // $this->config_object=$config_object;
-        $this->config = $this->config_object->getLegacyConfig();
+        // Load default plugins from library
+        $this->load_default_plugins();
+        
+        // Second pass: call on_plugin_load for all loaded plugins
+        $this->initialize_plugins();
     }
     function getConfigObject()
     {
@@ -54,34 +57,74 @@ class Handler
             echo $render->show_page();
         }
     }
-    function load_plugins($curpath)
+    function load_default_plugins()
     {
+        // Load plugins from the default library plugins folder
+        $default_plugins_path = __DIR__ . '/plugins';
+        if (is_dir($default_plugins_path)) {
+            $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins');
+        }
+    }
+
+    function load_plugins($curpath, $namespace = 'Opensitez\\Plugins')
+    {
+        if (!is_dir($curpath)) {
+            return false;
+        }
+
         $config_object = $this->getConfigObject();
         $file_list = scandir($curpath);
+
         foreach ($file_list ?? [] as $file) {
-            $plugin_path = $curpath . "/$file/$file.php";
-            if ($file != "." && $file != "..") {
-                //print "Trying to load $file/$file.php\n<br/>";
+            if ($file === "." || $file === "..") {
+                continue;
+            }
 
-                if (is_dir($curpath . "/$file")) {
-                    if (file_exists($curpath . "/$file/$file.php")) {
+            $plugin_dir = $curpath . DIRECTORY_SEPARATOR . $file;
+            $plugin_file = $plugin_dir . DIRECTORY_SEPARATOR . $file . '.php';
 
-                        if (is_file($plugin_path)) {
-                            //print "loaded $plugin_path\n<br/>";
-                            include_once("$plugin_path");
-                            $classname = "\\Opensitez\\Plugins\\$file";
-                            if (class_exists($classname)) {
-                                $this->plugins[strtolower($file)] = new $classname($this->config_object);
-                                $this->plugins[strtolower($file)]->set_handler($this);
-                            }
-                        } else {
-                            print("Not a plugin $file\n");
-                        }
+            if (is_dir($plugin_dir) && file_exists($plugin_file)) {
+                try {
+                    include_once $plugin_file;
+                    $classname = $namespace . '\\' . $file;
+
+                    if (class_exists($classname)) {
+                        $plugin_instance = new $classname($this->config_object);
+                        $this->plugins[strtolower($file)] = $plugin_instance;
+                        $plugin_instance->set_handler($this);
+
+                        echo "Loaded plugin: $file from namespace: $namespace\n<br/>";
+                    } else {
+                        echo "Class $classname not found in $plugin_file\n<br/>";
                     }
+                } catch (Exception $e) {
+                    echo "Error loading plugin $file: " . $e->getMessage() . "\n<br/>";
                 }
             }
         }
+
+        return true;
     }
+
+    function initialize_plugins()
+    {
+        // Second pass: send plugin-load event to all loaded plugins
+        $this->on_event(['type' => MSG::PluginLoad]);
+    }
+
+    function load_external_plugins($plugin_paths = [])
+    {
+        foreach ($plugin_paths as $path_config) {
+            $path = $path_config['path'] ?? '';
+            $namespace = $path_config['namespace'] ?? 'Opensitez\\Plugins';
+
+            if ($path && is_dir($path)) {
+                echo "Loading external plugins from: $path with namespace: $namespace\n<br/>";
+                $this->load_plugins($path, $namespace);
+            }
+        }
+    }
+
     function getPaths()
     {
         if (!$this->config_object) {
@@ -89,6 +132,43 @@ class Handler
         }
         return $this->getConfigObject()->getPaths();
     }
+    
+    function register($type, $key, $plugin_name = null)
+    {
+        // If no plugin name provided, use the calling plugin
+        if (!$plugin_name) {
+            // Find which plugin is calling this by looking at the backtrace
+            $backtrace = debug_backtrace();
+            foreach ($this->plugins as $name => $plugin) {
+                if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $plugin) {
+                    $plugin_name = $name;
+                    break;
+                }
+            }
+        }
+        
+        if (!isset($this->registry[$type])) {
+            $this->registry[$type] = [];
+        }
+        
+        $this->registry[$type][$key] = ['plugin' => $plugin_name];
+        echo "Registered $type: $key -> $plugin_name\n<br/>";
+    }
+    
+    function get_registered($type, $key)
+    {
+        if (isset($this->registry[$type][$key])) {
+            $plugin_name = $this->registry[$type][$key]['plugin'];
+            return $this->get_plugin($plugin_name);
+        }
+        return null;
+    }
+    
+    function get_registered_list($type)
+    {
+        return $this->registry[$type] ?? [];
+    }
+    
     function get_plugin($name)
     {
         // foreach(array_keys($this->plugins) as $key) {

@@ -14,6 +14,7 @@ enum MSG
     case Authenticate;
     case RouteNotFound;
     case Error;
+    case PluginLoad;
 }
 class Plugin
 {
@@ -54,6 +55,9 @@ class Plugin
                 break;
             case MSG::Error:
                 break;
+            case MSG::PluginLoad:
+                // Override in child classes to handle plugin registration
+                break;
         }
 
         return false;
@@ -66,6 +70,12 @@ class Plugin
     function set_handler(&$handler)
     {
         $this->plugins = &$handler;
+    }
+    function on_plugin_load()
+    {
+        // Called when plugin is loaded, override in child classes
+        // Use this to register services, content providers, etc.
+        // DEPRECATED: Use on_event(['type' => MSG::PluginLoad]) instead
     }
     function get_route_types()
     {

@@ -18,7 +18,7 @@
             try {
                 $yamlData = Spyc::YAMLLoad($yamlFile);
                 if (is_array($yamlData)) {
-                    $this->settings = array_merge_recursive($this->settings, $yamlData);
+                    $this->settings = array_replace_recursive($this->settings, $yamlData);
                     return true;
                 }
             } catch (Exception $e) {
