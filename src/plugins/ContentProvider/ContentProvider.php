@@ -1,5 +1,7 @@
 <?php
-    namespace Opensitez\Plugins;
+    namespace Opensitez\Simplicity\Plugins;
+
+    use Opensitez\Simplicity\MSG;
 
     // require_once __DIR__ . "/OSZBlog.php";
     // require_once __DIR__ . "/WPBlog.php";
@@ -109,25 +111,26 @@
             $full_path=$app['route'] . "/$fname";
             $subtype=$app['subtype']??"osz";
 
-            switch(strtolower($subtype)) {
-                case "drupal":
-                    $blog=new \Opensitez\Cms\DrupalBlog($this->config_object);
-                    break;
-                case "wordpress":
-                    //print "hi wo";exit;
-                    $blog=new \Opensitez\Plugins\WPBlog($this->config_object);
-                    break;  
-                default:
-                    $blog=new \Opensitez\Plugins\OSZBlog($this->config_object);
-                break;
-
+            // Get content provider from registry instead of hardcoded switch
+            $content_provider = $this->plugins->get_registered('contentprovider', strtolower($subtype));
+            
+            if ($content_provider) {
+                $content_provider->connect();
+                $data = $content_provider->fetch_data($app);
+                $content = $this->render_results($data);
+                return $content;
+            } else {
+                // Fallback to default OSZ content provider if available
+                $default_provider = $this->plugins->get_registered('contentprovider', 'osz');
+                if ($default_provider) {
+                    $default_provider->connect();
+                    $data = $default_provider->fetch_data($app);
+                    $content = $this->render_results($data);
+                    return $content;
+                }
+                
+                return "Content provider for type '$subtype' not found.";
             }
-            $blog->set_handler($this->plugins);
-            $blog->connect();
-            $data = $blog->fetch_data($app);
-            $content = $this->render_results($data);
-            return $content;
-
         }
     }
 
