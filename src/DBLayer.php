@@ -35,12 +35,16 @@ class DBLayer extends \Opensitez\Simplicity\Plugin
 
     public function connect()
     {
-        $globals = $this->config_object->getGlobals();
-        //print_r($defaults);exit;
-        $current_site = $this->config_object->getCurrentSite();
-        $app = $this->config_object->getApp();
-        $connection_name = $globals['defaults']['db'];
-        $this->dbconfig = $globals['connections'][$connection_name];
+        $globals = $this->config_object->get('defaults');
+        $connections = $this->config_object->get('connections');
+        $current_site = $this->config_object->get('site');
+        $connection_name=$this->config_object->get('site.db');
+        $this->dbconfig = $connections[$connection_name] ?? [];
+        //print_r($this->dbconfig);exit;
+        //$current_site = $this->config_object->getCurrentSite();
+        //$app = $this->config_object->getApp();
+        //$connection_name = $globals['defaults']['db'];
+        //$this->dbconfig = $globals['connections'][$connection_name];
         if ($this->dbconfig['driver'] ?? "" == "mysql") {
             $this->connection = new PDO("mysql:host=" . $this->dbconfig['host'] . ";dbname=" .
                 $this->dbconfig['db'] . ";charset=utf8", $this->dbconfig['user'], $this->dbconfig['password']);
@@ -325,15 +329,15 @@ class DBLayer extends \Opensitez\Simplicity\Plugin
     }
     public function get_data($queryparams, $show_query = false)
     {
-        $config = $this->config_object->getGlobals();
+        $config = $this->config_object->get('site');
+        $limit = $config['limit'] ?? $this->config_object->get('defaults.limit')??20;
+
         $dbconfig = $this->dbconfig ?? false;
-        if ($queryparams['database']) {
-            $database = $queryparams['database'];
-        } else {
-            if (!$this->dbconfig) {
-                $this->connect();
-            }
+        //$database = $queryparams['database'] ?? $this->dbconfig['db'];
+        if (!$this->dbconfig) {
+            $this->connect();
         }
+
         $database = $queryparams['database'] ?? $this->dbconfig['db'];
         $table = $queryparams['table'] ?? 'nodes';
         $dbprefix = $queryparams['dbprefix'] ?? "";
@@ -350,12 +354,12 @@ class DBLayer extends \Opensitez\Simplicity\Plugin
         if (!is_array($field_array)) {
             $field_array = [$field_array];
         }
-        $limit = $queryparams['limit'] ?? $config['limit'] ?? false;
+        $limit = $queryparams['limit'] ?? $limit ?? false;
 
         if (isset($queryparams['limit']) && ($queryparams['limit'] > 0)) {
             $limit = " LIMIT " . $queryparams['limit'] . " ";
-        } else if (isset($this->config['limit']) && ($this->config['limit'] > 0)) {
-            $limit = " LIMIT " . $this->config['limit'] . " ";
+        } else if (isset($this->config['limit']) && ($limit > 0)) {
+            $limit = " LIMIT " . $limit . " ";
         } else {
             $limit = "";
         }
@@ -459,7 +463,7 @@ class DBLayer extends \Opensitez\Simplicity\Plugin
     {
         //print($sql);exit;
 
-        $dbname = $this->config['db']['db'] ?? "";
+        $dbname = $this->dbconfig['db'] ?? "";
         // if($dbname)
         // {
         //     print $dbname;exit;
