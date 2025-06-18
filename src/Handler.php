@@ -18,26 +18,23 @@ class Handler
         // Load default plugins from library
         $this->load_default_plugins();
     }
+
     function getConfigObject()
     {
-        if (!$this->config_object) {
-            $this->on_init();
-        }
         return $this->config_object;
     }
+
     function on_event($event)
     {
         foreach ($this->plugins ?? [] as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
-                //print $plugin->name . " - $name <br/>";
                 if ($plugin->enabled) {
                     $plugin->on_event($event);
-                } else {
-                    //print("$name not enabled");
                 }
             }
         }
     }
+
     function set_handler($plugin_handler)
     {
         foreach ($this->plugins ?? [] as $group => $group_plugins) {
@@ -52,7 +49,7 @@ class Handler
     {
         $render_plugin = "routing";
 
-
+ 
         if (!isset($no_template_output)) {
             $render = $this->plugins[$render_plugin] ?? false;
             echo $render->show_page();
@@ -77,7 +74,6 @@ class Handler
             $this->plugins[$group] = [];
         }
 
-        $config_object = $this->getConfigObject();
         $file_list = scandir($curpath);
 
         foreach ($file_list ?? [] as $file) {
@@ -136,15 +132,13 @@ class Handler
             }
         }
     }
-
     function getPaths()
     {
         if (!$this->config_object) {
             $this->on_init();
         }
-        return $this->getConfigObject()->getPaths();
+        return $this->config_object.get('paths');
     }
-    
     function register($type, $key, $plugin_name = null)
     {
         // If no plugin name provided, use the calling plugin
@@ -213,20 +207,21 @@ class Handler
         
         return false;
     }
-    function get_route_types()
-    {
-        $types = [];
-        foreach ($this->plugins as $name => $plugin) {
-            $route_types = $plugin->get_route_types();
-            if ($route_types) {
-                foreach ($route_types as $route_name => $route_type) {
-                    $types[$route_name] = $route_type['name'];
-                }
-            }
-            $types[$name] = $route_type['name'];
-        }
-        return $types;
-    }
+    // function get_route_types()
+    // {
+    // Keeping for now in case we need backwards compatibility
+    //     $types = [];
+    //     foreach ($this->plugins as $name => $plugin) {
+    //         $route_types = $plugin->get_route_types();
+    //         if ($route_types) {
+    //             foreach ($route_types as $route_name => $route_type) {
+    //                 $types[$route_name] = $route_type['name'];
+    //             }
+    //         }
+    //         $types[$name] = $route_type['name'];
+    //     }
+    //     return $types;
+    // }
     function gen_menu()
     {
         $newmenu = "";
