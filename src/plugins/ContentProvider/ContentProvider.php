@@ -19,6 +19,7 @@
                 case MSG::PluginLoad:
                     // Register this plugin as a route type handler for blogs
                     $this->plugins->register('routetype', 'blog');
+                    $this->plugins->register('routetype', 'content');
                     break;
             }
             return parent::on_event($event);
@@ -100,7 +101,7 @@
                     }
 
                 }
-                $row['body']=$block_plugin->render_insert_text($row['body'],$options);
+                //$row['body']=$block_plugin->render_insert_text($row['body'],$options);
                 $output .= "<div class=blog-post>\n
     <header class='entry-header'>
     <h1 class='entry-title blog-header'>
@@ -119,9 +120,11 @@
             } else {
                 $this->app=$app;
             }
-            $fname=substr($_SERVER['REQUEST_URI'],strlen($app['route'])+2);
+
+            //$fname=substr($_SERVER['REQUEST_URI'],strlen($app['route'])+2);
+            $fname=$app['path'];
             $full_path=$app['route'] . "/$fname";
-            $subtype=$app['subtype']??"osz";
+            $subtype=$app['subtype']??"opensite";
 
             // Get content provider from registry instead of hardcoded switch
             $content_provider = $this->plugins->get_registered('contentprovider', strtolower($subtype));
