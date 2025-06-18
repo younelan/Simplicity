@@ -70,4 +70,30 @@
             return true;
         }
 
+        /**
+     * Get the web root path based on current script location
+     * @return string The web root path (e.g., '/impress/public' or '')
+     */
+    public function getWebRoot(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+
+        $baseDir = dirname($scriptName);
+        
+        if ($baseDir === '/') {
+            $baseDir = '';
+        }
+
+        return $baseDir;
+    }
+
+    /**
+     * Set the web root path in the paths configuration
+     */
+    public function setWebRoot(): void
+    {
+        $webRoot = $this->getWebRoot();
+        $this->set('paths.webroot', $webRoot);
+    }
+
     }
