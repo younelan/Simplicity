@@ -75,7 +75,7 @@
             $full_path=@$this->config['blog_path'];
 
             if(!$full_path)
-                $full_path=$this->app['route']??""; 
+                $full_path=$this->app['name']??""; 
             $blog_path=$full_path;
 
             if($full_path=="/") $full_path="default/";
@@ -83,10 +83,10 @@
                 $results=[];
             }
             foreach($results as $row) {
-                $blog_path="$full_path/" . trim( $row['slug'], "/");
-                if($this->app['path']??"")
-                    $blog_path="$full_path/" . $row['slug'];
-                //print $blog_path;exit;
+                // Build proper relative path: route/post-slug
+                $route = $this->app['route'] ?? $full_path;
+                $blog_path = $route . '/' . trim($row['slug'], '/');
+                
                 if( isset($this->node_types[intval($row['node_type'])])) {
                 if(isset($this->node_types) && $this->node_types && isset($this->node_types[$row['node_type']]['fields']))
                     foreach($this->node_types[$row['node_type']]['fields'] as $field_id=>$field_name) {
@@ -101,11 +101,11 @@
                     }
 
                 }
-                //$row['body']=$block_plugin->render_insert_text($row['body'],$options);
+                $row['body']=$block_plugin->render_insert_text($row['body'],$options);
                 $output .= "<div class=blog-post>\n
     <header class='entry-header'>
     <h1 class='entry-title blog-header'>
-    <a href='/". $blog_path . "'>\n" . $row['title'] . "</a></h1>
+    <a href='" . $blog_path . "'>\n" . $row['title'] . "</a></h1>
     </header>
     " . $row['body'] . "\n</div>\n";
             }
@@ -123,7 +123,7 @@
 
             //$fname=substr($_SERVER['REQUEST_URI'],strlen($app['route'])+2);
             $fname=$app['path'];
-            $full_path=$app['route'] . "/$fname";
+            $full_path=$app['name'] ?? $app['route'];
             $subtype=$app['subtype']??"opensite";
 
             // Get content provider from registry instead of hardcoded switch
@@ -147,5 +147,6 @@
                 return "Content provider for type '$subtype' not found.";
             }
         }
+
     }
 
