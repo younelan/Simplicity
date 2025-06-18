@@ -37,14 +37,29 @@ class DrupalContent extends \Opensitez\Simplicity\DBLayer
             "fields" => ["name"],
             "limit" => 1
         ];
-
+        $version = 0;
         $querystr = $app['path'] ?? "";
         if (isset($app['database'])) {
             $query10["database"] = $app['database'];
             $query7["database"] = $app['database'];
         }
-        if ($this->get_data($query10)) {
+        try {
+            $this->get_data($query10);
             $version = 10;
+        } catch (\Exception $e) {
+            $version = 0;
+        }
+        if(!$version) {
+            try {
+                $this->get_data($query7);
+                $version = 7;
+            } catch (\Exception $e) {
+                $version = 0;
+            }
+        }
+
+        
+        if ($version === 10) {
             $body_table = "node__body b";
             $alias_table = "path_alias";
             $alias_source = "a.path";
@@ -64,8 +79,7 @@ class DrupalContent extends \Opensitez\Simplicity\DBLayer
                 "limit" => "65",
                 "orderby" => "d.changed DESC,d.created DESC"
             ];
-        } elseif ($this->get_data($query7)) {
-            $version = 7;
+        } elseif ($version === 7) {
             if ($version == 10) {
                 $querystr = "$querystr";
             }
@@ -87,9 +101,29 @@ class DrupalContent extends \Opensitez\Simplicity\DBLayer
                 "limit" => "65",
                 "orderby" => "n.changed DESC,n.created DESC"
             ];
-        } else {
-            $version = -1;
-        }
+        } elseif ($version < 7) {
+            if ($version == 10) {
+                $querystr = "$querystr";
+            }
+            $body_table = "field_data_body b";
+            $alias_table = "url_alias";
+            $alias_source = "a.source";
+            $query = [
+                "dbprefix" => $dbprefix,
+                "table" => "node n",
+                "fields" => ["n.nid as id ", "n.type as node_type", "b.body_value as body", "a.alias as slug", "$alias_source", "n.title", "n.created", "n.changed"],
+                "where" => [
+                    ["field" => "alias", "value" => "$querystr"],
+                    ["type" => "OR", "field" => "source", "value" => "$querystr"],
+                ],
+                "joins" => [
+                    ["type" => "left", "table" => $body_table, "from" => "n.nid", "to" => "b.entity_id"],
+                    ["type" => "left", "table" => "$alias_table a", "from" => "$alias_source", "to" => "concat('node/',n.nid)"],
+                ],
+                "limit" => "65",
+                "orderby" => "n.changed DESC,n.created DESC"
+            ];
+        } 
 
         //print_r($results);
 
@@ -104,7 +138,10 @@ class DrupalContent extends \Opensitez\Simplicity\DBLayer
             $query['database'] = $database;
 
         $results = $this->get_data($query);
+
+        // Return results as-is, let ContentProvider handle URL building
         return $results;
+        
     }
 }
 /*                ["type"=>"left", "from"=>"","to"=>""],*/
