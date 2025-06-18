@@ -3,10 +3,6 @@
 
     use Opensitez\Simplicity\MSG;
 
-    // require_once __DIR__ . "/OSZBlog.php";
-    // require_once __DIR__ . "/WPBlog.php";
-    // require_once __DIR__ . "/DrupalBlog.php";
-    
     class ContentProvider extends \Opensitez\Simplicity\Plugin {
         public $name="ContentProvider";
         public $description="Adds a blog to the site";
@@ -83,9 +79,16 @@
                 $results=[];
             }
             foreach($results as $row) {
-                // Build proper relative path: route/post-slug
-                $route = $this->app['route'] ?? $full_path;
-                $blog_path = $route . '/' . trim($row['slug'], '/');
+                // Build absolute URL: scriptPath/route/slug
+                $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+                $basePath = dirname($scriptName); // /impress/public
+                $route = $this->app['route'] ?? $full_path; // umami
+                
+                // Build the full absolute path
+                $blog_path = $basePath . '/' . $route . '/' . ltrim($row['slug'], '/');
+                
+                // Clean up any double slashes
+                $blog_path = preg_replace('#/+#', '/', $blog_path);
                 
                 if( isset($this->node_types[intval($row['node_type'])])) {
                 if(isset($this->node_types) && $this->node_types && isset($this->node_types[$row['node_type']]['fields']))
