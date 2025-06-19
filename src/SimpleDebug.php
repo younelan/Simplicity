@@ -20,15 +20,16 @@ class SimpleDebug
     {
         $this->template = $var;
     }
-    function printArray($array, $depth = 0)
+    function printArray($array, $visible_depth = 1, $depth = 0)
     {
         $output = '';
 
         foreach ($array as $key => $value) {
             $has_children = is_array($value);
+            $is_expanded = $depth < $visible_depth ? 'open' : '';
 
             $output .= '<div class="array-item" data-depth="' . $depth . '">';
-            $output .= '<details><summary class="array-key">' . htmlentities($key);
+            $output .= '<details ' . $is_expanded . '><summary class="array-key">' . htmlentities($key);
             $output .= '<button class="toggle-children-recursive-btn toggle-children-btn" onclick="toggleChildrenRecursive(this)">▼</button>';
             $output .= '</summary>';
             $output .= '<div class="details-content">';
@@ -53,7 +54,7 @@ class SimpleDebug
                 }
 
                 // Recurse for child arrays
-                $output .= $this->printArray($value, $depth + 1); // Recursive call with increased depth
+                $output .= $this->printArray($value, $visible_depth, $depth + 1); // Recursive call with increased depth
             }
 
             $output .= '</div></details>';
