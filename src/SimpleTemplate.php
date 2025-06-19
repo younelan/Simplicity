@@ -97,8 +97,9 @@ class SimpleTemplate
             }
         }
 
-
-        $contents = str_replace($keys, $values, $contents);
+        if ($keys) {
+          $contents = str_replace($keys, $values??[], $contents??"");
+        }
         return $contents;
     }
     /* function to render a template pass*/
