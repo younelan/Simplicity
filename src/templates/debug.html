@@ -1,14 +1,19 @@
 <style>
     .array-item {
-        margin-left: 20px; /* Adjust the indent as needed */
+        margin-left: 0px; /* Reset margin for consistent alignment */
     }
     .array-key {
         font-weight: bold;
         color: #337ab7;
     }
     .array-value {
-        margin-left: 20px; /* Adjust the indent as needed */
+        margin-left: 20px; /* Indent scalar values */
         color: #333;
+    }
+    
+    /* Indent expandable details to align with scalar values */
+    details {
+        margin-left: 20px; /* Same indent as scalar values */
     }
     .array-container {
         margin: 10px;
@@ -36,20 +41,51 @@
 }
 
 .child-value {
-    height: 20px;
+    height: auto;
+    min-height: 20px;
     vertical-align: top;
     color: #1b3349;
     background-color: #dddaed;
     padding: 3px;
     padding-left: 10px;
-    padding-right:10px;
+    padding-right: 10px;
     display: inline-block;
     margin-right: 5px;
+    word-wrap: break-word;
+    word-break: break-all;
+    max-width: 70%;
+}
+
+.child-value.long-value {
+    display: block;
+    margin-top: 2px;
+    width: 100%;
+}
+
+.toggle-text-btn {
+    background-color: #337ab7;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    border-radius: 3px;
+}
+
+.toggle-text-btn:hover {
+    background-color: #23527c;
 }
 
 .array-value {
-    display: inline-block;
-    margin-right: 5px; /* Adjust margin as needed */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-right: 5px;
+}
+
+.array-value:has(.long-value) {
+    flex-direction: column;
 }
 
 .array-item > details > .details-content {
@@ -119,6 +155,21 @@ function toggleChildrenRecursive(button) {
     } else {
         details.setAttribute('open', 'true');
         button.textContent = '▶';
+    }
+}
+
+function toggleLongText(button) {
+    var shortText = button.parentNode.querySelector('.short-text');
+    var fullText = button.parentNode.querySelector('.full-text');
+    
+    if (fullText.style.display === 'none') {
+        shortText.style.display = 'none';
+        fullText.style.display = 'inline';
+        button.textContent = 'Show Less';
+    } else {
+        shortText.style.display = 'inline';
+        fullText.style.display = 'none';
+        button.textContent = 'Show More';
     }
 }
 
