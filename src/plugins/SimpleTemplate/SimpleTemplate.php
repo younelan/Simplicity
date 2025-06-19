@@ -11,6 +11,15 @@ class SimpleTemplate extends \Opensitez\Simplicity\Plugin
     protected $vars = [];
     var $left_delim = "{{";
     var $right_delim = "}}";
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->plugins->register('templateengine', 'simpletemplate');
+                break;
+        }
+        return parent::on_event($event);
+    }
     public function getLeftDelim()
     {
         return $this->left_delim;
@@ -43,10 +52,19 @@ class SimpleTemplate extends \Opensitez\Simplicity\Plugin
             $this->template_engine->assign($var, $value);
         }
     }
-    function render($master)
+    function render($master, $show = false)
     {
+        //print $show;exit;
         $template = new \Opensitez\Simplicity\SimpleTemplate();
         $template_string = $master;
-        print $template->render($template_string, $this->vars);
+        $rendered = $template->render($template_string, $this->vars);
+
+        if ($show) {
+            echo $rendered;
+            return $rendered;
+        } else {
+            return $rendered;
+        }
+    
     }
 }

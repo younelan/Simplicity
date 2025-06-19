@@ -12,6 +12,15 @@ class TwigTemplate extends \Opensitez\Simplicity\Plugin
     protected $vars = [];
     private $left_delim = "{{";
     private $right_delim = "}}";
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->plugins->register('templateengine', 'twigtemplate');
+                break;
+        }
+        return parent::on_event($event);
+    }
     public function getLeftDelim()
     {
         return $this->left_delim;
