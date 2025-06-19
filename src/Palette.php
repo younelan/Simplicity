@@ -10,9 +10,9 @@ class Palette extends \Opensitez\Simplicity\Plugin
     var $defaults = false;
     function render($app)
     {
-        $this->current_site = $this->config_object->getCurrentSite();
-        $defaults = $this->config_object->getDefaults();
-        $this->paths = $this->config_object->getPaths();
+        $this->current_site = $this->config_object->get('site');
+        $defaults = $this->config_object->get('defaults');
+        $this->paths = $this->config_object->get('paths');
         $this->basedir = $this->paths['core-templates'];
         $palette = $_SESSION['user_data']['palette'] ?? $this->current_site['vars']['palette'] ?? $this->defaults['vars']['palette'] ?? "desktop";
         if (isset($this->current_site['palettes'][$palette])) {
@@ -21,7 +21,7 @@ class Palette extends \Opensitez\Simplicity\Plugin
             $palette_details = $this->current_site['palettes'][$palette];
         } else {
             $palette = $this->config['vars']['palette'] ?? "desktop";
-            $palette_details = $this->defaults['palettes'][$palette];
+            $palette_details = $this->defaults['palettes'][$palette] ?? [];
         }
         $styles = "";
         $style_files = $palette_details['css'] ?? [];
