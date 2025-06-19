@@ -90,10 +90,12 @@
     /**
      * Set the web root path in the paths configuration
      */
-    public function setWebRoot(): void
+    public function setWebRoot(): string
     {
         $webRoot = $this->getWebRoot();
         $this->set('paths.webroot', $webRoot);
+
+        return $webRoot;    
     }
 
     }
