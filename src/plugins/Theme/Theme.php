@@ -1,0 +1,225 @@
+<?php
+namespace Opensitez\Simplicity\Plugins;
+
+use Opensitez\Simplicity\MSG;
+
+class Theme extends \Opensitez\Simplicity\Plugin
+{
+    private $template_engine;
+    private $current_site;
+    private $defaults;
+    private $paths;
+    private $default_template;
+    private $default_theme;
+    private $current_theme;
+    private $themedir;
+    private $options;
+    private $current_template;
+    private $i18n;
+    private $master;
+    private $theme;
+    private $pagestyle;
+    private $template;
+    protected $charset;
+    protected $app;
+    protected $site;
+    protected $themepath;
+    function init_paths()
+    {
+        $print_config = $this->config_object->get('debug') ?? true;
+        $this->i18n = $this->plugins->get_plugin("i18n");
+        $this->current_site = $this->config_object->get('site');
+        $this->defaults = $this->config_object->get('defaults');
+        $this->paths = $this->config_object->get('paths');
+        $this->default_template = $this->defaults['definition']['template'] ?? "main.tpl";
+        $this->default_theme = $this->defaults['definition']['theme'] ?? "bootstrap";
+        $this->charset = $this->current_site['vars']['charset'] ?? $this->defaults['charset'] ?? "UTF-8";
+
+        $this->current_theme = $this->current_site['vars']['theme'] ?? "";
+        if (!$this->current_theme) {
+            $this->current_theme = $this->defaults['theme'] ?? "bootstrap";
+        }
+        $webdir = rtrim($this->paths['webroot'], "/");
+        $this->current_site['path'] = $this->paths['sitepath'];
+        $this->current_site['vars']['webbase'] = $this->paths['base'];
+
+        if (is_dir($this->paths['themes'] . "/" . $this->current_theme)) {
+            $this->themedir = $this->paths['themes'] . "/" . $this->current_theme;
+            $this->themepath = $this->paths['webroot'] . "/themes/" . $this->current_theme;
+        } 
+        // elseif (is_dir($this->paths['base'] . "/local/themes/" . $this->current_theme)) {
+        //     $this->themedir = "local/themes/" . $this->current_theme;
+        //     $this->themepath = $this->paths['base'] . "/local/themes/" . $this->current_theme;
+        //     $this->config_object->set('site.themepath', $this->themepath);
+        // } 
+        else {
+            $this->themedir = $this->paths['webroot'] . "/local/themes/" . $this->current_theme;
+            $this->themepath = $this->paths['base'] . "/local/themes/" . $this->current_theme;
+        }
+        $themefile = $this->themedir . "/theme.yaml";
+        $this->config_object->set('site.themepath', $this->themepath);
+        $this->config_object->set('site.themefile', $themefile);
+        //print $themefile . "<br/>";exit;
+        $this->config_object->mergeYaml('site.theme', "$themefile");
+        $theme_config = $this->config_object->get('site.theme');
+        foreach ($theme_config['sections'] as $section => $details) {
+            if (isset($details['file'])) {
+                $fullpath = $this->themedir . "/" . $details['file'];
+                $theme_config['sections'][$section]['fullpath'] = $fullpath;
+                if(is_file($fullpath)) {
+                    $theme_config['sections'][$section]['contents'] = file_get_contents($fullpath);
+                } else {
+                    $theme_config['sections'][$section]['contents'] = "";
+                }
+            }
+        }
+
+        $masterfile = $theme_config['vars']['master-template'] ?? 'master.tpl';
+        $masterpath = $this->themedir . "/$masterfile";
+        $this->master = file_get_contents($masterpath);
+
+        $this->config_object->set('site.theme', $theme_config);
+
+
+    }
+    function replace_paths($string, $path)
+    {
+        foreach ($this->paths as $key => $value) {
+            if (is_array($value)) {
+                continue; // Skip arrays
+            }
+            $string = str_replace("{{$key}}", $value, $string);
+            $string = str_replace("{{themepath}}", $this->themepath, $string);
+        }
+        
+        return $string;
+    }
+    function assign_template_vars()
+    {
+
+        $left_delim = $this->template_engine->getLeftDelim();
+        $right_delim = $this->template_engine->getRightDelim();
+
+        $palette = $this->get_palette($this->app);
+        $config = $this->config_object->get('site');
+
+        $this->init_paths();
+
+    
+        $menumaker = new Menu($this->config_object);
+        $menumaker->set_handler($this->plugins);
+        // print_r($current_site);exit;
+
+        $menuopts = [
+            "linkclass" => "nav-link",
+            "menuclass" => "nav-item",
+        ];
+
+        if ($this->current_site['vars']['skipmenu'] ?? []) {
+            $menuopts['skip'] = $this->current_site['vars']['skipmenu'] ?? false;
+        }
+        $menus= $this->current_site['definition']['navigation'] ?? [];
+
+        $navigation = $menumaker->make_menu($menus ?? [], $menuopts);
+
+        $this->template_engine->assign("themepath", $this->current_site['themepath']);
+        $this->template_engine->assign("sitepath", $this->paths['sitepath'], true);
+        $this->template_engine->assign("navigationmenu", $navigation);
+
+        $this->template_engine->assign("webroot", $this->paths['webroot'], true);
+        $this->template_engine->assign("host", $this->current_site['domain'], true);
+        $this->theme = $this->current_site['theme'] ?? $this->defaults['theme'] ?? "$this->default_theme";
+        $this->pagestyle = '';
+
+        foreach ($this->current_site["style"] ?? [] as $key => $value) {
+            $this->pagestyle .= "      $key {" . $value . ";}\n";
+        }
+        $this->pagestyle = "$palette\n<style>\n$this->pagestyle\n</style>\n\n";
+
+        foreach ($this->current_site['theme']['js'] ?? [] as $script) {
+            $script = $this->replace_paths($script, $this->themepath);
+            $this->pagestyle .= "<script src='$script'></script>\n";
+        }
+
+        foreach ($this->current_site['theme']["css"] ?? [] as $sheet) {
+            $sheet = $this->replace_paths($sheet, $this->themepath);
+            $this->pagestyle .= "<link href='$sheet' type='text/css' rel='stylesheet'>\n";
+        }
+
+        $template_arrays = [
+            "blocks" => $this->current_site["blocks"] ?? [], "colors" => $this->defaults["colors"] ?? [],
+                         "vars" => $this->current_site['vars'] ?? [], "var2s" => $this->current_site['definition']['vars'] ?? [],
+        ];
+        $this->template_engine->assign("pagestyle", $this->pagestyle);
+        $this->template_engine->assign("title", $this->current_site['definition']['vars']['title']??"");
+        foreach ($template_arrays as $array_name => $tmp_array) {
+            foreach ($tmp_array as $idx => $value) {
+                $this->template_engine->assign($idx, $value, true);
+            }
+        }
+        
+    }
+    function on_render_templates($app)
+    {
+        $theme = $this->config_object->get('site.theme');
+        $sections = [];
+        foreach ( $theme['sections'] as $section => $details) {
+            $sections[$section] = $this->template_engine->render($details['contents'] ?? '',false) ;
+            $this->template_engine->assign($section, $sections[$section]);
+            //print $section . " - " . $this->template_engine->render($details['contents'] ?? '') . "<br/>\n";
+        }
+        //$this->template_engine->assign("content","");
+        
+        $rendered = $this->template_engine->render($this->master,false);
+        print "$rendered";
+
+    }
+    function show_debug()
+    {
+        $this->init_paths();
+        
+        $debug_obj = new \Opensitez\Simplicity\SimpleDebug();
+
+        print "<h3>Current Site</h3>";
+        $current_site =$this->config_object->get('site');
+
+        $debug = [
+            'paths' => $this->paths,
+            'theme' => "$this->current_theme - $this->themedir",
+            'themepath' => $this->themepath,
+            'template' => $this->default_template,
+            'charset' => $this->charset,
+        ];
+
+        print $debug_obj->printArray($debug,3);
+        print $debug_obj->printArray($current_site,3);
+    }
+    function on_render_page($app) {
+        $this->init_paths();
+        //$this->show_debug();
+        $engine = $this->config_object->get('site.theme.engine') ?? 'simplicity';
+        $this->app = $app;
+        $template_engine = $this->plugins->get_registered('templateengine', strtolower($engine));
+        
+        if ($template_engine) {
+            $this->template_engine = $template_engine;
+        } else {
+            print "Template engine '$engine' not found, falling back to default.<br/>";
+            // Fallback to default SimpleTemplate if available
+            $default_engine = $this->plugins->get_registered('templateengine', 'simpletemplate');
+            if ($default_engine) {
+                $this->template_engine = $default_engine;
+            } else {
+                throw new \Exception("Template engine '$engine' not found and no default available.");
+            }
+        }
+        
+        $this->template_engine->set_handler($this->plugins);
+        $this->template_engine->engine_init();
+        $this->assign_template_vars();
+        $rendered = $this->on_render_templates($app);
+
+        //$this->render($app);
+        exit;
+    }
+}
