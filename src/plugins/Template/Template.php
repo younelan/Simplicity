@@ -21,6 +21,9 @@ class Template extends \Opensitez\Simplicity\Plugin
     private $theme;
     private $pagestyle;
     private $template;
+    protected $charset;
+    protected $app;
+
     function register_engine($name, $engine)
     {
         self . $engines[$name];
@@ -29,18 +32,23 @@ class Template extends \Opensitez\Simplicity\Plugin
     function init_paths()
     {
         $this->i18n = $this->plugins->get_plugin("i18n");
-        $this->current_site = $this->config_object->getCurrentSite();
-        $this->defaults = $this->config_object->getDefaults();
-        $this->paths = $this->config_object->getPaths();
-        $this->default_template = $this->defaults['template'] ?? "main.tpl";
-        $this->default_theme = $this->defaults['theme'] ?? "bootstrap";
+        $this->current_site = $this->config_object->get('site');
+        $this->defaults = $this->config_object->get('defaults');
+        $this->paths = $this->config_object->get('paths');
+        $this->default_template = $this->defaults['definition']['template'] ?? "main.tpl";
+        $this->default_theme = $this->defaults['definition']['theme'] ?? "bootstrap";
+        $this->charset = $this->current_site['vars']['charset'] ?? $this->defaults['charset'] ?? "UTF-8";
+    
+        // print "<pre>";
+        // print_r($this->current_site);
 
+        // print_r($this->paths);
         // $this->template_engine = new SmartyTemplate($this->config_object());
         $this->current_theme = $this->current_site['vars']['theme'] ?? "";
         if (!$this->current_theme)
             $this->current_theme = $this->defaults['theme'] ?? "bootstrap";
-        $webdir = rtrim($this->paths['webdir'], "/");
-        $this->current_site['vars']['sitepath'] = $this->paths['sitepath'];
+        $webdir = rtrim($this->paths['webroot'], "/");
+        $this->current_site['path'] = $this->paths['sitepath'];
         $this->current_site['vars']['webbase'] = $this->paths['base'];
 
         if (is_dir($this->paths['datafolder'] . "/themes/" . $this->current_theme)) {
@@ -81,17 +89,17 @@ class Template extends \Opensitez\Simplicity\Plugin
             if (!$this->current_template)
                 $this->current_template = $this->default_template;
 
-            $local_theme_file =  $this->paths['datafolder'] . "/themes/$this->current_theme/$this->current_template";
+            $local_theme_file =  $this->paths['themes'] . "/$this->current_theme/$this->current_template";
             $core_theme_file = $this->paths['base'] . "/core/themes/$this->current_theme/$this->current_template";
-            if (@file_exists($this->paths['datafolder'] . "/themes/$this->current_theme/$this->current_template")) {
-                $this->template = $this->paths['datafolder'] . "/themes/$this->current_theme/$this->template";
+            if (@file_exists($local_theme_file)) {
+                $this->template = $local_theme_file;
                 $this->master = file_get_contents($this->template);
             } elseif (@file_exists($core_theme_file)) {
                 $this->template = "$core_theme_file";
                 $this->master = file_get_contents($this->template);
             } else {
                 echo "default, not found";
-                $this->template = $this->paths['core'] . "themes/$this->default_theme/$this->default_template";
+                $this->template = $this->paths['core'] . "/themes/$this->default_theme/$this->default_template";
                 $this->master = file_get_contents($this->template);
             }
 
@@ -106,11 +114,10 @@ class Template extends \Opensitez\Simplicity\Plugin
 
         $this->app = $app;
         $palette = $this->get_palette($app);
-        $config = $this->config_object->getLegacyConfig();
+        $config = $this->config_object->get('site');
 
         $this->init_paths();
         $this->get_template($app);
-
         $menumaker = new Menu($this->config_object);
         $menumaker->set_handler($this->plugins);
         // print_r($current_site);exit;
@@ -126,8 +133,8 @@ class Template extends \Opensitez\Simplicity\Plugin
         $navigation = $menumaker->make_menu($this->current_site["data"]["navigation"] ?? [], $menuopts);
 
         $this->template_engine->assign("themepath", $this->current_site['themepath'], true);
-        $this->template_engine->assign("webroot", $this->paths['webdir'], true);
-        $this->template_engine->assign("host", $this->config_object->getHost(), true);
+        $this->template_engine->assign("webroot", $this->paths['webroot'], true);
+        $this->template_engine->assign("host", $this->current_site['domain'], true);
         $this->theme = $this->current_site['theme'] ?? $this->defaults['theme'] ?? "$this->default_theme";
         $this->pagestyle = '';
 
@@ -153,7 +160,7 @@ class Template extends \Opensitez\Simplicity\Plugin
                 $this->template_engine->assign($idx, $value, true);
             }
         }
-
+        
         foreach ($this->current_site["vars"] as $key => $value) {
 
             if (is_string($value)) {
@@ -166,7 +173,7 @@ class Template extends \Opensitez\Simplicity\Plugin
         $navigation = str_replace($left_delim . "sitepath" . $right_delim, $this->paths['sitepath'], $navigation);
 
         $this->template_engine->assign("navigationmenu", $navigation);
-        $this->template_engine->assign("charset", $this->current_site['vars']['charset']);
+        $this->template_engine->assign("charset", $this->charset);
 
         $this->pagestyle = str_replace($left_delim . 'themepath' . $right_delim, $this->current_site["themepath"], $this->pagestyle);
         $this->template_engine->assign("pagestyle", $this->pagestyle, true);
@@ -177,7 +184,7 @@ class Template extends \Opensitez\Simplicity\Plugin
         //$print_config=true;
         $print_config = false;
         if (isset($print_config) && $print_config) {
-            if (!isset($config['debug']))
+            if (!isset($this->current_site['debug']))
                 $config["debug"] = [];
             $this->template_engine->assign('content', "<pre><font color=$left_delim$pagefg$right_delim>" . var_export($this->current_site, true));
         }
@@ -191,14 +198,14 @@ class Template extends \Opensitez\Simplicity\Plugin
         $engine = "simplicity";
         switch ($engine) {
             case 'smarty':
-                $this->template_engine = new \Opensitez\Plugins\SmartyTemplate($this->config_object);
+                $this->template_engine = new \Opensitez\Simplicity\Plugins\SmartyTemplate($this->config_object);
                 break;
             case 'twig':
-                $this->template_engine = new \Opensitez\Plugins\TwigTemplate($this->config_object);
+                $this->template_engine = new \Opensitez\Simplicity\Plugins\TwigTemplate($this->config_object);
                 break;
             case 'simplicity':
             default:
-                $this->template_engine = new \Opensitez\Plugins\SimplicityTemplate($this->config_object);
+                $this->template_engine = new \Opensitez\Simplicity\Plugins\SimpleTemplate($this->config_object);
         }
         $this->template_engine->set_handler($this->plugins);
         $this->template_engine->engine_init();
