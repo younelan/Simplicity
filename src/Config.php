@@ -90,12 +90,48 @@
     /**
      * Set the web root path in the paths configuration
      */
-    public function setWebRoot(): string
+    public function setWebRoot(): void
     {
         $webRoot = $this->getWebRoot();
         $this->set('paths.webroot', $webRoot);
-
-        return $webRoot;    
+    }
+    /**
+     * Merge YAML file content with existing config value
+     * @param string $configPath The config path (e.g., 'site.definition')
+     * @param string $filename The YAML file path
+     * @return bool True if successful, false on error
+     */
+    public function mergeYaml(string $configPath, string $filename): bool
+    {
+        if (!file_exists($filename)) {
+            return false;
+        }
+        
+        $yamlContent = file_get_contents($filename);
+        if ($yamlContent === false) {
+            return false;
+        }
+        
+        try {
+            $yamlData = \Opensitez\Simplicity\Spyc::YAMLLoadString($yamlContent);
+            if (!is_array($yamlData)) {
+                return false;
+            }
+            
+            // Get existing value or empty array
+            $existingValue = $this->get($configPath, []);
+            
+            // Merge existing with YAML data
+            $mergedValue = array_merge($existingValue, $yamlData);
+            
+            // Set the merged value
+            $this->set($configPath, $mergedValue);
+            
+            return true;
+        } catch (Exception $e) {
+            // Log error if needed
+            return false;
+        }
     }
 
     }
