@@ -29,14 +29,32 @@ class SimpleDebug
             $is_expanded = $depth < $visible_depth ? 'open' : '';
 
             $output .= '<div class="array-item" data-depth="' . $depth . '">';
-            $output .= '<details ' . $is_expanded . '><summary class="array-key">' . htmlentities($key);
-            $output .= '<button class="toggle-children-recursive-btn toggle-children-btn" onclick="toggleChildrenRecursive(this)">▼</button>';
-            $output .= '</summary>';
-            $output .= '<div class="details-content">';
-
-            // Display scalar values if they don't have children
+            
+            // Display scalar values inline without expandable details
             if (!$has_children) {
-                $output .= '<div class=child-key>' . htmlentities($key) . '</div>:<div class=child-value> ' . htmlentities($value) . '</div></div>';
+                $output .= '<div class="array-value">';
+                $output .= '<div class="child-key">' . htmlentities($key) . '</div>';
+                
+                // Handle very long values with expand/collapse
+                $value_str = htmlentities($value);
+                if (strlen($value_str) > 300) {
+                    $short_value = substr($value_str, 0, 300) . '...';
+                    $output .= '<div class="child-value long-value">';
+                    $output .= '<span class="short-text">' . $short_value . '</span>';
+                    $output .= '<span class="full-text" style="display:none;">' . $value_str . '</span>';
+                    $output .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
+                    $output .= '</div>';
+                } else {
+                    $output .= '<div class="child-value">' . $value_str . '</div>';
+                }
+                
+                $output .= '</div>';
+            } else {
+                // Only use details/summary for arrays with children
+                $output .= '<details ' . $is_expanded . '><summary class="array-key">' . htmlentities($key);
+                $output .= '<button class="toggle-children-recursive-btn toggle-children-btn" onclick="toggleChildrenRecursive(this)">▼</button>';
+                $output .= '</summary>';
+                $output .= '<div class="details-content">';
             }
 
             // Recurse for children
@@ -45,7 +63,21 @@ class SimpleDebug
                 $non_array_values = [];
                 foreach ($value as $child_key => $child_value) {
                     if (!is_array($child_value)) {
-                        $non_array_values[] = "<div class=child-key>" . htmlentities($child_key) . '</div><div class=child-value>' . htmlentities($child_value) . "</div>";
+                        $child_value_str = htmlentities($child_value);
+                        $key_html = "<div class=child-key>" . htmlentities($child_key) . '</div>';
+                        
+                        if (strlen($child_value_str) > 300) {
+                            $short_value = substr($child_value_str, 0, 300) . '...';
+                            $value_html = '<div class="child-value long-value">';
+                            $value_html .= '<span class="short-text">' . $short_value . '</span>';
+                            $value_html .= '<span class="full-text" style="display:none;">' . $child_value_str . '</span>';
+                            $value_html .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
+                            $value_html .= '</div>';
+                        } else {
+                            $value_html = '<div class=child-value>' . $child_value_str . '</div>';
+                        }
+                        
+                        $non_array_values[] = $key_html . $value_html;
                         unset($value[$child_key]); // Remove non-array key-value pair
                     }
                 }
@@ -57,7 +89,10 @@ class SimpleDebug
                 $output .= $this->printArray($value, $visible_depth, $depth + 1); // Recursive call with increased depth
             }
 
-            $output .= '</div></details>';
+            // Close details tag only for arrays with children
+            if ($has_children) {
+                $output .= '</div></details>';
+            }
             $output .= '</div>';
         }
         $template_file = $this->template_file;
