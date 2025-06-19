@@ -5,6 +5,7 @@ namespace Opensitez\Simplicity;
 class SimpleDebug
 {
     private $template_file = '';
+    private $max_text_length = 500;
     private $debug_style = '<style>
         table { width: 100%; border-collapse: collapse; margin-bottom: 10px;}
         th, td { padding: 8px 12px; border: 1px solid #cdbcbc; text-align: left; }
@@ -37,12 +38,12 @@ class SimpleDebug
                 
                 // Handle very long values with expand/collapse
                 $value_str = htmlentities($value);
-                if (strlen($value_str) > 300) {
-                    $short_value = substr($value_str, 0, 300) . '...';
+                if (strlen($value_str) > $this->max_text_length) {
+                    $short_value = substr($value_str, 0, $this->max_text_length) . '...';
                     $output .= '<div class="child-value long-value">';
+                    $output .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
                     $output .= '<span class="short-text">' . $short_value . '</span>';
                     $output .= '<span class="full-text" style="display:none;">' . $value_str . '</span>';
-                    $output .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
                     $output .= '</div>';
                 } else {
                     $output .= '<div class="child-value">' . $value_str . '</div>';
@@ -66,12 +67,12 @@ class SimpleDebug
                         $child_value_str = htmlentities($child_value);
                         $key_html = "<div class=child-key>" . htmlentities($child_key) . '</div>';
                         
-                        if (strlen($child_value_str) > 300) {
-                            $short_value = substr($child_value_str, 0, 300) . '...';
+                        if (strlen($child_value_str) > $this->max_text_length) {
+                            $short_value = substr($child_value_str, 0, $this->max_text_length) . '...';
                             $value_html = '<div class="child-value long-value">';
+                            $value_html .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
                             $value_html .= '<span class="short-text">' . $short_value . '</span>';
                             $value_html .= '<span class="full-text" style="display:none;">' . $child_value_str . '</span>';
-                            $value_html .= '<button class="toggle-text-btn" onclick="toggleLongText(this)">Show More</button>';
                             $value_html .= '</div>';
                         } else {
                             $value_html = '<div class=child-value>' . $child_value_str . '</div>';
