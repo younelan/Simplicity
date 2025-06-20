@@ -91,20 +91,7 @@ class Plugin extends Base
 
         return $types;
     }
-    function get_menus()
-    {
-        $menus = [
-            // "menuname" => [
-            //     "text"=>"Menu name",
-            //     "weight"=> 0,
-            //     "children"=> [
-            //        "menuentry"=> ["plugin"=>"gallery","page"=>"pageid","text"=>"Menu Text","category"=>"all"],
-            //     ]
-            // ],
 
-        ];
-        return $menus;
-    }
     function getDebug()
     {
         if (!$this->debug) {
@@ -155,6 +142,29 @@ class Plugin extends Base
     function on_site_definition($params)
     {
         return true;
+    }
+    function retrieve($fname = null)
+    {
+        if ($fname) {
+            $cfg = __DIR__ . "/data/$fname";
+        } else {
+            $classname = strtolower(get_class($this));
+            $cfg = __DIR__ . "/data/$classname.json";
+        }
+        $contents = @file_get_contents($cfg);
+        $contents = @json_decode($contents, true);
+        return $contents;
+    }
+    function store($collection, $fname = null)
+    {
+        $json = json_encode($collection, JSON_PRETTY_PRINT);
+        if ($fname) {
+            $cfg = __DIR__ . "/data/$fname";
+        } else {
+            $classname = get_class($this);
+            $cfg = __DIR__ . "/data/$classname";
+        }
+        file_put_contents($cfg, $json);
     }
     function getConfigObject()
     {
