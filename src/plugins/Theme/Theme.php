@@ -82,7 +82,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
 
 
     }
-    function replace_paths($string, $path)
+    function replace_paths($string)
     {
         foreach ($this->paths as $key => $value) {
             if (is_array($value)) {
@@ -137,12 +137,12 @@ class Theme extends \Opensitez\Simplicity\Plugin
         $this->pagestyle = "$palette\n<style>\n$this->pagestyle\n</style>\n\n";
 
         foreach ($this->current_site['theme']['js'] ?? [] as $script) {
-            $script = $this->replace_paths($script, $this->themepath);
+            $script = $this->replace_paths($script);
             $this->pagestyle .= "<script src='$script'></script>\n";
         }
 
         foreach ($this->current_site['theme']["css"] ?? [] as $sheet) {
-            $sheet = $this->replace_paths($sheet, $this->themepath);
+            $sheet = $this->replace_paths($sheet);
             $this->pagestyle .= "<link href='$sheet' type='text/css' rel='stylesheet'>\n";
         }
 
@@ -154,7 +154,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
         $this->template_engine->assign("title", $this->current_site['definition']['vars']['title']??"");
         foreach ($template_arrays as $array_name => $tmp_array) {
             foreach ($tmp_array as $idx => $value) {
-                $this->template_engine->assign($idx, $value, true);
+                $this->template_engine->assign($idx, $this->replace_paths($value));
             }
         }
         
@@ -199,14 +199,14 @@ class Theme extends \Opensitez\Simplicity\Plugin
         //$this->show_debug();
         $engine = $this->config_object->get('site.theme.engine') ?? 'simplicity';
         $this->app = $app;
-        $template_engine = $this->plugins->get_registered('templateengine', strtolower($engine));
+        $template_engine = $this->plugins->get_registered_type('templateengine', strtolower($engine));
         
         if ($template_engine) {
             $this->template_engine = $template_engine;
         } else {
             print "Template engine '$engine' not found, falling back to default.<br/>";
             // Fallback to default SimpleTemplate if available
-            $default_engine = $this->plugins->get_registered('templateengine', 'simpletemplate');
+            $default_engine = $this->plugins->get_registered_type('templateengine', 'simpletemplate');
             if ($default_engine) {
                 $this->template_engine = $default_engine;
             } else {

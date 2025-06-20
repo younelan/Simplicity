@@ -10,7 +10,7 @@ class DrupalContent extends \Opensitez\Simplicity\DBLayer
     {
         switch ($event['type']) {
             case MSG::PluginLoad:
-                $this->plugins->register('contentprovider', 'drupal');
+                $this->plugins->register_type('contentprovider', 'drupal');
                 break;
         }
         return parent::on_event($event);
