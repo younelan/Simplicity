@@ -14,8 +14,8 @@
             switch ($event['type']) {
                 case MSG::PluginLoad:
                     // Register this plugin as a route type handler for blogs
-                    $this->plugins->register('routetype', 'blog');
-                    $this->plugins->register('routetype', 'content');
+                    $this->plugins->register_type('routetype', 'blog');
+                    $this->plugins->register_type('routetype', 'content');
                     break;
             }
             return parent::on_event($event);
@@ -130,7 +130,7 @@
             $subtype=$app['subtype']??"opensite";
 
             // Get content provider from registry instead of hardcoded switch
-            $content_provider = $this->plugins->get_registered('contentprovider', strtolower($subtype));
+            $content_provider = $this->plugins->get_registered_type('contentprovider', strtolower($subtype));
             
             if ($content_provider) {
                 $content_provider->connect();
@@ -139,7 +139,7 @@
                 return $content;
             } else {
                 // Fallback to default OSZ content provider if available
-                $default_provider = $this->plugins->get_registered('contentprovider', 'osz');
+                $default_provider = $this->plugins->get_registered_type('contentprovider', 'osz');
                 if ($default_provider) {
                     $default_provider->connect();
                     $data = $default_provider->fetch_data($app);

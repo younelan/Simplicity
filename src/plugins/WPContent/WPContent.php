@@ -14,12 +14,53 @@ class WPContent extends \Opensitez\Simplicity\DBLayer
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a content provider for WordPress
-                $this->plugins->register('contentprovider', 'wordpress');
+                $this->plugins->register_type('contentprovider', 'wordpress');
                 break;
         }
         return parent::on_event($event);
     }
+    function listNodeTypes($app)
+    {
+        $sql="SELECT ID, post_title AS group_name
+         FROM wp_posts
+         WHERE post_type = 'acf-field-group'
+           AND post_status = 'publish';";
+        $dbprefix = $app['dbprefix'] ?? "";
+        $database = $app['database'] ?? "";
+        $post_type = $app['post-type'] ?? ["page", "post"];
+        $post_status = $app['post-status'] ?? ["publish"];
+        // $query = [
+        //     "dbprefix" => $dbprefix,
+        //     "table" => "wp_posts p",
+        //     "fields" => ["p.id as id ", "p.post_type as node_type", "p.post_status as status", "post_content as body", "p.post_name as slug", "p.post_parent as parent", "p.post_title as title", "p.post_date as created_at", "p.post_modified as last_updated"],
+        //     "where" => [
+        //         ["field" => "p.post_name", "value" => "$querystr"],
+        //         ["type  " => "AND", "field" => "post_status", "value" => $post_status],
+        //         ["type" => "AND", "field" => "post_type", "value" => $post_type],
+        //     ],
+        //     "limit" => "15",
+        //     "orderby" => "post_modified DESC"
+        // ];        
+        
+        $query = "SELECT
+            f.ID,
+            f.post_parent as parent,
+            f.post_type as post_type,
+            parent.post_title node_type,
+            f.post_title AS field_label,
+            f.post_name AS field_name,
+            m1.meta_value AS field_key,
+            m2.meta_value AS field_type
+            FROM wp_posts f
+            LEFT JOIN wp_posts parent ON parent.ID=f.post_parent
+            LEFT JOIN wp_postmeta m1 ON f.ID = m1.post_id AND m1.meta_key = 'field_key'
+            LEFT JOIN wp_postmeta m2 ON f.ID = m2.post_id AND m2.meta_key = 'type'
+            WHERE f.post_type = 'acf-field'
 
+            ORDER BY f.menu_order;";
+
+
+    }
     function fetch_data($app)
     {
         $dbprefix = $app['dbprefix'] ?? "";

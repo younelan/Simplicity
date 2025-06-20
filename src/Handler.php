@@ -139,7 +139,7 @@ class Handler
         }
         return $this->config_object.get('paths');
     }
-    function register($type, $key, $plugin_name = null)
+    function register_type($type, $key, $plugin_name = null)
     {
         // If no plugin name provided, use the calling plugin
         if (!$plugin_name) {
@@ -163,7 +163,7 @@ class Handler
         //echo "Registered $type: $key -> $plugin_name\n<br/>";
     }
     
-    function get_registered($type, $key)
+    function get_registered_type($type, $key)
     {
         if (isset($this->registry[$type][$key])) {
             $plugin_name = $this->registry[$type][$key]['plugin'];
