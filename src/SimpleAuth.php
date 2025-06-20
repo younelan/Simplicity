@@ -126,9 +126,9 @@ class SimpleAuth
     {
         //print_r($this->translations);
         $users = $this->users;
-        print_r($users);
-        print "<hr/>";
-        print_r($this->config->get('users'));exit;
+        //print_r($users);
+        //print "<hr/>";
+        //print_r($this->config->get('users'));exit;
 
         exit;
         $this->vars['csrf_token'] = $_SESSION['csrf_token'];
