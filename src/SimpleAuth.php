@@ -130,7 +130,6 @@ class SimpleAuth
         //print "<hr/>";
         //print_r($this->config->get('users'));exit;
 
-        exit;
         $this->vars['csrf_token'] = $_SESSION['csrf_token'];
         $this->vars['content'] = $this->substitute_vars($this->form_template);
         //print($this->vars['content']);exit;
