@@ -16,7 +16,7 @@ enum MSG
     case Error;
     case PluginLoad;
 }
-class Plugin
+class Plugin extends Base
 {
     public $name;
     public $description;
@@ -91,7 +91,7 @@ class Plugin
 
         return $types;
     }
-    function get_menus($app = null)
+    function get_menus()
     {
         $menus = [
             // "menuname" => [
