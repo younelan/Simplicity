@@ -1,7 +1,7 @@
 <?php
     namespace Opensitez\Simplicity;
 
-    class Config {
+    class Config extends Base {
         private $settings = [];
 
         function __construct(&$config = [])
