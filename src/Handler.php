@@ -5,9 +5,14 @@ namespace Opensitez\Simplicity;
 class Handler extends Base
 {
     private $plugins = [];
-    private $config_object = null;
     private $registry = [];
-
+    function __construct($config_object = null)
+    {
+        
+        parent::__construct($config_object);
+        //$this->config_object = $config_object;
+        //$this->on_init($config_object);
+    }
     function on_init($config_object = null)
     {
         if ($config_object) {
