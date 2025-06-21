@@ -39,7 +39,17 @@ class Handler extends Base
             }
         }
     }
+    function on_action($action)
+    {   
+        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $plugin) {
+                if ($plugin->enabled) {
+                    $plugin->on_action(["p" => $name, "a" => $action]);
 
+                }
+            }
+        }
+    } 
     function set_handler($plugin_handler)
     {
         foreach ($this->plugins ?? [] as $group => $group_plugins) {
