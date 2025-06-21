@@ -123,6 +123,10 @@ class Plugin extends Base
         $content = "";
         return $content;
     }
+    function on_action($app)
+    {
+    
+    }
     function on_render_page($app)
     {
         if (!$app) {
@@ -145,11 +149,12 @@ class Plugin extends Base
     }
     function retrieve($fname = null)
     {
+        $paths = $this->config_object->get('paths');
         if ($fname) {
-            $cfg = __DIR__ . "/data/$fname";
+            $cfg = $paths['data'] . "/$fname";
         } else {
             $classname = strtolower(get_class($this));
-            $cfg = __DIR__ . "/data/$classname.json";
+            $cfg = $paths['data'] . "/$classname.json";
         }
         $contents = @file_get_contents($cfg);
         $contents = @json_decode($contents, true);
@@ -157,12 +162,13 @@ class Plugin extends Base
     }
     function store($collection, $fname = null)
     {
+        $paths = $this->config_object->get('paths');
         $json = json_encode($collection, JSON_PRETTY_PRINT);
         if ($fname) {
-            $cfg = __DIR__ . "/data/$fname";
+            $cfg = $paths['data'] . "/$fname";
         } else {
             $classname = get_class($this);
-            $cfg = __DIR__ . "/data/$classname";
+            $cfg = $paths['data'] . "/$classname";
         }
         file_put_contents($cfg, $json);
     }
