@@ -13,18 +13,18 @@ The framework is meant to centralize code I have used on other projects to maxim
     - **SimpleHttpRequest**: uses curl to fetch a file
     - **CSRF** : Simple CSRF class, see Qrcode demo for example 
 - **src/plugins** directory: Plugins for the Simplicity Cms/Plugin Handler
-    - ** Block ** - The basic element on a page is a block, there are multiple types of blocks
-    - ** TextBlock ** - Specific block which provides text
-    - ** Section ** - There can be multiple blocks in one section. Like header, content, footer
-    - ** Page ** - A page is what eventually is served and contains multiple section
-    - ** Feed ** - RSS feed plugin. Fetches and displays RSS Feeds
-    - ** Folder ** - a Folder serves a folder as a route
-    - ** SimpleTemplate ** - Template Provider using simple substitution
-    - ** TwigTemplate ** - Template Provider using Twig as an engine
-    - ** Menu ** - Creates menus
-    - ** ContentProvider - Block providing a typical blog
-    - ** OSZContent ** - Default content provider using the open site database as data source
-    - ** ImageMenu ** - Image menu block
+    - **Block** - The basic element on a page is a block, there are multiple types of blocks
+    - **TextBlock** - Specific block which provides text
+    - **Section** - There can be multiple blocks in one section. Like header, content, footer
+    - **Page** - A page is what eventually is served and contains multiple section
+    - **Feed** - RSS feed plugin. Fetches and displays RSS Feeds
+    - **Folder** - a Folder serves a folder as a route
+    - **SimpleTemplate** - Template Provider using simple substitution
+    - **TwigTemplate** - Template Provider using Twig as an engine
+    - **Menu** - Creates menus
+    - **ContentProvider** - Block providing a typical blog
+    - **OSZContent** - Default content provider using the open site database as data source
+    - **ImageMenu** - Image menu block
 
 There are more complex frameworks but this is probably as simple as you can get to understand
 
