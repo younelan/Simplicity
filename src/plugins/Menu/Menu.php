@@ -1,9 +1,22 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
-
+use Opensitez\Simplicity\MSG;
 class Menu extends \Opensitez\Simplicity\Plugin
 {
+    public $name = "Menu";
+    public $description = "Renders menus and navigation bars";
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a content provider for WordPress
+                $this->plugins->register_type('blocktype', 'menu');
+
+                break;
+        }
+        return parent::on_event($event);
+    }    
     function make_menu($menus, $params = [])
     {
 
