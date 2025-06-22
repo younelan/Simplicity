@@ -1,7 +1,7 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
-
+use Opensitez\Simplicity\MSG;
 
 function validate_folder_path($path, $maxdepth = 3, $maxpartlength = 50, $options = [])
 {
@@ -36,6 +36,18 @@ class Folder extends \Opensitez\Simplicity\Plugin
     public $name = "Folders";
     public $description = "Allows to serve a bunch of files";
     var $params = array();
+
+    function on_event($event)
+    {
+        if ($event['type'] === MSG::PluginLoad) {
+            error_log("DEBUG: Folder plugin registering route types");
+            $this->plugins->register_type('contentprovider', 'folder');
+            $this->plugins->register_type('routetype', 'folder');
+            error_log("DEBUG: Folder plugin registration complete");
+        }
+        parent::on_event($event);
+    }
+
     function get_menus($app = [])
     {
         $menus = [
@@ -55,8 +67,8 @@ class Folder extends \Opensitez\Simplicity\Plugin
     public function list_dir($prefix, $basedir, $app_path, $options)
     {
         $block_plugin = $this->plugins->get_plugin('block');
-        $current_site = $this->config_object->getCurrentSite();
-        $paths = $this->config_object->getPaths();
+        $current_site = $this->config_object->get('site');
+        $paths = $this->config_object->get('paths');
 
         $retval = "";
         $full_path = "$basedir/$app_path";
@@ -88,8 +100,10 @@ class Folder extends \Opensitez\Simplicity\Plugin
             \n</style>";
 
         $retval .= "<div class='file-list'><ul class='files list-group'>\n";
+
         if ($indexfiles) {
-            $vararrays = [$current_site['vars'], $paths];
+                    
+            $vararrays = [$current_site['definition']['vars']??$current_site['vars']??[], $paths];
             foreach ($indexfiles as $indexfile) {
                 $indexpath = "$full_path/$indexfile";
                 if (file_exists($indexpath)) {
@@ -136,10 +150,11 @@ class Folder extends \Opensitez\Simplicity\Plugin
                     if ($fname)
                         $final_path[] = urlencode(rtrim($fname, "/"));
                     //print $full_file_path . "\n";
+                    $href = implode("/", $final_path);
                     if (is_dir($full_file_path)) {
-                        $retval .= "    <li class='list-group-item'><a href='/" . implode("/", $final_path) . "'>$foldertag $parsed_fname</a></li>\n";
+                        $retval .= "    <li class='list-group-item'><a href='$href'>$foldertag $parsed_fname</a></li>\n";
                     } else {
-                        $retval .= "    <li class='list-group-item'><a href='/" . implode("/", $final_path) . "'>$filetag $parsed_fname</a></li>\n";
+                        $retval .= "    <li class='list-group-item'><a href='$href'>$filetag $parsed_fname</a></li>\n";
                     }
                     //$retval .= "<li><a href='$app_path/$fname'>$prefix / $app_path / $fname </a></li>"; 
                 }
@@ -149,15 +164,41 @@ class Folder extends \Opensitez\Simplicity\Plugin
         return $retval;
         //print_r($flist);exit;
     }
+    public function render($app)
+    {
+        print "hi exit";exit;
+        $app = $app ?? [];
+        $block_plugin = $this->plugins->get_plugin('block');
+        $app['basedir'] = $app['basedir'] ?? "";
+        $app['path'] = $app['path'] ?? "";
+        $app['route'] = $app['route'] ?? "";
+        $app['titleprefix'] = $app['titleprefix'] ?? "";
+        $app['content-type'] = $app['content-type'] ?? "html";
+        return $this->on_render_page($app);
+    }
     public function on_render_page($app)
     {
+
         $block_plugin = $this->plugins->get_plugin('block');
         $debug = "";
         $validpath = false;
-        $current_site = $this->config_object->getCurrentSite();
-        $paths = $this->config_object->getPaths();
-        $basedir = $paths['datafolder'] . "/" . trim($app['basedir'] ?? "", "/");
-        if (!validate_folder_path($app['basedir'] ?? "")) {
+        $current_site = $this->config_object->get('site');
+        $paths = $this->config_object->get('paths');
+
+        $basedir = $paths['datafolder'];
+        $basedir_value = $app['basedir'] ?? "";
+        
+        // Handle case where basedir might be an array
+        if (is_array($basedir_value)) {
+            $basedir_value = implode("/", $basedir_value);
+        }
+        
+        $relative_basedir = trim($basedir_value, "/");
+        if ($relative_basedir) {
+            $basedir = $basedir . "/" . $relative_basedir;
+        }
+        
+        if (!validate_folder_path($relative_basedir)) {
             return "invalid Base Dir";
         }
         $replacements = $app['replacements'] ?? [];
@@ -175,7 +216,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
         $filetag = $fileglyph ? "<i class='bi bi-$fileglyph'></i>" : "";
         $content_type = $app['content-type'] ?? "html";
         $indexfiles = $app['indexfiles'] ?? "index.html";
-
+        //print_r($app);exit;
         if (is_dir($full_path)) {
             $prefix = "/" . $app['route'] ?? "";
             $options = [
