@@ -17,11 +17,12 @@ class SlideshowBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($text, $options = [])
+    function render($block_config, $options = [])
     {
-        $slidestyle = addslashes($options['style'] ?? "");
-        $carouselclass = $options['carousel-class'] ?? [];
-        $datainterval = $options['interval'] ?? "";
+        $text = $block_config['content'] ?? $block_config;
+        $slidestyle = addslashes($block_config['style'] ?? $options['style'] ?? "");
+        $carouselclass = $block_config['carousel-class'] ?? $options['carousel-class'] ?? [];
+        $datainterval = $block_config['interval'] ?? $options['interval'] ?? "";
         
         if ($datainterval) {
             $datainterval = " data-interval=\"$datainterval\" ";
@@ -48,7 +49,7 @@ class SlideshowBlock extends \Opensitez\Simplicity\Plugin
         $parsed_content = '<div ' . $slidestyle . $datainterval . '" class="carousel slide ' . $carouselclass . '" data-bs-ride="carousel">';
         $parsed_content .= '<div class="carousel-inner">';
         
-        $start = $options['start'] ?? 0;
+        $start = $block_config['start'] ?? $options['start'] ?? 0;
         $idx = 0;
         
         if (!is_array($text)) {
