@@ -6,6 +6,18 @@ use Opensitez\Simplicity\MSG;
 
 class Feed extends \Opensitez\Simplicity\Plugin
 {
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for redirects
+                $this->plugins->register_type('routetype', 'feed');
+                $this->plugins->register_type('blocktype', 'feed');
+                break;
+        }
+        return parent::on_event($event);
+    }
+    
     public function on_render_page($app)
     {
         $this->app = $app;
