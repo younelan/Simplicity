@@ -16,6 +16,8 @@
                     // Register this plugin as a route type handler for blogs
                     $this->plugins->register_type('routetype', 'blog');
                     $this->plugins->register_type('routetype', 'content');
+                    $this->plugins->register_type('blocktype', 'blog');
+
                     break;
             }
             return parent::on_event($event);
