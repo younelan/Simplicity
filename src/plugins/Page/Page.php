@@ -1,7 +1,7 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
-
+use Opensitez\Simplicity\MSG;
 
 class Page extends \Opensitez\Simplicity\Plugin
 {
@@ -16,11 +16,23 @@ class Page extends \Opensitez\Simplicity\Plugin
     private $blocks = [];
 
     /* legacy, should eventually disappear, plugins should add a section rather than render themselves */
-    function render_inserts($inserts, $app)
+    // function render_inserts($inserts, $app)
+    // {
+    //     $section_object = $this->plugins->get_plugin("section");
+    //     return $section_object->render_section_contents($inserts, $app);
+    // }
+
+    function on_event($event)
     {
-        $section_object = $this->plugins->get_plugin("section");
-        return $section_object->render_section_contents($inserts, $app);
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for redirects
+                $this->plugins->register_type('routetype', 'page');
+                break;
+        }
+        return parent::on_event($event);
     }
+    
     function get_menus($app = [])
     {
         $menus = [
@@ -69,8 +81,8 @@ class Page extends \Opensitez\Simplicity\Plugin
     }
     function add_blocks($blocks = false, $section = false)
     {
-        $defaults = $this->config_object->getDefaults();
-        $current_site = $this->config_object->getCurrentSite();
+        $defaults = $this->config_object->get('defaults');
+        $current_site = $this->config_object->get('site');
         if (!$section) {
             $default_section = $this->app['default-section']
                 ?? $this->layout['default-section']
@@ -102,8 +114,8 @@ class Page extends \Opensitez\Simplicity\Plugin
     }
     public function prepare($app = false)
     {
-        $this->defaults = $this->config_object->getDefaults();
-        $this->current_site = $this->config_object->getCurrentSite();
+        $this->defaults = $this->config_object->get('defaults');
+        $this->current_site = $this->config_object->get('site');
 
         $this->app = $app;
         //$config_object = $this->plugins->getConfigObject();
