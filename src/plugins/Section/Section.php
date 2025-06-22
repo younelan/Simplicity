@@ -1,6 +1,7 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 
 class Section extends \Opensitez\Simplicity\Plugin
@@ -11,7 +12,17 @@ class Section extends \Opensitez\Simplicity\Plugin
     private $section_name = "content";
     private $blocks = [];
     private $section_options = [];
-
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for redirects
+                $this->plugins->register_type('routetype', 'section');
+                break;
+        }
+        return parent::on_event($event);
+    }
+    
     function set_section_options($options)
     {
         $this->section_options = $options;
@@ -34,7 +45,7 @@ class Section extends \Opensitez\Simplicity\Plugin
         $output = "<div id='$this->section_name' class='section $this->class'>";
         //$output .= "<h1 class='footer'>section $this->section_name</h1>";
         foreach ($this->blocks as $block) {
-            $output .= $block->on_render_block($app);
+            $output .= $block->render($app);
         };
         $output .= "</div>";
         return $output;
@@ -75,7 +86,8 @@ class Section extends \Opensitez\Simplicity\Plugin
         $class = $app['class'] ?? "";
         $class = "section " . $this->class;
         $block_plugin = $this->plugins->get_plugin("block");
-        $config = $this->config_object->getLegacyConfig();
+        //$config = $this->config_object->getLegacyConfig();
+        $paths = $this->config_object->get('paths');
         $content = "";
 
         $i18n = $this->plugins->get_plugin('i18n');
@@ -115,7 +127,7 @@ class Section extends \Opensitez\Simplicity\Plugin
 
                     case "include":
                         $incname = $i18n->get_i18n_value($incblock['file'] ?? "");
-                        $full_path = $config["paths"]["datafolder"] . "/" . $incname;
+                        $full_path = $paths["datafolder"] . "/" . $incname;
                         $options = ["content-type" => $incblock['content-type'] ?? "html"];
                         if (is_file($full_path)) {
                             $fcontents = @file_get_contents($full_path);
