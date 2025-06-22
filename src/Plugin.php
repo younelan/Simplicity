@@ -31,6 +31,14 @@ class Plugin extends Base
     {
         $this->config_object = $config_object;
     }
+    function str_replace_once($search, $replace, $subject)
+    {
+        $pos = strpos($subject, $search);
+        if ($pos !== false) {
+            return substr_replace($subject, $replace, $pos, strlen($search));
+        }
+        return $subject;
+    }
     function base_url()
     {
         $paths = $this->config_object->getPaths();
@@ -115,7 +123,7 @@ class Plugin extends Base
         $palette = $palette->render($app);
         return $palette;
     }
-    function on_render_block($current)
+    function render($current)
     {
         if (!$current) {
             $current = $this->current;
