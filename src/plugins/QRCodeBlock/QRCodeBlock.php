@@ -3,12 +3,13 @@
 namespace Opensitez\Simplicity\Plugins;
 
 use Opensitez\Simplicity\MSG;
-use \QRCode;
+// use \SimpleQRCode;
 
 class QRCodeBlock extends \Opensitez\Simplicity\Plugin
 {
-    public $name = "QRCodeBlock";
-    public $description = "Renders QR codes";
+    public $name = "QR Code Generator";
+    public $description = "Implements an image gallery";
+    var $params = array('block' => "index.txt", 'path' => '.');
 
     function on_event($event)
     {
@@ -18,9 +19,38 @@ class QRCodeBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($text, $options = [])
+    function render($block_config, $options = [])
     {
-        $qr = new QRCode(null);
-        return $qr->render_page();
+
+        //print_r($block_config);exit;
+        $output = "";
+        //print_r($this->config);exit;
+        $domain = $this->config_object->get('host');
+        $routestr = $this->config['app']['route'] ?? "";
+        if ($routestr == "default")
+            $routestr = "";
+        $defaultqr = "http://" . $domain . "/" . $routestr;
+
+        $qrurl = $this->config['current']['content'] ?? $defaultqr;
+        // $d=url;
+        $options = ["s" => "qr", "w" => 200, "h" => 200, "p" => 5];
+        $generator = new \Opensitez\Simplicity\SimpleQRCode($qrurl, $options);
+        $image = $generator->render_image();
+        ob_start();
+        imagepng($image);
+        $outputimage = ob_get_clean();
+
+        $output .= "<img src='data:image/png;base64," .
+            base64_encode($outputimage) . "'>";
+
+        imagedestroy($image);
+
+        return $output;
     }
+    public function on_render_page($app = [])
+    {
+        $this->app = $app;
+        return $this->render($app);
+    }
+
 }
