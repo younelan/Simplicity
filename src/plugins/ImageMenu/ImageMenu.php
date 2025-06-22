@@ -1,13 +1,24 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
-
+use Opensitez\Simplicity\MSG;
 class ImageMenu extends \Opensitez\Simplicity\Plugin
 {
     public $name = "Image Gallery";
     public $description = "Implements an image gallery";
-
-    public function render_block($app = [])
+    public $app = [];
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for redirects
+                $this->plugins->register_type('routetype', 'imagemenu');
+                $this->plugins->register_type('blocktype', 'imagemenu');
+                break;
+        }
+        return parent::on_event($event);
+    }
+    public function render($app = [])
     {
         //print_r($app);exit;
         $current_site = $this->config_object->getCurrentSite();
@@ -151,8 +162,9 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
             } else {
                 $output .= "<div id='$groupid' class='gallery-group'>\n";
             }
-
-            $output .= "<div class='gallery-before'>\n" . $page->render_inserts($before, $app) . "\n</div>\n";
+            $section_object = $this->plugins->get_plugin("section");
+            $before_inserts = $section_object->render_section_contents($before, $app);
+            $output .= "<div class='gallery-before'>\n" . $before_inserts . "\n</div>\n";
             $output .= "<div class='gallery-content'>";
             //exit;
             if ($group['values'] ?? false) {
@@ -244,7 +256,8 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
                     $output .= "</div>"; //end child div
                 }
             }
-            $output .= "<div class='gallery-after'>\n" . $page->render_inserts($after, $app) . "\n</div>\n";
+            $after_inserts = $section_object->render_section_contents($after, $app);
+            $output .= "<div class='gallery-after'>\n" . $after_inserts . "\n</div>\n";
 
             $output .= "</div>\n";
             $output .= "</div>\n";
@@ -265,6 +278,6 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
         else {
             $app = $this->app;
         }
-        return $this->render_block($app);
+        return $this->render($app);
     }
 }
