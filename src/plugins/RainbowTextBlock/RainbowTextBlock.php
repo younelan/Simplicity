@@ -5,6 +5,7 @@ namespace Opensitez\Simplicity\Plugins;
 use Opensitez\Simplicity\MSG;
 
 
+
 class RainbowTextBlock extends \Opensitez\Simplicity\Plugin
 {
     public $name = "RainbowTextBlock";
@@ -18,12 +19,14 @@ class RainbowTextBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($text, $options = [])
+    function render($block_config, $options = [])
     {
+        $text = $block_config['content'] ?? $block_config;
+
         $retval = "";
-        $encoding = $options['encoding'] ?? "utf-8";
-        $style = $options['style'] ?? "font-family:monospace;";
-        $colors = $options['colors'] ?? [
+        $encoding = $block_config['encoding'] ?? $options['encoding'] ?? "utf-8";
+        $style = $block_config['style'] ?? $options['style'] ?? "font-family:monospace;";
+        $colors = $block_config['colors'] ?? $options['colors'] ?? [
             ["bg" => "#000000", "fg" => "#ffffff"],
             ["bg" => "#AA0000", "fg" => "#ffffff"],
             ["bg" => "#FF0000", "fg" => "#ffffff"],
@@ -36,6 +39,10 @@ class RainbowTextBlock extends \Opensitez\Simplicity\Plugin
             ["bg" => "#04B404", "fg" => "#FFFFFF"],
             ["bg" => "#77FF77", "fg" => "#0"]
         ];
+        
+        if (is_array($text)) {
+            $text = implode("\n", $text);
+        }
         
         $colorcount = count($colors);
         $lines = explode("\n", $text);
