@@ -155,8 +155,10 @@ class Theme extends \Opensitez\Simplicity\Plugin
         foreach ($template_arrays as $array_name => $tmp_array) {
             foreach ($tmp_array as $idx => $value) {
                 $this->template_engine->assign($idx, $this->replace_paths($value));
+                //print "<hr/><h3 tyle=\"color:red;background-color:yellow\">Assigning $array_name.$idx = $value</h3><hr/>\n";
             }
         }
+        $this->template_engine->assign("content", $this->current_site['vars']['content'] ?? "");
         
     }
     function on_render_templates($app)
@@ -166,6 +168,8 @@ class Theme extends \Opensitez\Simplicity\Plugin
         foreach ( $theme['sections'] as $section => $details) {
             $sections[$section] = $this->template_engine->render($details['contents'] ?? '',false) ;
             $this->template_engine->assign($section, $sections[$section]);
+            //print "<!-- $section -->\n";
+            //print $sections[$section] . "<br/>\n";
             //print $section . " - " . $this->template_engine->render($details['contents'] ?? '') . "<br/>\n";
         }
         //$this->template_engine->assign("content","");
@@ -196,7 +200,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
     }
     function on_render_page($app) {
         $this->init_paths();
-        //$this->show_debug();
+        //$this->show_debug();exit;
         $engine = $this->config_object->get('site.theme.engine') ?? 'simplicity';
         $this->app = $app;
         $template_engine = $this->plugins->get_registered_type('templateengine', strtolower($engine));
