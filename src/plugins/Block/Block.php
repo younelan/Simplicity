@@ -16,16 +16,40 @@
             $this->block_type = $options['type']??"text";
             //print "<div>new block of {$this->block_name} of type {$this->block_type}</div>";
         }
+        function on_event($event)
+        {
+            switch ($event['type']) {
+                case MSG::PluginLoad:
+                    // Register this plugin as a route type handler for redirects
+                    $this->plugins->register_type('routetype', 'block');
+                    break;
+            }
+            return parent::on_event($event);
+        }
+        
         /*here for legacy until other classes stop using it*/
         function render_insert_text($text,$options=[]) {
-            $text_block = $this->text??false;
-            if(!$text_block) {
-                $this->text_block = new TextBlock($this->config_object);
-            }
-            return $this->text_block->render_insert_text($text, $options);
+            $default = [
+                'encoding' => 'utf-8',
+                'content-type' => 'html'
+            ];
 
+            $content_type = $options['content-type'] ?? $default['content-type'];
+            
+            // Try to get a registered block type plugin
+            $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
+            if ($block_plugin && method_exists($block_plugin, 'render')) {
+                return $block_plugin->render($text, $options);
+            }
+
+            // Fallback to default text handling
+            if (is_array($text)) {
+                $text = implode("\n", $text);
+            }
+            
+            return $text;
         }
-        function on_render_block($app) {
+        function render($app) {
             $i18n = $this->plugins->get_plugin('i18n');
             $section=$this->block_options;
             $blocklink=$section['link']??"";
@@ -45,9 +69,10 @@
             $current_plugin = $this->plugins->get_plugin($this->block_type); 
             $current_path=$app['route']??"default";
 
-            $paths = $this->config_object->getPaths();
+            $paths = $this->config_object->get('paths');
             if($current_plugin ) {
-                $config['current']=$this->block_options;
+                //$current = $this->config_object->get('current');
+                //$config['current']=$this->block_options;
                 $block_options=$app["route"];
                 $plugin_content =$current_plugin->on_render_page($section);
                 $retval .= $plugin_content;
@@ -67,24 +92,13 @@
                         $retval .= $parsed_content;
                         break; 
                     case "include":
-                            $options = ['content-type'=>$section['content-type']??"html"];
-                            $incfile=$section['file']??"";
-                            $incfile=$i18n->get_i18n_value($incfile);
-                            $found=false;
-                            $file_path=$paths["datafolder"]."/" . $incfile;
-                            foreach($i18n->accepted_langs() as $lang=>$lang_details) {
-                                if((ctype_alpha($lang) && strlen($lang)==2) && is_file($file_path . ".$lang")) {
-                                    $fcontents=@file_get_contents($file_path .".$lang");
-                                    $found=true;
-                                    break;
-                                }
-                            }
-                            if(!$found) {                                    
-                                $fcontents = @file_get_contents($paths["datafolder"]."/" . $incfile);
-                            }                                
-
-
-                            $retval.= $this->render_insert_text($fcontents,$options,$section);
+                        $options = ['content-type'=>$section['content-type']??"html"];
+                        $incfile = $section['file']??"";
+                        // Use the include block type plugin
+                        $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
+                        if ($include_plugin) {
+                            $retval .= $include_plugin->render($incfile, $options);
+                        }
                         break; 
                 }
             }
