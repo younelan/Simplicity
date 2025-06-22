@@ -18,8 +18,14 @@ class MarkdownBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($text, $options = [])
+    function render($block_config, $options = [])
     {
+        $text = $block_config['content'] ?? $block_config;
+        //print $text;exit;
+        if (is_array($text)) {
+            $text = implode("\n", $text);
+        }
+        
         $Parsedown = new Parsedown();
         return $Parsedown->text($text);
     }
