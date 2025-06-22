@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Element Properties Editor</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  .element-container {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .element-header {
+    background-color: darkblue;
+    color: white;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .element-header label {
+    margin: 0;
+  }
+  .element-inputs {
+    padding: 10px;
+  }
+  .element-input {
+    margin-bottom: 10px;
+  }
+  .add-container {
+    margin-top: 20px;
+  }
+  .element-actions {
+    display: flex;
+    align-items: center;
+  }
+  .element-actions button {
+    margin-left: 5px;
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .element-actions span {
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="form-editor"></div>
+<div class="add-container">
+  <label for="add-element-select">Add Element:</label>
+  <select id="add-element-select"></select>
+  <button id="add-element-btn">Add</button>
+</div>
+
+<script>
+  let fieldIndex = 1;
+
+  const elementTypes = {
+    'text': { 
+      label: 'Text', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    },
+    'listbox': { 
+      label: 'Listbox', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'options', label: 'Options', default: 'up', type: 'listbox', values: ['up', 'down'] },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    },
+    'checkbox': { 
+      label: 'Checkbox', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    },
+    'textarea': { 
+      label: 'Textarea', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'textarea' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    },
+    'radio': { 
+      label: 'Radio', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'options', label: 'Options', default: 'up', type: 'listbox', values: ['up', 'down'] },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    },
+    'hidden': { 
+      label: 'Hidden', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    }
+  };
+
+  const addElementSelect = document.getElementById('add-element-select');
+  for (const key in elementTypes) {
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = elementTypes[key].label;
+    addElementSelect.appendChild(option);
+  }
+
+  document.getElementById('add-element-btn').addEventListener('click', function() {
+    const elementType = addElementSelect.value;
+    addElement(elementType);
+  });
+
+  function addElement(elementType, element = []) {
+    if (!Array.isArray(element) || element.length === 0) {
+      element = elementTypes[elementType].inputs;
+    }
+
+    const elementContainer = document.createElement('div');
+    elementContainer.classList.add('element-container');
+
+    const elementHeader = document.createElement('div');
+    elementHeader.classList.add('element-header');
+    elementHeader.innerHTML = `
+      <label>${elementTypes[elementType].label}</label>
+      <div class="element-actions">
+        <span class="up-arrow">&#x25B2;</span>
+        <span class="down-arrow">&#x25BC;</span>
+        <button class="remove-element-btn">&#x2715;</button>
+      </div>
+    `;
+    elementContainer.appendChild(elementHeader);
+
+    const elementInputs = document.createElement('div');
+    elementInputs.classList.add('element-inputs');
+    element.forEach(input => {
+      const inputElement = createInputElement(input, elementType, input.value);
+      elementInputs.appendChild(inputElement);
+    });
+    elementContainer.appendChild(elementInputs);
+
+    document.getElementById('form-editor').appendChild(elementContainer);
+
+    const removeBtn = elementContainer.querySelector('.remove-element-btn');
+    removeBtn.addEventListener('click', function() {
+      elementContainer.remove();
+    });
+
+    const upArrow = elementContainer.querySelector('.up-arrow');
+    upArrow.addEventListener('click', function() {
+      elementContainer.parentNode.insertBefore(elementContainer, elementContainer.previousElementSibling);
+    });
+
+    const downArrow = elementContainer.querySelector('.down-arrow');
+    downArrow.addEventListener('click', function() {
+      elementContainer.parentNode.insertBefore(elementContainer.nextElementSibling, elementContainer);
+    });
+  }
+
+  function createInputElement(input, elementType, value) {
+
+    const inputContainer = document.createElement('div');
+    inputContainer.classList.add('element-input');
+
+    const label = document.createElement('label');
+    label.textContent = input.label;
+    inputContainer.appendChild(label);
+
+    let inputElement;
+    if (input.type === 'checkbox') {
+      inputElement = document.createElement('input');
+      inputElement.type = 'checkbox';
+      inputElement.checked = input.default;
+    } else if (input.type === 'textarea') {
+      inputElement = document.createElement('textarea');
+      inputElement.value = input.default;
+    } else if (input.type === 'listbox') {
+      inputElement = document.createElement('select');
+      input.values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        inputElement.appendChild(option);
+      });
+      inputElement.value = input.default;
+    } else {
+      inputElement = document.createElement('input');
+      inputElement.type = input.type;
+      inputElement.value = value || input.default;
+    }
+
+    const fieldName = `field_${fieldIndex}_${input.name}`;
+    inputElement.name = fieldName;
+    inputElement.id = fieldName;
+
+    const fieldTypeInput = document.createElement('input');
+    fieldTypeInput.type = 'hidden';
+    fieldTypeInput.name = `${fieldName}_type`;
+    fieldTypeInput.value = elementType;
+
+    inputContainer.appendChild(inputElement);
+    inputContainer.appendChild(fieldTypeInput);
+    return inputContainer;
+  }
+
+  const predefinedElements = [
+    { type: 'text', name: 'text1', label: 'Text 1', value: '', enabled: true },
+    { type: 'checkbox', name: 'checkbox1', label: 'Checkbox 1', value: false, enabled: false },
+    { type: 'textarea', name: 'textarea1', label: 'Textarea 1', value: '', enabled: true }
+  ];
+
+  predefinedElements.forEach(element => {
+    addElement(element.type, element.inputs);
+  });
+</script>
+</body>
+</html>

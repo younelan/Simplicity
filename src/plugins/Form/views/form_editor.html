@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Editor</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    background-color: darkblue;
+    color: white;
+    padding: 10px;
+  }
+  .form-container {
+    background-color: black;
+    padding: 20px;
+    border: 1px solid white;
+    margin-top: 20px;
+  }
+  .form-element {
+    margin-bottom: 10px;
+  }
+  .element-header {
+    background-color: darkblue;
+    color: white;
+    padding: 5px;
+    border: 1px solid white;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .element-actions {
+    display: flex;
+    align-items: center;
+  }
+  .up-arrow, .down-arrow, .remove-element-btn {
+    color: white;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  .remove-element-btn {
+    color: red;
+  }
+</style>
+</head>
+<body>
+<div class="header">Form Editor</div>
+<div class="form-container" id="formContainer"></div>
+<div class="form-controls">
+  <select id="elementTypeSelect"></select>
+  <button id="addElementBtn">Add Element</button>
+</div>
+<script>
+  const elementTypes = {
+    'text': { 
+      label: 'Text', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    },
+    'checkbox': { 
+      label: 'Checkbox', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    },
+    'textarea': { 
+      label: 'Textarea', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'textarea' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' }
+      ]
+    },
+    'listbox': { 
+      label: 'Listbox', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'values', label: 'Values', default: {}, type: 'values' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    },
+    'options': { 
+      label: 'Options', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'values', label: 'Values', default: {}, type: 'values' },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    },
+    'mixed': { 
+      label: 'Mixed', 
+      inputs: [
+        { name: 'name', label: 'Name', default: "", type: 'text'},
+        { name: 'label', label: 'Label', default: '', type: 'text' },
+        { name: 'default', label: 'Default Value', default: '', type: 'text' },
+        { name: 'comment', label: 'Comment', default: 'this is a comment', type: 'textarea' },
+        { name: 'directions', label: 'Directions', default: 'up', type: 'radio', values: {'up':'up', 'down': 'down'} },
+        { name: 'colors', label: 'Colors', default: 'up', type: 'listbox', values: {'up':'Up', 'down':'Down'} },
+        { name: 'enabled', label: 'Enabled', default: true, type: 'checkbox' },
+      ]
+    }
+  };
+
+  const predefinedElements = {predefined_elements}
+
+  const elementTypeSelect = document.getElementById('elementTypeSelect');
+  const addElementBtn = document.getElementById('addElementBtn');
+
+  let elementIdx = 0;
+
+  function createElement(element) {
+    const formElement = document.createElement('div');
+    formElement.classList.add('form-element');
+
+    const elementHeader = document.createElement('div');
+    elementHeader.classList.add('element-header');
+    elementHeader.innerHTML = `
+      <label>${elementTypes[element.type].label}</label>
+      <div class="element-actions">
+        <span class="up-arrow">&#x25B2;</span>
+        <span class="down-arrow">&#x25BC;</span>
+        <button class="remove-element-btn">&#x2715;</button>
+      </div>
+    `;
+    formElement.appendChild(elementHeader);
+
+    elementTypes[element.type].inputs.forEach(input => {
+      let inputElement;
+      const inputLabel = document.createElement('label');
+      inputLabel.textContent = input.label;
+      formElement.appendChild(inputLabel);
+
+      if (input.type === 'checkbox') {
+        inputElement = document.createElement('input');
+        inputElement.type = 'checkbox';
+        inputElement.name = `field_${elementIdx}_${input.name}`;
+        inputElement.checked = element[input.name];
+        formElement.appendChild(inputElement);
+      } else if (input.type === 'listbox' || input.type === 'radio') {
+        inputElement = document.createElement(input.type === 'radio' ? 'div' : 'select');
+        inputElement.name = `field_${elementIdx}_${input.name}`;
+        if (input.type === 'radio') {
+          Object.entries(input.values).forEach(([key, value]) => {
+            const radioInput = document.createElement('input');
+            radioInput.type = 'radio';
+            radioInput.name = `field_${elementIdx}_${input.name}`;
+            radioInput.value = key;
+            radioInput.checked = key === element[input.name];
+            formElement.appendChild(radioInput);
+
+            const radioLabel = document.createElement('label');
+            radioLabel.textContent = value;
+            formElement.appendChild(radioLabel);
+          });
+        } else {
+          Object.entries(input.values).forEach(([key, value]) => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = value;
+            inputElement.appendChild(option);
+          });
+          inputElement.value = element[input.name]; // Set selected value
+          formElement.appendChild(inputElement);
+        }
+      } else {
+        inputElement = document.createElement(input.type === 'textarea' ? 'textarea' : 'input');
+        inputElement.type = input.type;
+        inputElement.name = `field_${elementIdx}_${input.name}`;
+        inputElement.placeholder = input.label;
+        inputElement.value = element[input.name] !== undefined ? element[input.name] : input.default;
+        formElement.appendChild(inputElement);
+      }
+    });
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = `field_${elementIdx}_type`;
+    hiddenInput.value = element.type;
+    formElement.appendChild(hiddenInput);
+
+    document.getElementById('formContainer').appendChild(formElement);
+
+    // Add event listeners for reordering and removal
+    const upArrow = elementHeader.querySelector('.up-arrow');
+    const downArrow = elementHeader.querySelector('.down-arrow');
+    const removeButton = elementHeader.querySelector('.remove-element-btn');
+
+    upArrow.addEventListener('click', () => moveElementUp(formElement));
+    downArrow.addEventListener('click', () => moveElementDown(formElement));
+    removeButton.addEventListener('click', () => removeElement(formElement));
+
+    elementIdx++;
+  }
+
+  function moveElementUp(element) {
+    const prevElement = element.previousElementSibling;
+    if (prevElement) {
+      element.parentNode.insertBefore(element, prevElement);
+    }
+  }
+
+  function moveElementDown(element) {
+    const nextElement = element.nextElementSibling;
+    if (nextElement) {
+      element.parentNode.insertBefore(nextElement, element);
+    }
+  }
+
+  function removeElement(element) {
+    element.remove();
+  }
+
+  function populateElementTypeSelect() {
+    for (const type in elementTypes) {
+      const option = document.createElement('option');
+      option.value = type;
+      option.textContent = elementTypes[type].label;
+      elementTypeSelect.appendChild(option);
+    }
+  }
+
+  function addNewElement(event) {
+    event.preventDefault(); // Prevent form submission
+    const selectedType = elementTypeSelect.value;
+    const newElement = {
+      type: selectedType,
+      name: `${selectedType}${predefinedElements.length + 1}`,
+      label: `${elementTypes[selectedType].label} ${predefinedElements.length + 1}`,
+      value: '',
+      enabled: true
+    };
+    Object.entries(elementTypes[selectedType].inputs).forEach(([key, value]) => {
+      if (value.type === 'listbox' || value.type === 'radio') {
+        newElement[value.name] = Object.keys(value.values)[0];
+      } else {
+        newElement[value.name] = value.default;
+      }
+    });
+    predefinedElements.push(newElement);
+    createElement(newElement);
+  }
+
+  populateElementTypeSelect();
+  addElementBtn.addEventListener('click', addNewElement);
+  predefinedElements.forEach(createElement);
+</script>
+</body>
+</html>

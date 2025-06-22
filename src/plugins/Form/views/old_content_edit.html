@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Properties Editor</title>
+<style>
+    /* Add your CSS styles here */
+    .form-element {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    .element-type {
+        background-color: #333;
+        color: white;
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+    .reorder-icon, .move-icon {
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    .list-item {
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+<label for="formName">Form Name: </label>
+<input type="text" id="formName" name="formName">
+<label for="formAction">Form Action: </label>
+<input type="text" id="formAction" name="formAction">
+<hr>
+<select id="elementType">
+    <option value="text">Text</option>
+    <option value="hidden">Hidden</option>
+    <option value="checkbox">Checkbox</option>
+    <option value="textarea">Textarea</option>
+    <option value="option">Option</option>
+</select>
+<button id="addElementBtn">Add Element</button>
+<div id="formProperties">
+    <!-- Form elements will be dynamically added here -->
+</div>
+<button id="saveBtn">Save</button>
+
+<script>
+    let elementCounter = 1; // Counter for generating default unique names
+
+    // Define properties for each element type
+    const elementProperties = {
+        text: [
+            { name: 'name', type: 'text' },
+            { name: 'label', type: 'text' },
+            { name: 'defaultValue', type: 'text' },
+            { name: 'enabled', type: 'checkbox' }
+        ],
+        hidden: [
+            { name: 'name', type: 'text' },
+            { name: 'value', type: 'text' }
+        ],
+        checkbox: [
+            { name: 'label', type: 'text' },
+            { name: 'name', type: 'text' }
+        ],
+        textarea: [
+            { name: 'label', type: 'text' },
+            { name: 'name', type: 'text' },
+            { name: 'value', type: 'textarea' }
+        ],
+        option: [
+            { name: 'label', type: 'text' },
+            { name: 'name', type: 'text' },
+            { name: 'options', type: 'listbox', options: [] }
+        ]
+    };
+
+    // Predefined form elements array
+    const predefinedElements = [
+        { type: 'option', name: 'option1', label: 'Option 1', options: [{ label: 'Option 1', value: 'Value 1' }, { label: 'Option 2', value: 'Value 2' }] },
+        { type: 'text', name: 'text1', label: 'Text 1', defaultValue: '', enabled: true },
+        { type: 'checkbox', name: 'checkbox1', label: 'Checkbox 1', enabled: false },
+        { type: 'textarea', name: 'textarea1', label: 'Textarea 1', value: '', enabled: true }
+    ];
+
+    // Function to create input elements based on selected type
+    function createInput(type) {
+        const formProperties = document.getElementById("formProperties");
+        const properties = elementProperties[type];
+        const div = document.createElement('div');
+        div.className = 'form-element';
+        
+        // Indicate element type
+        const elementTypeDiv = document.createElement('div');
+        elementTypeDiv.className = 'element-type';
+        elementTypeDiv.textContent = type.toUpperCase();
+        div.appendChild(elementTypeDiv);
+        
+        properties.forEach(prop => {
+            const label = document.createElement('label');
+            label.textContent = prop.name.charAt(0).toUpperCase() + prop.name.slice(1) + ': ';
+            div.appendChild(label);
+            if (prop.type === 'listbox') {
+                const listBox = document.createElement('select');
+                listBox.className = 'listbox';
+                listBox.multiple = true;
+                listBox.size = 3;
+                prop.options.forEach(option => {
+                    const optionItem = document.createElement('option');
+                    optionItem.value = option.value;
+                    optionItem.textContent = option.label;
+                    listBox.appendChild(optionItem);
+                });
+                div.appendChild(listBox);
+                const addButton = document.createElement('button');
+                addButton.textContent = '+';
+                addButton.addEventListener('click', () => {
+                    const newLabel = prompt('Enter label:');
+                    const newValue = prompt('Enter value:');
+                    if (newLabel && newValue) {
+                        const optionItem = document.createElement('option');
+                        optionItem.value = newValue;
+                        optionItem.textContent = newLabel;
+                        listBox.appendChild(optionItem);
+                    }
+                });
+                div.appendChild(addButton);
+                const removeButton = document.createElement('button');
+                removeButton.textContent = '-';
+                removeButton.addEventListener('click', () => {
+                    const selectedOptions = listBox.selectedOptions;
+                    for (let i = 0; i < selectedOptions.length; i++) {
+                        listBox.removeChild(selectedOptions[i]);
+                    }
+                });
+                div.appendChild(removeButton);
+            } else {
+                const input = document.createElement(prop.type === 'textarea' ? 'textarea' : 'input');
+                input.type = prop.type;
+                input.name = `${prop.name}${elementCounter}`;
+                input.placeholder = prop.name.charAt(0).toUpperCase() + prop.name.slice(1); // Capitalize first letter
+                div.appendChild(input);
+            }
+        });
+
+        const reorderIcon = document.createElement('span');
+        reorderIcon.textContent = '☰';
+        reorderIcon.className = 'reorder-icon';
+        reorderIcon.draggable = true;
+        reorderIcon.addEventListener('dragstart', dragStart);
+        reorderIcon.addEventListener('dragover', dragOver);
+        reorderIcon.addEventListener('drop', drop);
+        div.insertBefore(reorderIcon, div.firstChild); // Insert reorder icon at the beginning
+
+        // Add up arrow button
+        const moveUpIcon = document.createElement('span');
+        moveUpIcon.textContent = '↑';
+        moveUpIcon.className = 'move-icon';
+        moveUpIcon.addEventListener('click', moveUp);
+        div.insertBefore(moveUpIcon, reorderIcon.nextSibling);
+
+        // Add down arrow button
+        const moveDownIcon = document.createElement('span');
+        moveDownIcon.textContent = '↓';
+        moveDownIcon.className = 'move-icon';
+        moveDownIcon.addEventListener('click', moveDown);
+        div.insertBefore(moveDownIcon, reorderIcon.nextSibling);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'X';
+        deleteBtn.className = 'deleteBtn';
+        div.appendChild(deleteBtn);
+        formProperties.appendChild(div);
+
+        elementCounter++; // Increment counter for the next element
+    }
+
+    // Function to delete a form element
+    function deleteElement(event) {
+        event.target.closest('.form-element').remove();
+    }
+
+    // Reordering functions
+    let dragElement;
+
+    function dragStart(event) {
+        dragElement = event.target.closest('.form-element');
+        event.dataTransfer.setData("text", dragElement.id);
+    }
+
+    function dragOver(event) {
+        event.preventDefault();
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        const data = event.dataTransfer.getData("text");
+        const targetElement = event.target.closest('.form-element');
+        const parent = targetElement.parentNode;
+        parent.insertBefore(dragElement, targetElement);
+    }
+
+    // Move up function
+    function moveUp(event) {
+        const element = event.target.closest('.form-element');
+        if (element.previousElementSibling) {
+            element.parentNode.insertBefore(element, element.previousElementSibling);
+        }
+    }
+
+    // Move down function
+    function moveDown(event) {
+        const element = event.target.closest('.form-element');
+        if (element.nextElementSibling) {
+            element.parentNode.insertBefore(element.nextElementSibling, element);
+        }
+    }
+
+    // Initialize
+    document.getElementById("addElementBtn").addEventListener("click", () => {
+        const selectElement = document.getElementById("elementType");
+        const selectedType = selectElement.options[selectElement.selectedIndex].value;
+        createInput(selectedType);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (event.target && event.target.classList.contains("deleteBtn")) {
+            deleteElement(event);
+        }
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+        const formElements = document.querySelectorAll(".form-element");
+        const formData = [];
+        formElements.forEach(element => {
+            const inputs = element.querySelectorAll("input, textarea");
+            const data = {};
+            inputs.forEach(input => {
+                data[input.name] = input.value;
+                if (input.type === 'checkbox') {
+                    data[input.name] = input.checked;
+                }
+            });
+            if (element.querySelector('.listbox')) {
+                const listItems = [];
+                const listBox = element.querySelector('.listbox');
+                listBox.querySelectorAll('option').forEach(option => {
+                    listItems.push({ label: option.textContent, value: option.value });
+                });
+                data['options'] = listItems;
+            }
+            formData.push(data);
+        });
+        const formName = document.getElementById("formName").value;
+        const formAction = document.getElementById("formAction").value;
+        const jsonData = {
+            formName: formName,
+            formAction: formAction,
+            formElements: formData
+        };
+        console.log(jsonData); // You can send this JSON data to your backend for further processing
+    });
+
+    // Populate form elements on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        predefinedElements.forEach(element => {
+            createInput(element.type);
+            const formElement = document.querySelector('.form-element:last-child');
+            const inputs = formElement.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                if (element[input.name] !== undefined) {
+                    input.value = element[input.name];
+                    if (input.type === 'checkbox') {
+                        input.checked = element[input.name];
+                    }
+                }
+            });
+            if (element.type === 'option') {
+                const listBox = formElement.querySelector('.listbox');
+                element.options.forEach(option => {
+                    const optionItem = document.createElement('option');
+                    optionItem.value = option.value;
+                    optionItem.textContent = option.label;
+                    listBox.appendChild(optionItem);
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

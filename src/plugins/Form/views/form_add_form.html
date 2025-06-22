@@ -1,0 +1,18 @@
+<h1>{form_header}</h1>
+<form action="{form_action}" method="POST">
+    <div>
+    <button id="submitBtn" type="submit" class="btn btn-info">{button_header}</button>
+    <a href="?plugin=form&page=list" class="btn btn-info">Back to form List</a></div>
+    <br/>
+
+    <label for="form_name">Form Name:</label>
+    <input type="text" id="form_name" name="form_name" value="{form_name}" required><br>
+        
+    <label for="form_description">Form Description:</label>
+    <input type="text" id="form_description" name="form_description" value="{form_description}"><br><br>
+    <!-- <textarea id="form_description" name="form_description" rows="4" cols="50" required>{form_description}</textarea><br><br> -->
+    
+
+{form_editor}
+
+</form>
