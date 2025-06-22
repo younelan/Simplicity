@@ -8,12 +8,18 @@
         public $block_options=[];
         public $block_name="";
         public $block_type="";
+
+        public $default = [
+            'encoding' => 'utf-8',
+            'content-type' => 'html'
+        ]; // Default options for blocks
+        public $content_type="html"; // Default content type for rendering
         public $text_block=false;
         public $description="Implements a basic block";
         public function set_block_options($options) {
             $this->block_options = $options;
             $this->block_name = $options['name']??'undefined';
-            $this->block_type = $options['type']??"text";
+            $this->block_type = $options['content-type']??"text";
             //print "<div>new block of {$this->block_name} of type {$this->block_type}</div>";
         }
         function on_event($event)
@@ -29,17 +35,18 @@
         
         /*here for legacy until other classes stop using it*/
         function render_insert_text($text,$options=[]) {
-            $default = [
-                'encoding' => 'utf-8',
-                'content-type' => 'html'
-            ];
 
-            $content_type = $options['content-type'] ?? $default['content-type'];
-            
+            $content_type = $options['content-type'] ?? $this->default['content-type'];
+            //print $content_type;exit;
             // Try to get a registered block type plugin
             $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
+            
             if ($block_plugin && method_exists($block_plugin, 'render')) {
-                return $block_plugin->render($text, $options);
+                // Create block config structure
+                $block_config = ['content' => $text];
+                // Merge in any additional options as block config
+                $block_config = array_merge($block_config, $options);
+                return $block_plugin->render($block_config, $options);
             }
 
             // Fallback to default text handling
@@ -50,11 +57,15 @@
             return $text;
         }
         function render($app) {
+
+            $retval = "";
             $i18n = $this->plugins->get_plugin('i18n');
             $section=$this->block_options;
+            $this->content_type = $app['content-type'] ?? 'html';
             $blocklink=$section['link']??"";
             $blockclass=$section['class']??"block block-$this->block_name";
             $retval = "";
+            $blockoptions = $this->default;
 
             if(isset($section['title'])) {
                 $cur_title=$i18n->get_i18n_value($section['title']);
@@ -64,42 +75,43 @@
                     $retval .= "<h2 class='block-title'>" . $cur_title. "</h2>";
                 }
             }
-
             /* render the content */
-            $current_plugin = $this->plugins->get_plugin($this->block_type); 
-            $current_path=$app['route']??"default";
-
-            $paths = $this->config_object->get('paths');
-            if($current_plugin ) {
-                //$current = $this->config_object->get('current');
-                //$config['current']=$this->block_options;
-                $block_options=$app["route"];
-                $plugin_content =$current_plugin->on_render_page($section);
-                $retval .= $plugin_content;
+            // First try to get a registered block type plugin
+            $block_plugin = $this->plugins->get_registered_type('blocktype', $this->content_type);
+            if ($block_plugin && method_exists($block_plugin, 'render')) {
+                $retval .= $block_plugin->render($app, $blockoptions);
+  
             } else {
+                // Fallback to checking for a named plugin (legacy support)
+                $current_plugin = $this->plugins->get_plugin($this->content_type); 
+                if($current_plugin ) {
+                    $plugin_content =$current_plugin->on_render_page($section);
+                    $retval .= $plugin_content;
+                } else {
+                    // Final fallback to legacy switch statement
+                    switch($this->content_type) {
+                        case "text":
+                            $options = ['content-type'=>$section['content-type']??"html"];
 
-                switch($this->block_type) {
-                    case "text":
-                        $options = ['content-type'=>$section['content-type']??"html"];
-
-                        $tmpcontent = $section['content']??"";
-                        $tmpcontent = $i18n->get_i18n_value($tmpcontent);
-                        if(!is_array($tmpcontent)) {
-                            $tmpcontent = [ $tmpcontent];
-                        }
-                        $tmpcontent = implode("\n",$tmpcontent);
-                        $parsed_content = $this->render_insert_text($tmpcontent,$options,$section);
-                        $retval .= $parsed_content;
-                        break; 
-                    case "include":
-                        $options = ['content-type'=>$section['content-type']??"html"];
-                        $incfile = $section['file']??"";
-                        // Use the include block type plugin
-                        $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
-                        if ($include_plugin) {
-                            $retval .= $include_plugin->render($incfile, $options);
-                        }
-                        break; 
+                            $tmpcontent = $section['content'] ?? $section['text'] ?? "";
+                            $tmpcontent = $i18n->get_i18n_value($tmpcontent);
+                            if(!is_array($tmpcontent)) {
+                                $tmpcontent = [ $tmpcontent];
+                            }
+                            $tmpcontent = implode("\n",$tmpcontent);
+                            $parsed_content = $this->render_insert_text($tmpcontent,$options,$section);
+                            $retval .= $parsed_content;
+                            break; 
+                        case "include":
+                            $options = ['content-type'=>$section['content-type']??"html"];
+                            $incfile = $section['file']??"";
+                            // Use the include block type plugin
+                            $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
+                            if ($include_plugin) {
+                                $retval .= $include_plugin->render($incfile, $options);
+                            }
+                            break; 
+                    }
                 }
             }
             if($retval) {
@@ -107,5 +119,9 @@
             }
             return $retval;
 
+        }
+        function on_render_page($app) {
+            // This method is intentionally left empty, as the render logic is handled in the render method
+            return $this->render($app);
         }
     }
