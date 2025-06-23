@@ -8,13 +8,14 @@ class Framework extends Base
     private $registry = [];
     function __construct($config_object = null)
     {
-        
+        $this->on_init($config_object);
+
         parent::__construct($config_object);
-        //$this->config_object = $config_object;
         //$this->on_init($config_object);
     }
     function on_init($config_object = null)
     {
+    
         if ($config_object) {
             $this->config_object = $config_object;
         } else {
