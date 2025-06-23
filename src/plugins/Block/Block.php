@@ -97,12 +97,13 @@
             $section=$this->block_options;
             $this->content_type = $app['content-type'] ?? 'html';
             $this->block_type = $app['type'] ?? 'block';
+            $app['content-type'] = $this->content_type;
+            $app['type'] = $this->block_type;
             $fname = $app['file'] ?? '';
             $blocklink=$section['link']??"";
             $blockclass=$section['class']??"block block-$this->block_name";
             $retval = "";
             $blockoptions = $this->default;
-
             if(isset($section['title'])) {
                 $cur_title=$i18n->get_i18n_value($section['title']);
                 if($blocklink) {
@@ -113,16 +114,20 @@
             }
             /* render the content */
             // First try to get a registered block type plugin
+            if($app['type']== 'include') {
+                $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
+                $content = $this->fetch_file("$datafolder/$fname", $app);
+                $app['content'] = $app['content'] ?? $content;            
+            }
             $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
-           
-            $content = $this->fetch_file("$datafolder/$fname", $app);
-            $app['content'] = $content;
-
+            
             $block_plugin = $this->plugins->get_registered_type('blocktype', $this->content_type);
             if ($block_plugin && method_exists($block_plugin, 'render')) {
                 $retval .= $block_plugin->render($app, $blockoptions);
   
             } else {
+                // print "no plugin found for block type: $this->content_type";
+                // print_r($this->plugins->get_registered_type_list('blocktype'));
                 // Fallback to checking for a named plugin (legacy support)
                 $current_plugin = $this->plugins->get_plugin($this->content_type); 
                 if($current_plugin ) {
