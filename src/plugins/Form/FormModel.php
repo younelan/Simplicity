@@ -4,7 +4,7 @@ namespace Opensitez\Simplicity\Plugins;
 
 use \PDO;
 
-class FormModel extends DBLayer
+class FormModel extends \Opensitez\Simplicity\DBLayer
 {
     protected $formsTable = "sites__forms";
     protected $routeTale = "sites__routes";
