@@ -1,0 +1,38 @@
+<style>
+/* CSS for styling the gallery list */
+.gallery-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* CSS for styling individual galleries */
+.gallery {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    width: 300px;
+}
+
+/* CSS for styling the gallery information table */
+.gallery-info {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gallery-info td {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+/* CSS for styling the delete button */
+.delete-button {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    background-color: #ff4444;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 3px;
+    text-align: center;
+}
+</style>

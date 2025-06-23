@@ -1,0 +1,80 @@
+    <style>
+        .gallery {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .photo {
+            display: none;
+        }
+        .photo.active {
+            display: block;
+        }
+    </style>
+
+<h1>{title}</h1>
+    <p>{description}</p>
+    <button id="toggleBtn" onclick="toggleAutoPlay()">Play</button>
+    <a href='?plugin=gallery&page=update_gallery&gallery_id={gallery_id}' class="btn btn-info">Back to Gallery</a>
+    <button onclick="prevSlide()" class="btn btn-info">Previous</button>
+    <button onclick="nextSlide()" class='btn btn-info'>Next</button>
+
+    <div class="gallery">
+        {slides}
+    </div>
+
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.photo');
+        let autoPlayInterval = null;
+        let autoPlayEnabled = false;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(() => {
+                nextSlide();
+            }, 3000); // Change slide every 3 seconds (adjust as needed)
+            document.getElementById('toggleBtn').textContent = 'Stop';
+            autoPlayEnabled=true
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+            document.getElementById('toggleBtn').textContent = 'Play';
+            autoPlayEnabled=false
+        }
+
+        function toggleAutoPlay() {
+            if (autoPlayEnabled) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+            autoPlayEnabled = !autoPlayEnabled;
+        }
+
+        // Start autoplay initially
+        startAutoPlay();
+        //autoPlayEnabled = true
+    </script>

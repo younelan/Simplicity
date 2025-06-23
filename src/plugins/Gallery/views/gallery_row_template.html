@@ -1,0 +1,11 @@
+<tr>
+    <td>{gallery_name}</td>
+    <td>
+        <a href='?plugin=gallery&page=update_gallery&gallery_id={gallery_id}' class="btn btn-info">Update</a>
+        <a href='?plugin=gallery&page=view_gallery&gallery_id={gallery_id}' class="btn btn-info">View</a>
+        <form method="POST" action="?plugin=gallery&page=delete_gallery">
+            <input type="hidden" id="gallery_id" name="gallery_id" value="{gallery_id}">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </td>
+</tr>
