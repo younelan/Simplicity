@@ -145,8 +145,6 @@ class DBLayer extends \Opensitez\Simplicity\Plugin
     }
     function display_table_details($tableName)
     {
-        //print_r($this->config_object->getLegacyConfig());
-
         $output = "";
         try {
             $driver = $this->connection->getAttribute(PDO::ATTR_DRIVER_NAME);
