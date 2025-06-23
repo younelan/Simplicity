@@ -2,7 +2,7 @@
 
 namespace Opensitez\Simplicity;
 
-class Handler extends Base
+class Framework extends Base
 {
     private $plugins = [];
     private $registry = [];
