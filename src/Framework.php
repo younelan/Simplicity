@@ -11,15 +11,27 @@ class Framework extends Base
         $this->on_init($config_object);
 
         parent::__construct($config_object);
-        //$this->on_init($config_object);
     }
     function on_init($config_object = null)
     {
-    
+
+        $default_config = [
+            $basedir = dirname(__DIR__),
+            'simplicity' => [
+                'paths' => [
+                    'base' => $basedir,
+                    'plugins' => __DIR__ . '/plugins',
+                    'templates' => $basedir . 'templates',
+                    'themes' => $basedir . 'public/themes',
+                    'assets' => __DIR__ . '/assets',
+                ],
+                'debug' => false,
+            ],
+        ];
         if ($config_object) {
             $this->config_object = $config_object;
         } else {
-            $this->config_object = new \Opensitez\Simplicity\Config();
+            $this->config_object = new \Opensitez\Simplicity\Config($default_config);
         }
         // Load default plugins from library
         $this->load_default_plugins();
@@ -109,7 +121,9 @@ class Framework extends Base
                         $plugin_instance = new $classname($this->config_object);
                         $this->plugins[$group][strtolower($file)] = $plugin_instance;
                         $plugin_instance->set_handler($this);
-
+                        if ($plugin_instance && method_exists($plugin_instance, 'on_event')) {
+                            $plugin_instance->on_event(['type' => MSG::PluginLoad]);
+                        }
                         //echo "Loaded plugin: $file from namespace: $namespace into group: $group\n<br/>";
                     } else {
                         echo "Class $classname not found in $plugin_file\n<br/>";
@@ -155,6 +169,13 @@ class Framework extends Base
         }
         return $this->config_object.get('paths');
     }
+    function getSite()
+    {
+        if (!$this->config_object) {
+            $this->on_init();
+        }
+        return $this->config_object->get('site');
+    }
     function register_type($type, $key, $plugin_name = null)
     {
         // If no plugin name provided, use the calling plugin
@@ -188,7 +209,7 @@ class Framework extends Base
         return null;
     }
     
-    function get_registered_list($type)
+    function get_registered_type_list($type)
     {
         return $this->registry[$type] ?? [];
     }
