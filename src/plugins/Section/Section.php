@@ -86,7 +86,6 @@ class Section extends \Opensitez\Simplicity\Plugin
         $class = $app['class'] ?? "";
         $class = "section " . $this->class;
         $block_plugin = $this->plugins->get_plugin("block");
-        //$config = $this->config_object->getLegacyConfig();
         $paths = $this->config_object->get('paths');
         $content = "";
 
