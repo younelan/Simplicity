@@ -306,7 +306,7 @@ foreach($data as $key=>$value) {
                     $color = $colorCycle[$curcolor % count($colorCycle)];
 
                     $entry_var =htmlentities( trim( $logline[$col_id]??"" ) );
-                    $coloredLine .="<font color=" . $color . ">" . $entry_var . "</font>&nbsp;\t<br/>\n-------";
+                    $coloredLine .="<font color=" . $color . ">" . $entry_var . "</font>&nbsp;\t\n";
                     $curcolor++;
                 }
                 $coloredLine .= "<br/>";
