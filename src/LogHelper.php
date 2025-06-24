@@ -99,66 +99,39 @@ class LogHelper
             /*print "<img src=graph/3dpie.php?data=$data&label=$label&show_totals=true>";*/
             $this->d3pie("first_ten",$first_ten,$label);
         }
-    }
-    function d3pie($name,$data,$label) {
-if(!isset($this->graphid))
-  $this->graphid=0;
-else 
-  $this->graphid +=1;
-?>
-<div style='overflow:auto;min-height:250px;width:600px;background-color:#FFC;display:inline-block;position:relative;'>
-    <div style='position:absolute;left:0px;float:left;' id="<?php  echo "graph" . $this->graphid; ?>"></div>
-<div style='font-size:0.8em;position:absolute;left:160px;'>
-<?php
+    }    function d3pie($name,$data,$label) {
+        if(!isset($this->graphid))
+            $this->graphid=0;
+        else 
+            $this->graphid +=1;
 
-$total=0;
-foreach($data as $key=>$value) {
-print "<div><span style='font-weight:bold;color:#833;min-width:200px;display:inline-block;'>" . htmlentities($key) . "</span> : &nbsp; <span style='color:#aaa;'>$value</span></div>\n";
-$total += $value;
-}
-?>
-</div>
-</div>
-    <script src="d3/d3.min.js"></script>
-    <script>
-      (function(d3) {
-        'use strict';
-        var dataset = [
-<?php
-
-foreach($data as $key=>$value) {
-  print "{ label: '" . htmlentities($key) . "', count: " . intval($value*360/$total) . "} , \n";
-}
-?>
+        $template = new \Opensitez\Simplicity\SimpleTemplate();
+        $templatePath = __DIR__ . '/templates/graph.tpl';
+        $template->setFile($templatePath);
+        
+        // Calculate total for percentages
+        $total = array_sum($data);
+        
+        // Build data list HTML
+        $dataList = '';
+        foreach($data as $key=>$value) {
+            $dataList .= "<div><span style='font-weight:bold;color:#833;min-width:200px;display:inline-block;'>" . htmlentities($key) . "</span> : &nbsp; <span style='color:#aaa;'>$value</span></div>\n";
+        }
+        
+        // Build dataset for D3
+        $dataset = '';
+        foreach($data as $key=>$value) {
+            $dataset .= "{ label: '" . htmlentities($key) . "', count: " . intval($value*360/$total) . "} , \n";
+        }
+        
+        $variables = [
+            'GRAPH_ID' => "graph" . $this->graphid,
+            'DATA_LIST' => $dataList,
+            'DATASET' => $dataset
         ];
-        var width = 150;
-        var height = 150;
-        var radius = Math.min(width, height) / 2;
-        var color = d3.scaleOrdinal(d3.schemeCategory20b);
-        var svg = d3.select('#<?php echo "graph" . $this->graphid ;?>')
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .append('g')
-          .attr('transform', 'translate(' + (width / 2) +
-            ',' + (height / 2) + ')');
-        var arc = d3.arc()
-          .innerRadius(0)
-          .outerRadius(radius);
-        var pie = d3.pie()
-          .value(function(d) { return d.count; })
-          .sort(null);
-        var path = svg.selectAll('path')
-          .data(pie(dataset))
-          .enter()
-          .append('path')
-          .attr('d', arc)
-          .attr('fill', function(d) {
-            return color(d.data.label);
-          });
-      })(window.d3);
-    </script>
-<?php
+        
+        $template->setVars($variables);
+        echo $template->render();
     }
     function setColumns($columnNames)
     {
@@ -185,13 +158,23 @@ foreach($data as $key=>$value) {
                 $this->rules[$category][]=array("class"=>$explodeline[0],"field"=>$explodeline[1],"value"=>$explodeline[2],"type"=>"like","name"=>$explodeline[3]);
             }
         }
-    }
-    function printLog()
+    }    function printLog()
     {
-        if($this->filter_count>1)
-            print($this->filter_count . " lines filtered<p>");
-
-        print($this->filteredLog);
+        $template = new \Opensitez\Simplicity\SimpleTemplate();
+        $templatePath = __DIR__ . '/templates/log.tpl';
+        $template->setFile($templatePath);
+        
+        $output = '';
+        if($this->filter_count>1) {
+            $output .= $this->filter_count . " lines filtered<p>";
+        }
+        
+        $variables = [
+            'LOG_ENTRIES' => $this->filteredLog
+        ];
+        
+        $template->setVars($variables);
+        echo $output . $template->render();
     }
     function showGraphs()
     {
