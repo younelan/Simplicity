@@ -2,7 +2,7 @@
 
 namespace Opensitez\Plugins;
 
-class I18n extends \Opensitez\Cms\Plugin
+class I18n extends \Opensitez\Simplicity\Plugin
 {
     function accepted_langs()
     {
