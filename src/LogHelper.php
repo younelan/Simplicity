@@ -1,5 +1,5 @@
 <?php
-require_once("domain_helper.php");
+    namespace Opensitez\Simplicity;
 $colorCycle=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
 class LogHelper
 {
