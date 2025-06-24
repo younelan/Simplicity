@@ -1,5 +1,7 @@
 <?php
 namespace Opensitez\Simplicity;
+use Symfony\Component\Yaml\Yaml;
+
 $colorCycle=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
 class LogHelper
 {
@@ -37,8 +39,7 @@ class LogHelper
         }
         $this->init();
         $this->ruleStats=array();
-    }
-    //reinitialize all values when file name changes... not sure if necessary... but always good
+    }    //reinitialize all values when file name changes... not sure if necessary... but always good
     function init()
     {
 
@@ -53,6 +54,42 @@ class LogHelper
         $this->parsedLog="";
         $this->ruleStats="";
         $this->results=array();
+        
+        // Set default column mappings if not already set
+        if (!isset($this->columns)) {
+            $this->setDefaultColumns();
+        }
+    }
+    
+    function setDefaultColumns()
+    {
+        $logformat = $this->config_object->get('logformat') ?? "apache";
+        
+        if ($logformat === "apache" || $logformat === "nginx" || $logformat === "combined") {
+            // Apache Common Log Format / Combined Log Format
+            $this->columns = [
+                0 => ['ip', 'IP Address'],
+                1 => ['ident', 'Identity'],
+                2 => ['user', 'User'],
+                3 => ['date', 'Date/Time'],
+                4 => ['request', 'Request'],
+                5 => ['status', 'Status Code'],
+                6 => ['size', 'Response Size'],
+                7 => ['referer', 'Referer'],
+                8 => ['user_agent', 'User Agent']
+            ];
+        } else {
+            // Tab-separated format
+            $this->columns = $this->config_object->get('columns', [
+                0 => ['date', 'Date'],
+                1 => ['ip', 'IP'],
+                2 => ['hostname', 'Hostname'],
+                3 => ['path', 'Path'],
+                4 => ['referer', 'Referer'],
+                5 => ['user_agent', 'User Agent'],
+                6 => ['domain', 'Domain']
+            ]);
+        }
     }
     function setFilter($filter_field,$filter_type,$filter_value)
     {
@@ -136,29 +173,28 @@ class LogHelper
     function setColumns($columnNames)
     {
         $this->columns=$columnNames;
-    }
-    function loadRules($category='engines')
+    }    function loadRules($category='engines')
     {
-
-        $filename=$this->config_object->get('engines');
-        $engines_file=explode("\n",file_get_contents($filename));
-
-        foreach($engines_file as $line)
-        {
-            //strip commented out lines
-            $thepos=strpos($line,"#");
-            if(!($thepos===false))
-            {
-                $comment=substr($line,$thepos+1);
-                $line=substr($line,0,$thepos);
-            }
-            $explodeline=explode("\t",$line);
-            if (count($explodeline)>2)
-            {
-                $this->rules[$category][]=array("class"=>$explodeline[0],"field"=>$explodeline[1],"value"=>$explodeline[2],"type"=>"like","name"=>$explodeline[3]);
+        $filename = $this->config_object->get('paths.engine_file');
+        //print $filename;exit;
+        // Use Config class to load the YAML file into the 'engines' config key
+        if ($filename && $this->config_object->mergeYaml('engines', $filename)) {
+            $rules = $this->config_object->get('engines.rules', []);
+            
+            foreach ($rules as $rule) {
+                if ($rule['class'] === $category) {
+                    $this->rules[$category][] = [
+                        "class" => $rule['class'],
+                        "field" => $rule['field'],
+                        "value" => $rule['name'],
+                        "type" => "like",
+                        "name" => $rule['description']
+                    ];
+                }
             }
         }
-    }    function printLog()
+    }
+    function printLog()
     {
         $template = new \Opensitez\Simplicity\SimpleTemplate();
         $templatePath = __DIR__ . '/templates/log.tpl';
@@ -175,6 +211,59 @@ class LogHelper
         
         $template->setVars($variables);
         echo $output . $template->render();
+    }
+    function splitTabbedLine($line)
+    {
+        return explode("\t", $line);
+    }    function splitApacheLine($line)
+    {
+        $fields = [];
+        $position = 0;
+        $length = strlen($line);
+        
+        while ($position < $length) {
+            // Skip whitespace
+            while ($position < $length && $line[$position] === ' ') {
+                $position++;
+            }
+            
+            if ($position >= $length) break;
+            
+            $value = '';
+            
+            // Check for bracketed content (like dates)
+            if ($line[$position] === '[') {
+                $position++; // Skip opening bracket
+                while ($position < $length && $line[$position] !== ']') {
+                    $value .= $line[$position];
+                    $position++;
+                }
+                if ($position < $length) $position++; // Skip closing bracket
+            }
+            // Check for quoted content
+            elseif ($line[$position] === '"') {
+                $position++; // Skip opening quote
+                while ($position < $length && $line[$position] !== '"') {
+                    if ($line[$position] === '\\' && $position + 1 < $length) {
+                        $position++; // Skip escape character
+                    }
+                    $value .= $line[$position];
+                    $position++;
+                }
+                if ($position < $length) $position++; // Skip closing quote
+            }
+            // Regular field (no spaces)
+            else {
+                while ($position < $length && $line[$position] !== ' ') {
+                    $value .= $line[$position];
+                    $position++;
+                }
+            }
+            
+            $fields[] = $value;
+        }
+        
+        return $fields;
     }
     function showGraphs()
     {
@@ -258,13 +347,8 @@ class LogHelper
 
         $this->filteredLog = ("<table border=1>");
 
-
-
-
-
-
-
-
+        $logformat = $this->config_object->get('logformat') ?? "apache";
+        $logformat = $this->config_object->get('logformat')??"apache";
 
         
         foreach($log_lines as $line)
@@ -272,7 +356,14 @@ class LogHelper
             if(trim($line<>""))
             {
                 //$line=str_replace(array("index.php","blog/wp-login","wordpress/wp-login","/wp/"), array("","wp-login","wp-login",'/wordpress/'), $line);
-                $logline=explode("\t",$line);
+                if( $logformat=="apache" || $logformat=="nginx" || $logformat=="combined" )
+                {
+                    $logline = $this->splitApacheLine($line);
+                }
+                else 
+                {
+                    $logline=$this->splitTabbedLine($line);
+                } 
                 $entry=array();
                 $curcolor=0;
                 $coloredLine="";
