@@ -1,36 +1,49 @@
 <?php
-    namespace Opensitez\Simplicity;
+namespace Opensitez\Simplicity;
 $colorCycle=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
 class LogHelper
 {
-    var $filename;
-    var $filters;
-    var $total_engines;
-    var $total_tools=0;
-    var $total_scans=0;
-    var $total_others=0;
-    var $total_visitors;
-    var $engine_stats=array('Visitors'=>0,'Scan'=>0,'Engine'=>0,'Tool'=>0);
-    var $parsedLog;
-    var $filteredLog;
-    var $ruleStats;
-    var $columns;
-    var $rules;
-    var $families;
-    var $filter_count;
-    var $domaincache;	
-    var $customGraphs;
-    var $customGraph_results;
+    private $filename;
+    private $filters;
+    private $total_engines;
+    private $total_tools=0;
+    private $total_scans=0;
+    private $total_others=0;
+    private $total_visitors;
+    private $engine_stats=array('Visitors'=>0,'Scan'=>0,'Engine'=>0,'Tool'=>0);
+    private $parsedLog;
+    private $filteredLog;
+    private $ruleStats;
+    private $columns;
+    private $rules;
+    private $families;
+    private $filter_count;
+    private $domaincache;	
+    private $customGraphs;
+    private $customGraph_results;
+    private $results;
+    private $graphid=0;
+    private $config_object;
+    private $defaultcolors=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
     //constructor
-    function LogHelper($filename)
+    function __construct($config)
     {
-        $this->setFile($filename);
+        if(is_array($config)) {
+            $this->config_object = new \Opensitez\Simplicity\Config($config);
+        } else if(is_object($config))  {
+            $this->config_object = $config;
+        } else {
+            $this->config_object = new \Opensitez\Simplicity\Config();
+        }
+        $this->init();
         $this->ruleStats=array();
     }
     //reinitialize all values when file name changes... not sure if necessary... but always good
-    function setFile($filename)
+    function init()
     {
-        $this->filename=$filename;
+
+        $this->filename=$this->config_object->get('filename');
+        //$this->engines_file=$this->config_object->get('engines');
         $this->total_engines=0;
         $this->total_visitors=0;
         $this->total_others=0;
@@ -55,7 +68,7 @@ class LogHelper
         $graphcount=0;
         foreach($this->customGraphs as $key=>$value)
         {
-            $this->showCustomGraph($value); print "&nbsp;";
+            $this->showCustomGraph($value[0]); print "&nbsp;";
             if($graphcount%2) print("<p>");
             $graphcount++;
         }
@@ -151,9 +164,12 @@ foreach($data as $key=>$value) {
     {
         $this->columns=$columnNames;
     }
-    function loadRules($filename,$category='engines')
+    function loadRules($category='engines')
     {
+
+        $filename=$this->config_object->get('engines');
         $engines_file=explode("\n",file_get_contents($filename));
+
         foreach($engines_file as $line)
         {
             //strip commented out lines
@@ -238,10 +254,36 @@ foreach($data as $key=>$value) {
     }
     function parseLog()
     {
-        $logfile = file_get_contents($this->filename, "r");
-        $log_lines=explode("\n",$logfile);
-        global $colorCycle;
+
+        $filename = $this->config_object->get('file');
+        print $filename . "<br>";
+        if ( !file_exists($filename)) {
+            print("Log file " . $this->filename . " does not exist or is inaccessible.");
+            return false; // Return false if the file does not exist
+        }
+
+        $logfile = file_get_contents($filename);
+        if ($logfile === false) {
+            print("Failed to read log file " . htmlentities($filename) . ".");
+            return false; // Return false if the file cannot be read
+        }
+
+        $log_lines = explode("\n", $logfile);
+        $colorCycle = $this->config_object->get('colorCycle') ?? $this->defaultcolors;
         $this->filteredLog = ("<table border=1>");
+        $idx=0;
+
+        $this->filteredLog = ("<table border=1>");
+
+
+
+
+
+
+
+
+
+        
         foreach($log_lines as $line)
         {
             if(trim($line<>""))
@@ -251,13 +293,20 @@ foreach($data as $key=>$value) {
                 $entry=array();
                 $curcolor=0;
                 $coloredLine="";
-                foreach($this->columns as $col_id=>$col_name)
+                $idx+=1;
+                foreach($this->columns as $col_id=>$col_details)
                 {
+
+                    $col_name = $col_details[0] ?? $col_id;
                     if(isset($logline[$col_id]))
                       $entry[$col_name]=trim($logline[$col_id]);
                     else
                       $entry[$col_name]="";
-                    $coloredLine .="<font color=" . $colorCycle[$curcolor] . ">" . htmlentities( trim( $logline[$col_id] ) ) . "</font>&nbsp;\t";
+
+                    $color = $colorCycle[$curcolor % count($colorCycle)];
+
+                    $entry_var =htmlentities( trim( $logline[$col_id]??"" ) );
+                    $coloredLine .="<font color=" . $color . ">" . $entry_var . "</font>&nbsp;\t<br/>\n-------";
                     $curcolor++;
                 }
                 $coloredLine .= "<br/>";
@@ -335,13 +384,13 @@ foreach($data as $key=>$value) {
                         //check the custom graphs
                         foreach($this->customGraphs as $graph_name=>$graph_rule)
                         {
-                            if(isset($entry[$graph_rule]))
-                                $graph_value=trim($entry[$graph_rule]);
+                            if(isset($entry[$graph_rule[0]]))
+                                $graph_value=trim($entry[$graph_rule[0]]);
                             if(isset($grap_value)) {
-                              if(isset($this->customGraph_results[$graph_rule][$graph_value]))
-                                $this->customGraph_results[$graph_rule][$graph_value]++;
+                              if(isset($this->customGraph_results[$graph_rule[0]][$graph_value]))
+                                $this->customGraph_results[$graph_rule[0]][$graph_value]++;
                               else
-                                $this->customGraph_results[$graph_rule][$graph_value]=1;
+                                $this->customGraph_results[$graph_rule[0]][$graph_value]=1;
                             }
                         }
                     }
