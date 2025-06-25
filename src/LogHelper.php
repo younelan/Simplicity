@@ -68,8 +68,6 @@ class LogHelper
         '%z' => ['fields' => ['error_type']],
         '%i' => ['fields' => ['pid']],
     ];
-
-    //constructor
     function __construct($config)
     {
         if(is_array($config)) {
@@ -81,12 +79,10 @@ class LogHelper
         }
         $this->init();
         $this->ruleStats=array();
-    }    //reinitialize all values when file name changes... not sure if necessary... but always good
+    }   
     function init()
     {
-
         $this->filename=$this->config_object->get('filename');
-        //$this->engines_file=$this->config_object->get('engines');
         $this->total_engines=0;
         $this->total_visitors=0;
         $this->total_others=0;
@@ -98,7 +94,6 @@ class LogHelper
         $this->results=[];
         
         $this->engine_stats = $this->default_stats;
-        // Set default column mappings if not already set
         if (!isset($this->columns)) {
             $this->setDefaultColumns();
         }
@@ -193,7 +188,7 @@ class LogHelper
             print "</div>";
         }
 
-        print "</div>"; // Close the grid container
+        print "</div>"; 
     }
     function showCustomGraph($graph_name)
     {
@@ -255,8 +250,6 @@ class LogHelper
     function loadRules($category='engines')
     {
         $filename = $this->config_object->get('paths.engine_file');
-        //print $filename;exit;
-        // Use Config class to load the YAML file into the 'engines' config key
         if ($filename && $this->config_object->mergeYaml('engines', $filename)) {
             $rules = $this->config_object->get('engines.rules', []);
             
@@ -293,7 +286,6 @@ class LogHelper
         if($this->filter_count>1) {
             $output .= $this->filter_count . " lines filtered<p>";
         }
-        
         $variables = [
             'LOG_ENTRIES' => $this->filteredLog
         ];
@@ -328,17 +320,17 @@ class LogHelper
 
             foreach (str_split($formatString) as $char) {
                 if ($char === '"') {
-                    $insideQuotes = !$insideQuotes; // Toggle quote state
+                    $insideQuotes = !$insideQuotes;
                     $currentField .= $char;
                     if (!$insideQuotes) {
                         $formatFields[] = trim($currentField, '"');
                         $currentField = '';
                     }
                 } elseif ($char === '[') {
-                    $insideBrackets = true; // Start of a bracketed expression
+                    $insideBrackets = true; 
                     $currentField .= $char;
                 } elseif ($char === ']') {
-                    $insideBrackets = false; // End of a bracketed expression
+                    $insideBrackets = false;
                     $currentField .= $char;
                     if ($currentField !== '') {
                         $formatFields[] = trim($currentField, '[]');
@@ -356,14 +348,12 @@ class LogHelper
                 }
             }
             if ($currentField !== '') {
-                $formatFields[] = $currentField; // Add remaining field
+                $formatFields[] = $currentField; 
             }
-
             // Step 3: Handle complex fields using the lookup array
             $processedLineFields = [];
-            $mappedFields = []; // Final mapped fields with friendly names
+            $mappedFields = [];
             $fieldIndex = 0;
-            //print "<pre><h1>$format</h1><div>{$this->logformats[$format]['format']}</div><div>$line</div>";
             foreach ($formatFields as $formatField) {
                 $details = $complexFields[$formatField] ?? null;
 
@@ -371,11 +361,6 @@ class LogHelper
                     if(count($details['fields']) > 1) {
 
                         $parts = explode(' ', $lineFields[$fieldIndex] ?? '', 3); // Split into method, path, and protocol
-                        // foreach($details['fields'] as $idx=>$friendlyName) {
-                        //     print "$formatField\n"; print_r($parts);
-                        //     print_r($details['fields']);
-                        //     $mappedFields[$friendlyName] = $parts[$idx] ?? '<span style="color: red;">Missing</span>';
-                        // }
                         foreach ($details['fields'] as $index => $friendlyName) {
                             if($friendlyName=="time") {
                                 
@@ -387,203 +372,40 @@ class LogHelper
                                     $clock="{$timeparts[1]}:{$timeparts[2]}";
 
                                     } else {
-                                    $day="-";
-                                    $hour="-";
-                                    $clock="-";
-
+                                        $day="-";
+                                        $hour="-";
+                                        $clock="-";
                                     }
                                 } 
                             }
                             if(isset($parts[$index])) {
                                 $mappedFields[$friendlyName] = $parts[$index];
-
                             } else {
                                 $mappedFields[$friendlyName] = '<span style="color: red;">Missing</span>';
                             $missing[]=$friendlyName;
                             }
-                            //$mappedFields[$friendlyName] = $parts[$index] ?? '<span style="color: red;">Missing</span>';
-
                         }
-                        // $mappedFields[$details['fields'][0]] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
                         $fieldIndex++;
                     } else {
                         $mappedFields[$details['fields'][0]] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
                         $fieldIndex++;
                     }
 
-                    // if ($formatField === '%r') { // Handle request (%r)
-                    //     $parts = explode(' ', $lineFields[$fieldIndex] ?? '', 3); // Split into method, path, and protocol
-                    //     foreach ($details['fields'] as $index => $friendlyName) {
-                    //         $mappedFields[$friendlyName] = $parts[$index] ?? '<span style="color: red;">Missing</span>';
-                    //     }
-                    //     $fieldIndex++;
-                    // } elseif ($formatField === '%t') { // Handle timestamp (%t)
-                    //     preg_match('/^(.*?)(\s\+\d{4})$/', $lineFields[$fieldIndex] ?? '', $matches);
-                    //     $mappedFields['time'] = $matches[1] ?? $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                    //     $mappedFields['timezone'] = $matches[2] ?? '<span style="color: red;">Missing</span>';
-                    //     $fieldIndex++;
-                    // } else {
-                    //     $mappedFields[$details['fields'][0]] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                    //     $fieldIndex++;
-                    // }
                 } else {
                     $processedLineFields[] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                    //$missing[]=$fieldIndex;
                     $fieldIndex++;
                 }
             }
-            //print_r($mappedFields);exit;
-            //print_r(count($missing));
-            //print "<hr/>";
+
             if(count($missing) < 1) {
-                $mappedFields['type'] = $format; // Add type of log format
-                //print "<li><strong>Testing format:</strong> $format</li>";
-                //print_r($mappedFields);exit;
+                $mappedFields['type'] = $format; 
                 $mappedFields['day']=$day;
                 $mappedFields['hour']=$hour;
                 $mappedFields['clock']=$clock;               
                 return $mappedFields;
             }
-            // if(count($missing) > 0) {
-            //     foreach($missing as $idx) {
-            //         print  "<li style=\"color: red;\">Missing $idx</li>";
-            //     }
-            // } else {
-            //     print "<span style='color: green;'>All fields present</span>";
-            // }
-            //print_r($mappedFields);
-            //print "<hr/>";
-        } // Close the foreach loop properly
-    } // Close the splitCustomLine function properly
-    function oldsplitCustomLine($line, $logformat = "common")
-    {
-        $logformatsToTry = [$logformat] + array_keys($this->logformats); // Include the provided format and all available formats
-        $complexFields = $this->complexFields;
-
-        foreach ($logformatsToTry as $format) {
-            $formatString = $this->logformats[$format]['format'] ?? null;
-
-            if (!$formatString) {
-                continue; // Skip if format is not defined
-            }
-
-            // Step 1: Split the log line into fields using splitWhitespaceLine logic
-            $lineFields = $this->splitWhitespaceLine($line);
-
-            // Step 2: Parse the format string into fields, treating quoted and bracketed expressions as single units
-            $formatFields = [];
-            $currentField = '';
-            $insideQuotes = false;
-
-            foreach (str_split($formatString) as $char) {
-                if ($char === '"') {
-                    $insideQuotes = !$insideQuotes; // Toggle quote state
-                    $currentField .= $char;
-                    if (!$insideQuotes) {
-                        $formatFields[] = trim($currentField, '"');
-                        $currentField = '';
-                    }
-                } elseif ($insideQuotes) {
-                    $currentField .= $char;
-                } elseif ($char === ' ') {
-                    if ($currentField !== '') {
-                        $formatFields[] = $currentField;
-                        $currentField = '';
-                    }
-                } else {
-                    $currentField .= $char;
-                }
-            }
-            if ($currentField !== '') {
-                $formatFields[] = $currentField; // Add remaining field
-            }
-
-            // Step 3: Handle complex fields using the lookup array
-            $processedLineFields = [];
-            $mappedFields = []; // Final mapped fields with friendly names
-            $fieldIndex = 0;
-
-            foreach ($formatFields as $formatField) {
-                $details = $complexFields[$formatField] ?? null;
-
-                if ($details) {
-                    if ($formatField === '%r') { // Handle request (%r)
-                        $parts = explode(' ', $lineFields[$fieldIndex] ?? '', 3); // Split into method, path, and protocol
-                        foreach ($details['fields'] as $index => $friendlyName) {
-                            $mappedFields[$friendlyName] = $parts[$index] ?? '<span style="color: red;">Missing</span>';
-                        }
-                        $fieldIndex++;
-                    } elseif ($formatField === '%t') { // Handle timestamp (%t)
-                        preg_match('/^(.*?)(\s\+\d{4})$/', $lineFields[$fieldIndex] ?? '', $matches);
-                        $mappedFields['time'] = $matches[1] ?? $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                        $mappedFields['timezone'] = $matches[2] ?? '<span style="color: red;">Missing</span>';
-                        $fieldIndex++;
-                    } else {
-                        $mappedFields[$details['fields'][0]] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                        $fieldIndex++;
-                    }
-                } else {
-                    $processedLineFields[] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
-                    $fieldIndex++;
-                }
-            }
-
-            // Ensure processed fields match the expected count
-            // while (count($processedLineFields) < count($formatFields)) {
-            //     $processedLineFields[] = '<span style="color: red;">Missing</span>'; // Add missing fields
-            // }
-            foreach ($formatFields as $index => $formatField) {
-                foreach ($complexFields[$formatField]['fields'] ?? [$formatField] as $friendlyName) {
-                    if (!isset($mappedFields[$friendlyName])) {
-                        $mappedFields[$friendlyName] = $processedLineFields[$index] ?? '<span style="color: red;">Missing</span>';
-                    }
-                    print "<li style='margin-left: 20px;'>- <strong>" . htmlentities($friendlyName) . "</strong>: " . htmlentities($processedLineFields[$index] ?? '<span style="color: red;">Missing</span>') . "</li>";   
-                }
-            }
-
-            // Step 4: Match each format field against the corresponding log line field
-            print "<hr>";
-            print "<div style='margin-left: 20px;'>";
-            print "<li><strong>Testing format:</strong> $format</li>";
-            print "<li><strong>Expected fields:</strong> " . implode(", ", $formatFields) . "</li>";
-            print "<li><strong>Actual fields:</strong> " . implode(", ", $processedLineFields) . "</li>";
-
-            if (count($formatFields) !== count($processedLineFields)) {
-                print "<li><strong>Field count mismatch:</strong></li>";
-                foreach ($formatFields as $index => $formatField) {
-                    $actualValue = $processedLineFields[$index] ?? '<span style="color: red;">Missing</span>';
-                    $friendlyName = $complexFields[$formatField]['fields'] ?? [$formatField];
-                    print "<li style='margin-left: 20px;'>- <strong>" . implode(", ", $friendlyName) . "</strong>: $actualValue</li>";
-                }
-                if (count($processedLineFields) > count($formatFields)) {
-                    print "<li><strong>Extra values in log line:</strong></li>";
-                    for ($i = count($formatFields); $i < count($processedLineFields); $i++) {
-                        print "<li style='margin-left: 20px;'>- <span style='color: red;'>Extra</span>: " . htmlentities($processedLineFields[$i]) . "</li>";
-                    }
-                }
-                print "</div>";
-                continue; // Skip if the number of fields does not match
-            }
-
-            print "<li><strong>Mapped Fields:</strong></li>";
-            print "<pre>";
-            print "</pre>";
-
-            if (count($mappedFields) === count($complexFields)) {
-                print "<li><strong>Match succeeded for format:</strong> $format</li>";
-                print "</div>";
-                return $mappedFields; // Return mapped fields
-            }
-
-            print "</div>";
-        }
-
-        print "<hr>";
-        print "<div style='margin-left: 20px;'>";
-        print "<li><strong>Failed to match line:</strong> $line</li>";
-        print "</div>";
-        return []; // Return empty array if no match
-    }
+        } 
+    } 
     function splitWhitespaceLine($line)
     {
         $fields = [];
@@ -628,7 +450,6 @@ class LogHelper
                     $position++;
                 }
             }
-            
             $fields[] = $value;
         }
         
@@ -715,7 +536,6 @@ class LogHelper
         {
             if(trim($line<>""))
             {
-                //$line=str_replace(array("index.php","blog/wp-login","wordpress/wp-login","/wp/"), array("","wp-login","wp-login",'/wordpress/'), $line);
                 if( $logformat=="space" )
                 {
                     $logline = $this->splitWhitespaceLine($line);
@@ -761,16 +581,7 @@ class LogHelper
 
                 }
                 $coloredLine .= "<br/>";
-                //get domain name for visiting host
-/*					$mySplitDomain=explodedomain($entry["hostname"]);
-                    $entry["hostname_short"]=$mySplitDomain["domain"];
-                    $entry["v_isip"]=$mySplitDomain["isIP"];
 
-                    //get domain name for http_host
-                    $mySplitDomain=explodedomain($entry["domain"]);
-                    $entry["domain_short"]=$mySplitDomain["domain"];
- */				
-                //check if it is an engine
                 $isEngine=false;
                 $isTool=false;
                 $isScan=false;
@@ -821,31 +632,11 @@ class LogHelper
                     else
                     { 
                         @$this->engine_stats[ucfirst($rule['category'])]++;
-                    // switch($rule['category']) {
-                    // case "engine":
-                    //     $this->total_engines ++;
-                    //     break;
-                    // case "tool":
-                    //     $this->total_tools ++;
-                    //     break;
-                    // case "scan":
-                    //     $this->total_scans ++;
-                    //     break;
-                    // default:
-                    //     $this->total_others ++;
-                    //     break;
+                        $this->total_engines ++;
+                        $rule_name=$rule['name'];
+                        $newstat = $this->ruleStats[trim($rule_name)]??0;
+                        $this->ruleStats[trim($rule_name)] = $newstat+1;
 
-                    // } 
-                    $this->total_engines ++;
-                    $rule_name=$rule['name'];
-                    $newstat = $this->ruleStats[trim($rule_name)]??0;
-                    $this->ruleStats[trim($rule_name)] = $newstat+1;
-
-                    // if($isScan) {
-                    //     $this->total_scans++;
-                    // }
-                    // if($isTool) {
-                    //     $this->total_tools++;
                     }
                     if($isEngine==false)
                     {
@@ -873,61 +664,8 @@ class LogHelper
                     else
                         $this->results['family_types'][trim($rule_name)]=1;
                 }
-                //						print("<font color=red>Rule matched, #$isEngine</font><br>");
-                //	print_r($entry);
-                //print("<hr>");
             }
         }
-
-                    /*
-                    list($vDate,$vIP,$vIPName,$vPath,$vReferer,$vAgent,$vDomain)=explode("\t",$line);
-
-
-                    $referer_keys=array_keys($engine_referers);
-                    //print_r($referer_keys);
-
-                    if (!isset($engines[strtolower($vIPDomain)]))
-                    {
-                        if (!match_array($referer_keys,$vAgent))
-                        {
-                                                   print $line . "<br>";
-                                                   $regulartotal++;
-                        }
-                        else
-                        {
-                            $enginestotal++;
-                        }
-
-                    } 
-                    else
-                        $enginestotal++;
-
-                    //count number of visits per domain
-                    if(!isset($domaincount[$vDomain])) $domaincount[$vDomain]=0;
-                    $domaincount[$vDomain]++;
-
-                    //count number of visits per IP
-                    if(!isset($hostcount[$vIPDomain])) $hostcount[$vIPDomain]=0;
-                    $hostcount[$vIPDomain]++;
-
-                    if (!isset($hostdomaincount[$vIPDomain] [$vDomain] ) ) 
-                        $hostdomaincount[$vIPDomain][$vDomain]=0;
-                    $hostdomaincount[$vIPDomain][$vDomain]++;
-
-                    if($vReferer<>"Unknown" && trim($vReferer) <>"")
-                    {
-                    //	print "<tr>";	
-                    //foreach($values as $key) print("<td>$key</td>");
-                    // print("<td>$vDomain</td><td>$vIPName</td><td>'$visIP'</td><td>$vIPDomain</td><td>'$vReferer'</td>");
-                     // print "</tr>";	
-                    } 
-                }
-            }
-            asort($domaincount);
-            $domaincount=array_reverse($domaincount,true);
-                    print("<b>Engines</b>: $enginestotal <b>Visitors</b>: $regulartotal");
-
-                    asort($hostcount); */
     }
     function match_rule( $log_entry )
     {
@@ -948,16 +686,13 @@ class LogHelper
                         $retval= $rule;
                         $retval["rule"]="$category.$rule_id";
                         $retval["category"]=$category;
-
-                        //print("$ruleset match $ref_string like (" . $log_entry[$rule["field"]] . " (" . $rule["field"] . ")<br>");
                         return $retval;
                     } 
                 }
             }
 
         }
-        
-        //print("retval: $retval");
+
         return false;
 
     }
@@ -1079,8 +814,6 @@ class LogHelper
                 $this->renderGraph("tenarray", $this->ruleStats, "Rule Stats");
             }
         }
-        //print_r($this->customGraph_results);exit;
-        // Show custom graphs
         foreach ($this->customGraphs as $key => $value) {
             $title = $value['label'] ?? "Custom Graph";
             $this->renderGraph("customgraph_$key", $this->customGraph_results[$key] ?? [], $title);
@@ -1089,5 +822,3 @@ class LogHelper
         print "</div>"; // Close unified container
     }
 }
-
-?>
