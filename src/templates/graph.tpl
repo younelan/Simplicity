@@ -51,12 +51,17 @@
 
     // Update graph keys with rectangles
     var graphDataDiv = document.querySelector(`#{{GRAPH_ID}}`).closest('.graph-container').querySelector('.graph-data');
-    graphDataDiv.innerHTML = dataset.map((item, index) => `
-      <div class="graph-key">
-        <div class="graph-key-color" style="background-color: ${colors[index % colors.length]};"></div>
-        <span>${item.label}: ${item.count}</span>
-      </div>
-    `).join('');
+    graphDataDiv.innerHTML = dataset.map((item, index) => {
+      const truncatedLabel = item.label.length > 40 
+        ? `<span class="truncated" title="${item.label}">${item.label.slice(0, 37)}...</span>` 
+        : `<span>${item.label}</span>`;
+      return `
+        <div class="graph-key">
+          <div class="graph-key-color" style="background-color: ${colors[index % colors.length]};"></div>
+          <span>${truncatedLabel}: ${item.count}</span>
+        </div>
+      `;
+    }).join('');
   })();
 </script>
 <style>
@@ -65,7 +70,7 @@
     border-radius: 10px;
     padding: 5px; /* Adjusted padding to reduce space above and below */
     height: auto; /* Allow height to adjust based on content */
-    min-height:50%;
+    min-height: 50%;
     overflow: hidden; /* Prevent text from overflowing outside the container */
 }
 .graph-canvas {
@@ -95,5 +100,9 @@
     display: inline-block;
     margin-right: 5px;
     flex-shrink: 0; /* Prevent the rectangle from resizing */
+}
+.truncated {
+    cursor: help;
+    text-decoration: underline dotted;
 }
 </style>

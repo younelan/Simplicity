@@ -12,7 +12,8 @@ class LogHelper
     private $total_scans=0;
     private $total_others=0;
     private $total_visitors;
-    private $engine_stats=array('Visitors'=>0,'Scan'=>0,'Engine'=>0,'Tool'=>0);
+    private $default_stats=['Visitors'=>0,'Scan'=>0,'Engines'=>0,'Tool'=>0];
+    private $engine_stats;
     private $parsedLog;
     private $filteredLog;
     private $ruleStats;
@@ -47,11 +48,11 @@ class LogHelper
         ],
     ];
     private $complexFields = [
-        '%h' => ['fields' => ['ip_address']],
+        '%h' => ['fields' => ['ip']],
         '%l' => ['fields' => ['identity']],
         '%u' => ['fields' => ['user']],
         '%t' => ['fields' => ['time', 'timezone']],
-        '%r' => ['fields' => ['method', 'path', 'protocol']],
+        '%r' => ['fields' => ['verb', 'path', 'protocol']],
         '%>s' => ['fields' => ['status_code']],
         '%b' => ['fields' => ['response_size']],
         '%{Referer}i' => ['fields' => ['referer']],
@@ -94,8 +95,9 @@ class LogHelper
         $this->total_tools=0;
         $this->parsedLog="";
         $this->ruleStats="";
-        $this->results=array();
+        $this->results=[];
         
+        $this->engine_stats = $this->default_stats;
         // Set default column mappings if not already set
         if (!isset($this->columns)) {
             $this->setDefaultColumns();
@@ -284,9 +286,6 @@ class LogHelper
         foreach($this->columns as $col_id=>$col_name)
         {
                     $idx++;
-                    // if(is_array($value)) {
-                    //     $logline[$key] = implode(" ",$value);
-                    // }
                     $color = $colorCycle[$idx % count($colorCycle)];
                     $coloredLine .= "<font color=" . $color . ">" . htmlentities(trim($col_name)) . "</font>&nbsp;\t\n";
         }
@@ -370,6 +369,7 @@ class LogHelper
 
                 if ($details) {
                     if(count($details['fields']) > 1) {
+
                         $parts = explode(' ', $lineFields[$fieldIndex] ?? '', 3); // Split into method, path, and protocol
                         // foreach($details['fields'] as $idx=>$friendlyName) {
                         //     print "$formatField\n"; print_r($parts);
@@ -377,6 +377,23 @@ class LogHelper
                         //     $mappedFields[$friendlyName] = $parts[$idx] ?? '<span style="color: red;">Missing</span>';
                         // }
                         foreach ($details['fields'] as $index => $friendlyName) {
+                            if($friendlyName=="time") {
+                                
+                                if(count($parts)>1) {
+                                    if(strstr($parts[0],"/")) {
+                                    $timeparts = explode(':', $parts[0]);
+                                    $day=$timeparts[0];
+                                    $hour=$timeparts[1];
+                                    $clock="{$timeparts[1]}:{$timeparts[2]}";
+
+                                    } else {
+                                    $day="-";
+                                    $hour="-";
+                                    $clock="-";
+
+                                    }
+                                } 
+                            }
                             if(isset($parts[$index])) {
                                 $mappedFields[$friendlyName] = $parts[$index];
 
@@ -415,11 +432,16 @@ class LogHelper
                     $fieldIndex++;
                 }
             }
+            //print_r($mappedFields);exit;
             //print_r(count($missing));
             //print "<hr/>";
             if(count($missing) < 1) {
                 $mappedFields['type'] = $format; // Add type of log format
                 //print "<li><strong>Testing format:</strong> $format</li>";
+                //print_r($mappedFields);exit;
+                $mappedFields['day']=$day;
+                $mappedFields['hour']=$hour;
+                $mappedFields['clock']=$clock;               
                 return $mappedFields;
             }
             // if(count($missing) > 0) {
@@ -617,23 +639,12 @@ class LogHelper
         $numgraph=0;
         if (isset($this->filteredLog) && strlen($this->filteredLog)>0)
         {
-/*
-                $labels="Engines (". $this->total_engines . ")*Visitors (".$this->total_visitors .")";
-                                $labels.="*Tools (0)";
-
-                                $labels.="*Scans (".$this->total_scans .")";
-                                $labels=urlencode($labels);
-                $data=$this->total_engines . "*" . $this->total_visitors."*".$this->total_tools."*".$this->total_scans;
- */
             $label=urlencode(implode("*",array_keys($this->engine_stats)));
             $data=implode("*",array_values($this->engine_stats));
-            /*print "<img src=graph/3dpie.php?data=$data&label=$label&show_totals=true>";*/
             $numgraph +=1;
             $this->d3pie("graph".$numgraph,$this->engine_stats,$label,true);
             if(is_array($this->ruleStats))
             {
-                //print "<img src=graph/3dpie.php?data=$data&label=$labels&color_scheme=CCBB88*55BBBB*AABBCC*5588CC";
-                //print "img src=graph/3dpie.php?data=$data&label=$labels&color_scheme=CCBB88*55BBBB*AABBCC*5588CC";
 
                 arsort($this->ruleStats);
                 if(count($this->ruleStats)>10)
@@ -675,7 +686,6 @@ class LogHelper
     {
 
         $filename = $this->config_object->get('file');
-        //print $filename . "<br>";
         if ( !file_exists($filename)) {
             print("Log file " . $this->filename . " does not exist or is inaccessible.");
             return false; // Return false if the file does not exist
@@ -720,9 +730,6 @@ class LogHelper
                     foreach($logline as $key=>$value)
                     {
                         $idx++;
-                        // if(is_array($value)) {
-                        //     $logline[$key] = implode(" ",$value);
-                        // }
                         $color = $colorCycle[$idx % count($colorCycle)];
                         $coloredLine .= "<font color=" . $color . ">" . htmlentities(trim($value)) . "</font>&nbsp;\t\n";
                     }
@@ -774,9 +781,10 @@ class LogHelper
                     $isEngine=false;
                 } else {
                     $isEngine=true;
+
                     switch($rule['class']) {
                         case "engine":
-                            $isEngine="engine";
+                            $isEngine=true;
                             $this->total_engines++;
                             break;
                         case "tool":
@@ -798,23 +806,6 @@ class LogHelper
 
                 }
 
-                // $isEngine=$this->match_rule($entry,"engines");
-                // $isScan=$this->match_rule($entry,"scan");
-                // $isTool=$this->match_rule($entry,"tool");
-                // //check if this line is to be filtered
-                // $isFilter=$this->match_rule($entry,"filters");
-
-                //check if this is part of a family
-                //$isFamily=$this->match_rule($entry,"families");
-
-                //print("<pre>");
-                // if($isScan) {
-                //     $this->total_scans++;
-                // }
-                // if($isTool) {
-                //     $this->total_tools++;
-                // }
-
                 if(isset($this->rules["filters"]) && $isFilter===false)
                 {
                     $this->filter_count++;
@@ -828,34 +819,33 @@ class LogHelper
                         @$this->engine_stats['Visitors']++;
                     }
                     else
-                    { @$this->engine_stats[ucfirst($rule['category'])]++;
-                    switch($rule['category']) {
-                    case "engine":
-                        $this->total_engines ++;
-                        break;
-                    case "tool":
-                        $this->total_tools ++;
-                        break;
-                    case "scan":
-                        $this->total_scans ++;
-                        break;
-                    default:
-                        $this->total_others ++;
-                        break;
+                    { 
+                        @$this->engine_stats[ucfirst($rule['category'])]++;
+                    // switch($rule['category']) {
+                    // case "engine":
+                    //     $this->total_engines ++;
+                    //     break;
+                    // case "tool":
+                    //     $this->total_tools ++;
+                    //     break;
+                    // case "scan":
+                    //     $this->total_scans ++;
+                    //     break;
+                    // default:
+                    //     $this->total_others ++;
+                    //     break;
 
-                    } 
+                    // } 
                     $this->total_engines ++;
                     $rule_name=$rule['name'];
-                    if(isset($this->ruleStats[trim($rule_name)]))
-                        $this->ruleStats[trim($rule_name)]++;
-                    else
-                        $this->ruleStats[trim($rule_name)]=1;
-                    }
-                    if($isScan) {
-                        $this->total_scans++;
-                    }
-                    if($isTool) {
-                        $this->total_tools++;
+                    $newstat = $this->ruleStats[trim($rule_name)]??0;
+                    $this->ruleStats[trim($rule_name)] = $newstat+1;
+
+                    // if($isScan) {
+                    //     $this->total_scans++;
+                    // }
+                    // if($isTool) {
+                    //     $this->total_tools++;
                     }
                     if($isEngine==false)
                     {
@@ -1089,7 +1079,7 @@ class LogHelper
                 $this->renderGraph("tenarray", $this->ruleStats, "Rule Stats");
             }
         }
-
+        //print_r($this->customGraph_results);exit;
         // Show custom graphs
         foreach ($this->customGraphs as $key => $value) {
             $title = $value['label'] ?? "Custom Graph";
