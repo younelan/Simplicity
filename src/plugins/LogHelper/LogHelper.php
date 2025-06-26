@@ -263,19 +263,53 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                     }
                     if($isEngine==false)
                     {
-                        //check the custom graphs
-                        foreach($this->customGraphs ?? [] as $graph_name=>$graph_rule)
-                        {
-                            //print "<br>Graph: {$graph_rule['field']}<br>";
-                            if(isset($entry[$graph_rule["field"]]))
-                                $graph_value=trim($entry[$graph_rule["field"]]);
-                            if(isset($graph_value)) {
-                              if(isset($this->customGraph_results[$graph_rule["field"]][$graph_value])) {
-                                $this->customGraph_results[$graph_rule["field"]][$graph_value]++;
-                              } 
-                              else {
-                                $this->customGraph_results[$graph_rule["field"]][$graph_value]=1;
-                              }
+                        // Check the custom graphs
+                        $tmpgraphs = [];
+                        foreach ($this->customGraphs ?? [] as $graph_name => $graph_rule) {
+                            $type = $graph_rule['type'] ?? 'pie';
+                            $x_field = $graph_rule['x'] ?? null;
+                            $y_field = $graph_rule['y'] ?? null;
+                            $y_index = 0;
+                            $x_index = 0;
+                            if (!isset($this->customGraph_results[$graph_name])) {
+                                $this->customGraph_results[$graph_name] = [];
+                            }
+
+                            if ($type === 'line') {
+                                // Handle matrix data (x => [y => count])
+                                if(!isset($this->customGraph_results[$graph_name])) {
+                                    $this->customGraph_results[$graph_name] = [
+                                        'type' => 'line',
+                                        'data' => [],
+                                        'xlabel' => $graph_rule['xlabel'] ?? '',
+                                        'ylabel' => $graph_rule['ylabel'] ?? '',
+                                        'xlabels' => [],
+                                        'ylabels' => []
+                                    ];
+                                }
+
+                                $field = $graph_rule['x'] ?? null;
+                                if ($field && isset($entry[$field])) {
+                                    $graph_value = trim($entry[$field]);
+                                    if (isset($this->customGraph_results[$graph_name][$graph_value])) {
+                                        $this->customGraph_results[$graph_name]['data'][$graph_value]++;
+                                    } else {
+                                        $this->customGraph_results[$graph_name]['data'][$graph_value] = 1;
+                                    }
+                                }
+
+
+                            } else {
+                                // Handle single field data (non-line charts)
+                                $field = $graph_rule['field'] ?? null;
+                                if ($field && isset($entry[$field])) {
+                                    $graph_value = trim($entry[$field]);
+                                    if (isset($this->customGraph_results[$graph_name][$graph_value])) {
+                                        $this->customGraph_results[$graph_name]['data'][$graph_value]++;
+                                    } else {
+                                        $this->customGraph_results[$graph_name]['data'][$graph_value] = 1;
+                                    }
+                                }
                             }
                         }
                     }
@@ -399,38 +433,30 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                 $xlabel = $value['xlabel'] ?? '';
                 $ylabel = $value['ylabel'] ?? '';
                 
-                if ($type === 'bar' && $barChart) {
-                    echo $barChart->render([
-                        'data' => $this->customGraph_results[$key] ?? [],
-                        'title' => $title,
-                        'graphId' => "customgraph_$key",
-                        'limit' => 10
-                    ]);
-                } elseif ($type === 'vbar' && $vbarChart) {
-                    echo $vbarChart->render([
-                        'data' => $this->customGraph_results[$key] ?? [],
-                        'title' => $title,
-                        'graphId' => "customgraph_$key",
-                        'limit' => 10
-                    ]);
-                } elseif ($type === 'line' && $lineChart) {
-                    echo $lineChart->render([
-                        'data' => $this->customGraph_results[$key] ?? [],
-                        'title' => $title,
-                        'graphId' => "customgraph_$key",
-                        'limit' => 10,
-                        'xlabel' => $xlabel,
-                        'ylabel' => $ylabel
-                    ]);
-                } else {
-                    // Default to pie chart
-                    echo $pieChart->render([
-                        'data' => $this->customGraph_results[$key] ?? [],
-                        'title' => $title,
-                        'graphId' => "customgraph_$key",
-                        'limit' => 10
-                    ]);
-                }
+                $data =  $this->customGraph_results[$key] ?? [];
+                $data['title'] = $title;
+                $data['graphId'] = "customgraph_$key";
+                $data['limit'] = 10;
+                switch($type) {
+                    case 'pie':
+                        echo $pieChart->render($data);
+                        break;
+                    case 'bar':
+                        echo $barChart->render($data);
+                        break;
+                    case 'vbar':
+                        echo $vbarChart->render($data);
+                        break;
+                    case 'line':
+                        $data = $this->customGraph_results[$key] ?? [];
+                        $data['xlabel'] = $xlabel;
+                        $data['ylabel'] = $ylabel;
+                        echo $lineChart->render($data);
+                        break;
+                    default:
+                        $data = $value['data'] ?? [];
+                }   
+
             }
         } 
 
