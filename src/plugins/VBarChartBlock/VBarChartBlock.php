@@ -4,18 +4,18 @@ namespace Opensitez\Simplicity\Plugins;
 
 use Opensitez\Simplicity\MSG;
 
-class PieChartBlock extends \Opensitez\Simplicity\Plugin
+class VBarChartBlock extends \Opensitez\Simplicity\Plugin
 {
-    public $name = "Pie Chart Block";
-    public $description = "Renders pie charts using D3.js";
+    public $name = "Vertical Bar Chart Block";
+    public $description = "Renders vertical bar charts using the same template as pie charts";
     var $params = array('data' => [], 'title' => 'Chart', 'limit' => 10);
     private $graphid = 0;
 
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'piechart');
-            $this->plugins->register_type('contentprovider', 'piechart');
+            $this->plugins->register_type('blocktype', 'vbarchart');
+            $this->plugins->register_type('contentprovider', 'vbarchart');
         }
         parent::on_event($event);
     }
@@ -28,13 +28,13 @@ class PieChartBlock extends \Opensitez\Simplicity\Plugin
         $graphId = $block_config['graphId'] ?? 'chart' . $this->graphid++;
 
         if (empty($data)) {
-            return "<div class='pie-chart-error'>No data provided for pie chart</div>";
+            return "<div class='vbar-chart-error'>No data provided for bar chart</div>";
         }
 
-        return $this->renderPieChart($graphId, $data, $title, $limit);
+        return $this->renderVBarChart($graphId, $data, $title, $limit);
     }
 
-    private function renderPieChart($graphId, $data, $title, $limit = 10)
+    private function renderVBarChart($graphId, $data, $title, $limit = 10)
     {
         // Limit to top N labels and aggregate others
         arsort($data);
@@ -48,25 +48,21 @@ class PieChartBlock extends \Opensitez\Simplicity\Plugin
         } else {
             $top_labels = $data;
         }
-
-        $output = "<div class='graph'>";
-        $output .= "<div class='graph-content'>";
+        $output = '';
+        $output .= "<div class='graph'>\n";
+        $output .= "<div class='graph-content'>\n";
         $output .= "<h3 class='graph-title'>" . htmlentities($title) . "</h3>";
-        $output .= $this->d3pie($graphId, $top_labels);
-        $output .= "</div>";
-        $output .= "</div>";
-
+        $output .= $this->d3vbar($graphId, $top_labels);
+        $output .= "\n</div>";
+        $output .= "\n</div>\n";
         return $output;
     }
 
-    private function d3pie($name, $data)
+    private function d3vbar($name, $data)
     {
         $template = new \Opensitez\Simplicity\SimpleTemplate();
-        $templatePath = __DIR__ . '/../../templates/piechart.tpl';
+        $templatePath = __DIR__ . '/../../templates/vbarchart.tpl';
         $template->setFile($templatePath);
-        
-        // Calculate total for percentages
-        $total = array_sum($data);
         
         // Build data list HTML with color indicators
         $colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
@@ -78,10 +74,10 @@ class PieChartBlock extends \Opensitez\Simplicity\Plugin
             $colorIndex++;
         }
         
-        // Build dataset for pie chart
+        // Build dataset for vertical bar chart
         $dataset = '';
         foreach($data as $key=>$value) {
-            $dataset .= "{ label: '" . htmlentities($key) . "', count: " . intval($value*360/$total) . "} , \n";
+            $dataset .= "{ label: '" . htmlentities($key) . "', value: " . intval($value) . "} , \n";
         }
         
         $variables = [
@@ -92,6 +88,12 @@ class PieChartBlock extends \Opensitez\Simplicity\Plugin
         
         $template->setVars($variables);
         return $template->render();
+    }
+
+
+    public function isAvailable()
+    {
+        return true;
     }
 
     public function on_render_page($app = [])

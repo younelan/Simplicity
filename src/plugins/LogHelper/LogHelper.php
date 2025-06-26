@@ -86,111 +86,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
     {
         $this->customGraphs=$customGraphs;
     }
-    function showCustomGraphs()
-    {
-        print "<style>
-        .custom-graphs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
-            gap: 20px; /* Space between graphs */
-            padding: 10px; /* Padding around the grid */
-        }
-        .custom-graph {
-            border: 1px solid #ccc;
-            padding: 15px;
-            background-color: transparent; /* Remove background */
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for better appearance */
-            transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effect */
-        }
-        .custom-graph:hover {
-            transform: scale(1.05); /* Slight zoom on hover */
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
-        }
-        .custom-graph h3 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #333; /* Darker text for better readability */
-        }
-        @media (max-width: 900px) {
-            .custom-graphs-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Fewer columns on smaller screens */
-            }
-        }
-        @media (max-width: 600px) {
-            .custom-graphs-grid {
-                grid-template-columns: 1fr; /* Single column for very small screens */
-            }
-            .custom-graph {
-                padding: 10px; /* Adjust padding for smaller screens */
-            }
-        }
-    </style>";
-
-        print "<div class='custom-graphs-grid'>"; // Start grid container
-
-        foreach ($this->customGraphs as $key => $value) {
-            print "<div class='custom-graph' id='customgraph_$key'>";
-            print "<h3>" . htmlentities($value['label']) . "</h3>";
-            $this->showCustomGraph($key);
-            print "</div>";
-        }
-
-        print "</div>"; 
-    }
-    function showCustomGraph($graph_name)
-    {
-        $max = 10; // Limit to top 10 labels
-        if (isset($this->customGraph_results[trim($graph_name)])) {
-            arsort($this->customGraph_results[$graph_name]);
-            if (count($this->customGraph_results[$graph_name]) > $max) {
-                $top_labels = array_slice($this->customGraph_results[$graph_name], 0, $max, true);
-                $others = array_slice($this->customGraph_results[$graph_name], $max, null, true);
-                $others_total = array_sum($others);
-                $top_labels["Others"] = $others_total; // Aggregate remaining values under "Others"
-            } else {
-                $top_labels = $this->customGraph_results[trim($graph_name)];
-            }
-
-            $label = urlencode(implode("*", array_keys($top_labels)));
-            $data = implode("*", array_values($top_labels));
-            $title = $this->customGraphs[$graph_name]['label'] ?? "Custom Graph"; // Use the label from customGraphs
-            $this->d3pie("customgraph_$graph_name", $top_labels, $label, $title); // Pass limited labels to d3pie
-        }
-    }    function d3pie($name,$data,$label) {
-        if(!isset($this->graphid))
-            $this->graphid=0;
-        else 
-            $this->graphid +=1;
-
-        $template = new \Opensitez\Simplicity\SimpleTemplate();
-        $templatePath = __DIR__ . '/templates/graph.tpl';
-        $template->setFile($templatePath);
-        
-        // Calculate total for percentages
-        $total = array_sum($data);
-        
-        // Build data list HTML
-        $dataList = '';
-        foreach($data as $key=>$value) {
-            $dataList .= "<div style=\"display:block\"><span style='font-weight:bold;color:#e1b698;text-shadow: 2px 1px black;display:inline-block;'>" . htmlentities($key) . "</span> : &nbsp; <span style='color:#aaa;'>$value</span></div>\n";
-        }
-        
-        // Build dataset for D3
-        $dataset = '';
-        foreach($data as $key=>$value) {
-            $dataset .= "{ label: '" . htmlentities($key) . "', count: " . intval($value*360/$total) . "} , \n";
-        }
-        
-        $variables = [
-            'GRAPH_ID' => "graph" . $this->graphid,
-            'DATA_LIST' => $dataList,
-            'DATASET' => $dataset
-        ];
-        
-        $template->setVars($variables);
-        echo $template->render();
-    }
     function setColumns($columnNames)
     {
         $this->columns=$columnNames;
@@ -452,7 +347,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         }
         .graph {
             width: 300px;
-            height: auto;
+            min-height: 300px;
             border: 1px solid #ccc;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -473,31 +368,62 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
 
         print "<div class='graphs-container'>";
         $pieChart = $this->get_plugin('piechartblock');
-        if ($pieChart) {
+        $barChart = $this->get_plugin('barchartblock');
+        $vbarChart = $this->get_plugin('vbarchartblock');
+        $lineChart = $this->get_plugin('linechartblock');
+        
+        if ($pieChart && isset($this->filteredLog) && strlen($this->filteredLog) > 0) {
+            // Engine Stats - default to pie chart
+            echo $pieChart->render([
+                'data' => $this->engine_stats,
+                'title' => 'Engine Stats',
+                'graphId' => 'graph1',
+                'limit' => 10
+            ]);
 
-            if ($pieChart && isset($this->filteredLog) && strlen($this->filteredLog) > 0) {
-                // Engine Stats graph
+            // Rule Stats - default to pie chart
+            if (is_array($this->ruleStats)) {
+                arsort($this->ruleStats);
                 echo $pieChart->render([
-                    'data' => $this->engine_stats,
-                    'title' => 'Engine Stats',
-                    'graphId' => 'graph1',
+                    'data' => $this->ruleStats,
+                    'title' => 'Rule Stats',
+                    'graphId' => 'tenarray',
                     'limit' => 10
                 ]);
+            }
 
-                // Rule Stats graph
-                if (is_array($this->ruleStats)) {
-                    arsort($this->ruleStats);
-                    echo $pieChart->render([
-                        'data' => $this->ruleStats,
-                        'title' => 'Rule Stats',
-                        'graphId' => 'tenarray',
+            // Custom graphs - check type, default to pie
+            foreach ($this->customGraphs ?? [] as $key => $value) {
+                $title = $value['label'] ?? "Custom Graph";
+                $type = $value['type'] ?? 'pie';
+                $xlabel = $value['xlabel'] ?? '';
+                $ylabel = $value['ylabel'] ?? '';
+                
+                if ($type === 'bar' && $barChart) {
+                    echo $barChart->render([
+                        'data' => $this->customGraph_results[$key] ?? [],
+                        'title' => $title,
+                        'graphId' => "customgraph_$key",
                         'limit' => 10
                     ]);
-                }
-
-                // Custom graphs
-                foreach ($this->customGraphs ?? [] as $key => $value) {
-                    $title = $value['label'] ?? "Custom Graph";
+                } elseif ($type === 'vbar' && $vbarChart) {
+                    echo $vbarChart->render([
+                        'data' => $this->customGraph_results[$key] ?? [],
+                        'title' => $title,
+                        'graphId' => "customgraph_$key",
+                        'limit' => 10
+                    ]);
+                } elseif ($type === 'line' && $lineChart) {
+                    echo $lineChart->render([
+                        'data' => $this->customGraph_results[$key] ?? [],
+                        'title' => $title,
+                        'graphId' => "customgraph_$key",
+                        'limit' => 10,
+                        'xlabel' => $xlabel,
+                        'ylabel' => $ylabel
+                    ]);
+                } else {
+                    // Default to pie chart
                     echo $pieChart->render([
                         'data' => $this->customGraph_results[$key] ?? [],
                         'title' => $title,

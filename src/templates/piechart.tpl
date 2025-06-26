@@ -12,7 +12,6 @@
                 </div>
             </div>
         </div>
-        <!-- Repeat col-md-4 for additional graphs -->
     </div>
 </div>
 <script>
@@ -26,12 +25,12 @@
     var ctx = canvas.getContext('2d');
     var centerX = canvas.width / 2;
     var centerY = canvas.height / 2;
-    var radius = Math.min(canvas.width, canvas.height) / 2 - 10; // Adjust radius for padding
+    var radius = Math.min(canvas.width, canvas.height) / 2 - 10;
     
     var colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
     
     var total = dataset.reduce(function(sum, item) { return sum + item.count; }, 0);
-    var currentAngle = -Math.PI / 2; // Start at top
+    var currentAngle = -Math.PI / 2;
     
     dataset.forEach(function(item, index) {
       var sliceAngle = (item.count / total) * 2 * Math.PI;
@@ -48,8 +47,6 @@
       
       currentAngle += sliceAngle;
     });
-
-    // Don't update graph keys here - let the template handle them
   })();
 </script>
 <style>

@@ -74,7 +74,7 @@
     margin-top: 0;
     margin-bottom: 5px;
 }
-.graph-data-entry {
+.graph-key {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
@@ -82,19 +82,15 @@
     text-shadow: 2px 1px #637286;
     font-size: 0.8em;
 }
-.graph-data-color {
+.graph-key-color {
     width: 10px;
     height: 10px;
     display: inline-block;
     margin-right: 5px;
     flex-shrink: 0;
 }
-.graph-data-label {
-    font-weight: bold;
-    color: #e1b698;
-    text-shadow: 2px 1px black;
-}
-.graph-data-value {
-    color: #aaa;
+.truncated {
+    cursor: help;
+    text-decoration: underline dotted;
 }
 </style>
