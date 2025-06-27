@@ -41,13 +41,35 @@ class Plugin extends Base
     }
     function base_url()
     {
-        $paths = $this->config_object->getPaths();
+        $paths = $this->config_object->get('paths');
         return $paths['sitepath'];
     }
+    function get_config($key) {
+        if( isset($this->config_object) && $this->config_object ) {
+            return $this->config_object->get($key);
+        } else {
+            return null;
+        }
+    }
+    
 
     function anchor($url, $param, $rel = 'rel=external')
     {
-        return "<a href=\"/" . $url . "\">" . $param . "</a>";
+        $webroot = $this->get_config('paths.webroot');
+        $url = "$webroot/" . $url;
+
+        $url = "<a href='" . $url . "'>" . $param . "</a>";
+        return $url;
+    }
+    function absolute_link($url) {
+        $paths = $this->config_object->get('paths');
+        if (strpos($url, 'http') === 0) {
+            return $url; // Already an absolute URL
+        }
+        if (strpos($url, '/') === 0) {
+            return $paths['webroot'] . $url; // Absolute path
+        }
+        return $paths['webroot'] . '/' . $url; // Relative path
     }
 
     function on_event($event)
@@ -107,6 +129,7 @@ class Plugin extends Base
         }
         return $this->debug;
     }
+    
     function get_plugin($plugin_name)
     {
         $plugins = $this->plugins;
