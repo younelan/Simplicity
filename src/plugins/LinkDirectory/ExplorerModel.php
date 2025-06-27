@@ -8,6 +8,19 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 	function is_valid_slug($slug) {
 		return preg_match('/^[a-zA-Z0-9-_]+$/', $slug);
 	}
+	function get($var) 
+	{
+		switch ($var) {
+			case 'categories':
+				return $this->getcategories($this->site, 0);
+			case 'node_types':
+				return $this->get_node_types();
+			case 'links':
+				return $this->getlinks($this->site, 0);
+			default:
+				return [];
+		}
+	}
 	function getcategories($site,$categoryid) {
 
 		if(!$this->is_valid_slug($categoryid)) { 

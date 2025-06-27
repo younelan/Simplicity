@@ -2,9 +2,11 @@
 
 namespace Opensitez\Simplicity\Plugins;
 use \Opensitez\Simplicity\Plugin;
+use \Opensitez\Simplicity\MSG;
 $root=dirname(dirname(__DIR__));
 //require_once("$root/core.php");
 require_once(__DIR__ . "/ExplorerModel.php");
+
 
 
 class LinkDirectory extends \Opensitez\Simplicity\Plugin
@@ -12,6 +14,24 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	private $explorer_model;
 	private $node_types;
 	private $site;
+	public $name = "Link Directory";
+	public $description = "A simple link directory for points of interest";
+	private $style = "
+	<style>
+	#node-details .label {color: #069;font-weight: bold;}
+	#map { border:1px solid #ccc;height:300px;width: 50%; }
+	.item-count {color: red!important; font-size: 0.9em; margin-top: 5px;}
+	.ui-li-icon { float: left; top:0.3em; margin-right:10px;}
+	</style>
+	";
+	public function on_event($event)
+	{
+		if ($event['type'] === MSG::PluginLoad) {
+			$this->plugins->register_type('routetype', 'linkdirectory');
+			$this->plugins->register_type('blocktype', 'linkdirectory');
+		}
+		parent::on_event($event);
+	}
 	public function index($categoryid = 0)
 	{
 		$this->categories($categoryid);
@@ -32,26 +52,18 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	}
 	public function init()
 	{
-		$this->explorer_model = new \Opensitez\Plugins\ExplorerModel($this->config_object);
-		//$this->explorer_model->set_config($this->config);
-		$this->node_types = $this->explorer_model->get_node_types();
+		$this->explorer_model = new \Opensitez\Simplicity\Plugins\ExplorerModel($this->config_object);
+		$this->explorer_model->connect();
+		$this->node_types = $this->explorer_model->get('node_types');
 		return $this->node_types;
 	}
-	public function categories($categoryid = false)
+	public function categories($dest = null, $feature_id = null)
 	{
-		$app = $this->app ?? [];
-		$action = strtolower($appt['params'][0] ?? "category");
-		$dest = strtolower($app['params'][1] ?? "");
-		$feature = intval($app['id'] ?? 0);
-
 		$explorer_model = $this->explorer_model;
-
-		//$data['categoryname']=$explorer_model->getTitle($feature,$dest);
-		$data['categories'] = $explorer_model->getcategories($feature, $dest);
-		$data['links'] = $explorer_model->getlinks($feature, $dest);
+		$data['categories'] = $explorer_model->getcategories($feature_id, $dest);
+		$data['links'] = $explorer_model->getlinks($feature_id, $dest);
 		$data['node_types'] = $this->node_types;
-		//$this->load->view('Explorer_view',$data);
-		//return view('Explorer_view',$data);
+		$debug = $this->get_plugin('debug');
 
 		return $data;
 	}
@@ -72,7 +84,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 			$data = $explorer_model->retrieve_item($feature, $itemid);
 			if ($data) {
 				foreach ($data as $val) {
-					//print_r($val);
 					$item = $val;
 				}
 				$retval = ["item" => $item, "node_types" => $this->node_types];
@@ -86,10 +97,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	{
 		$block_plugin = $this->plugins->get_plugin('block');
 		$dbitem = $data['item'] ?? [];
-		//print("<pre>");
-		//print_r($data);exit;
 		$node_types = $data['node_types'];
-		//print_r($node_types);exit;
 		$output = "";
 		$app = $this->app;
 		$itemhide = $app['item']['hide'] ?? [];
@@ -112,15 +120,10 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		foreach ($dbitem as $key => $value) {
 			$item[$key] = $value;
 		}
-		//		print_r($item);exit;
-
+	
 		$body = $block_plugin->render_insert_text($item['body'] ?? "", $options, $app);
+		$output .= $this->style;
 		$output .= "
-		<style>
-			#node-details .label {color: #069;font-weight: bold;}
-			#map { border:1px solid #ccc;height:300px;width: 50%; }
-
-		</style>
 		<div id=node-details>
 		<div class=field>
 		<div class='label'>$itemtitle</div><div class='label'></div><div class=description>" . ($body) . "
@@ -134,7 +137,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 
 				continue;
 			}
-			//print "+++++" . print_r ($dbfield) . " -----\n";
 			if (isset($dbitem["field" . $field])) {
 				if (strtolower($dbfield) == "url") {
 					if ($dbitem["field" . $field]) {
@@ -215,6 +217,9 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	{
 		$output = "";
 		$app = $this->app;
+		$imgpath = $app['images'] ?? "";
+		if (!$imgpath) $imgpath .= "/";
+		$paths = $this->config_object->get('paths');
 		$route = $app['route'] ?? "";
 		$cathide = $app['category']['hide'] ?? [];
 		if (!is_array($cathide))
@@ -235,7 +240,8 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 					continue;
 				}
 				if ($route) {
-					$url = $route . "/" . $url;
+					$url = "$route/" . ltrim($url, "/"); // Ensure relative links
+
 				}
 				if (isset($row['icon']) && $row['icon'])
 					$icon = $row['icon'];
@@ -260,13 +266,17 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 					$itemCount = '&nbsp;';
 				}
 				if ($icon <> '') {
-					$iconurl = '<img class="ui-li-icon" align=left style="top:0.3em;margin-right:10px;" src=/' . $this->base_url() . '/res/icons/' . $icon . ">\n";
+					$iconurl = '<img class="ui-li-icon" src="' 
+								. $this->absolute_link(  $imgpath . $icon) . "\">\n";
 				}
-				$output .= "<span class=''>"
+			// 		print "{$row['catname']}</span> $url";
+			// exit;
+				$output .= "<span class='link-item-text'>"
 					. $this->anchor($url, $row['catname'] . $iconurl, 'rel=external')
 					. "</span>\n";
 				//print $itemCount;
-				$output .= "<div style=\"color:red; background-color: '#555!important'\">$itemCount</div>\n";
+				$output .= $this->style;
+				$output .= "<div class='item-count'>$itemCount</div>\n";
 				$output .= "</li>\n";
 			}
 			$output .= "</ul>";
@@ -280,7 +290,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		$route = $app['route'] ?? "";
 		$links = $data['links'] ?? [];
 		$node_types = $this->node_types ?? [];
-		//print_r($this->node_types);exit;	
 		$cathide = $app['category']['hide'] ?? [];
 		if (!is_array($cathide))
 			$cathide = [$cathide];
@@ -299,7 +308,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 			}
 
 			$output .= '<li class="list-group-item list-group-item-action flex-column align-items-start">';
-			$output .= $this->anchor($route . "/item/" . $row['id'], ucfirst($row['title']));
+			$output .= $this->anchor(rtrim($route, "/") . "/item/" . $row['id'], ucfirst($row['title'])); // Ensure relative links
 			foreach ($node_types[$row['node_type']]['fields'] ?? [] as $field => $dbfield) {
 				//print $field;
 				if (isset($row["field" . $field]) && $row["field" . $field] && (!in_array(strtolower($dbfield), $cathide))) {
@@ -313,25 +322,31 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	public function on_render_page($app)
 	{
 		$this->init();
-		$node_types = $this->node_types;
+
 		$this->app = $app;
 		$retval = "";
 
-		$action = strtolower($app['params'][0] ?? "category");
+		$action = strtolower($app['segments'][0] ?? "category");
 		if (!$action) {
 			$action = "category";
 		}
-		$dest = strtolower($app['params'][1] ?? "");
-		$feature = intval($app['feature'] ?? 0) ?? "";
+		$dest = strtolower($app['segments'][1] ?? "");
+		$feature_id = intval($app['id'] ?? 0) ?? "";
 		if (ctype_alnum($dest)) {
-			$feature = $app['feature'] ?? "";
+			$feature_id = $app['id'] ?? "";
 		} else {
-			$feature = "";
+			$feature_id = null;
 		}
+		//print "<h1>$action->$dest : feature $feature_id</h1>";
 
+		$debug = $this->get_plugin('debug');
 
 		if ($action == "category" || $action == "categories") {
-			$data =	$this->categories($dest);
+			$data =	$this->categories($dest, $feature_id);
+			
+			//echo $debug->printArray($data) . "\n<hr>";
+			//echo $debug->printArray($app) . "\n<hr>";
+
 			$retval = $this->render_category($data);
 			$retval .=  $this->render_links($data);
 		} elseif ($action == 'item') {
