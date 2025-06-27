@@ -1,0 +1,617 @@
+.memtable {padding-left: 10px}
+.memitem {font-weight:bold;color:darkblue}
+.memkey {
+    font-weight: bold;
+    color: white;
+    background-color: #3a71a1;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.memvalue {background-color:#ffc; color:#055;padding-left: 5px; padding-right: 5px;text-align:right}
+.towerlogo {
+    text-align: center;
+    background-color: #333f5b;
+}
+.towerlogo img {
+    max-width: 100%;
+}
+
+.widgetheader { 
+    display: block;
+    width: 100%;
+    padding-left: 5px;
+}
+.label {font-weight: bold;color: #055;}
+.network-subheader {
+    background-color: #94c9e7;font-weight:bold;padding: 5px;    
+}
+.network-table {
+    background-color: #e7f7ff;
+    margin: 5px;
+    margin-right:10px;
+}
+#content {
+    overflow: auto;
+    vertical-align: top;
+}
+.network-table th {
+    padding: 5px;
+}
+
+.widget {
+    display: inline-block;
+    padding: 15px;
+    vertical-align: top;
+}
+
+
+.status-up, .connected {color: green} 
+.status-down, .disconnected {color: brown}
+.ifconfig-table {border: 1px solid black;}
+.ifconfig-table th {background-color:#005;color:white;}
+.config-column {padding: 5px; border: 1px solid black;}
+.config-category {background-color: #ccc; color:black;}
+.config-table th {background-color:#005;color:white}
+.config-subcategory {background-color: #ffc; color:black;}
+
+.message-green {
+    background-color: rgb(206, 243, 206);
+    color: green;
+}
+.message-green:hover {
+    color: rgb(206, 243, 206);
+    background-color: green;
+}
+.message-red {
+    background-color: rgb(255, 213, 196);
+    color: rgb(165, 6, 6);
+}
+.message-red:hover {
+    color: rgb(255, 213, 196);
+    background-color: rgb(236, 146, 146);
+}
+.message-green:hover {
+    color: rgb(229, 255, 196);
+    background-color: rgb(163, 235, 166);
+}
+.message-gray:hover {
+    color: rgb(229, 229, 229);
+    background-color: rgb(207, 204, 204);
+}
+.message a {
+    text-decoration: none;
+    color: black;
+}
+.message a:hover {
+    text-decoration: none;
+    color: #444;
+} 
+
+.message-grey {
+    background-color: #CCC;
+    color: #777;
+}
+.red-dot {
+    height: 5px;
+    width: 5px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+}
+.grey-dot {
+    height: 5px;
+    width: 5px;
+    background-color: #aaa;
+    border-radius: 50%;
+    display: inline-block;
+}
+.message-header {
+    background-color: navy;
+    color: white;
+    font-weight: bold;
+    padding: 5px;
+}
+.navbar {
+    padding-bottom:2px;
+    padding-top: 2px;
+}
+
+/*hosts styles */
+
+.host-container {
+    margin: 0px auto;
+}
+
+.top-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.top-header h1 {
+    font-size: 24px;
+    margin-top: 0;
+    color: #a3cfff;
+    background-color: #1c3473;
+    padding: 5px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+.top-toolbar {
+    /*display: flex;
+    justify-content: space-between;
+    align-items: center;*/
+    margin-bottom: 2px;
+
+}
+
+.mass-actions {
+    display: block;
+    text-align: right;
+
+    align-items: center;
+}
+
+.mass-actions button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+
+.listbox {
+    display: flex;
+    align-items: center;
+}
+
+.listbox select {
+    margin-right: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #1c2e69;
+    color: #fff;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.listbox select:hover {
+    background-color: #1c337e;
+}
+
+.submit-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #1c2e69;
+    color: #fff;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.submit-btn:hover {
+    background-color: #1c337e;
+}
+.group-toggle {
+    color: #ccc;
+    cursor: pointer;
+}
+
+.host-row {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 5px;
+    overflow: auto;
+    transition: background-color 0.3s;
+    margin-bottom: 1px;
+    width:100%;
+    height: auto;
+}
+
+
+.hostname-header {
+    width: 100%;
+    padding: 2px;
+    padding-left: 15px;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+.hostname-icon {
+    display: inline-block;
+    padding-right: 10px;
+    float: left;
+}
+
+.hostname-header h2 {
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hostname-header .action-buttons {
+    display: flex;
+    gap: 10px;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.hostname-header .action-buttons button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+
+.details {
+    flex-basis: 100%;
+    display: none;
+}
+
+.details.show {
+    display: flex;
+    flex-wrap: wrap; /* Added for mobile */
+}
+
+ .action {
+    margin-bottom: 5px;
+    padding: 0px;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 14px;
+    display: inline-block;
+    padding: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin: 2px;
+}
+
+
+
+.metric {
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metric .metric-name {
+    flex: 1;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.metric .metric-value {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.action {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display:inline-block;
+}
+
+.details .action-buttons {
+    text-align: right;
+    display: block;
+    width: 100%;
+}
+.action-buttons {
+    float: right;
+}
+.device-chevron {
+    float: right;
+}
+.host-row h3, .hostname-label {
+    margin: 0px;
+}
+.logo {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.column-header {
+    padding: 3px;    
+    margin: 0px;
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 0px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.actions-header {
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+    border-radius: 0 5px 0 0;
+}
+
+.collapse-all-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+.metrics-table {
+    margin-bottom: 20px;
+    white-space: nowrap;
+}
+.metrics-row {
+    display: inline-block;
+    margin-bottom: 1px;
+    margin-right:3px;
+    vertical-align: top;
+}
+.vitals-bubble, .status-bubble {
+    text-align: center;
+    line-height: 20px;
+    border-radius: 5px;
+    padding: 5px;    
+    display: inline-block;
+    margin-left: 2px;
+    box-sizing: initial;
+}
+
+.text-metric, .text-value {
+    display: inline-block;
+    padding: 3px;
+}
+.text-metric {
+    font-weight: bold;
+    margin-left:2px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+.text-value {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    
+}
+.percent-bar {
+    width: 50px;
+    height: 36px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+}
+.percent-fill {
+    height: 100%;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.histogram {
+    height: 36px; /* Adjust height as needed */
+
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    overflow: hidden;
+    padding-right:3px;
+    padding-left: 3px;
+    display: inline-block;
+    vertical-align: bottom;
+    line-height: 0; /* Remove extra space below */
+}
+.histogram-bar {
+    width: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-left: 1px;
+    vertical-align: bottom; /* Align bars to the bottom */
+}
+.histogram {
+display: inline-flex;
+align-items: end;
+}
+.column-header {
+font-weight: bold;
+/* Additional styles for column headers */
+}
+.metrics-row {
+align-items: center;
+/* Additional styles to ensure each row is on its own line */
+}
+
+@media (max-width: 600px) {
+    .host-row {
+        flex-direction: column;
+    }
+
+    .hostname h2 {
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .details {
+        border-top: none; /* Remove border top */
+    }
+
+    .column {
+        border-right: none; /* Remove border right */
+    }
+
+    .column {
+        padding: 10px; /* Adjust padding for smaller screens */
+        width: 100%; /* Each column takes up 100% of the container on mobile */
+    }
+
+
+
+}
+.footer {
+    z-index: 100;
+}
+@media (max-width: 600px) {
+    .column {
+        flex: 0 0 100%; /* Each column takes up 100% of the container on mobile */
+        max-width: 100%; /* Allow each column to fill the screen */
+    }
+}
+
+@media (max-width: 600px) {
+    .main-content {
+        padding: 0px;
+        font-size: 1rem;
+    }
+    .vitals-bubble, .status-bubble {
+        padding: 3px;
+    }
+    .percent-bar {
+        height:22px;
+    }
+    .histogram {
+        height: 22px;
+    }
+    .mass-actions button {
+        margin-right: 3px;
+    }
+    .main-content {
+        margin-bottom: 100px;
+    }
+    .listbox select {
+        margin-right: 3px;
+        padding-left: 5px;
+        padding-right: 2px;
+
+    }
+    .top-toolbar {
+        margin: 0px;
+        padding: 0px;
+    }
+    body {
+        line-height: 1;
+    }
+    .column {
+        padding: 0px!important;
+    }
+    .metrics-row {
+        font-size: 1em;
+    }
+
+}
+
+@media (min-width: 601px) {
+
+    .hostname-header h2,
+    .host-summary {
+        flex-basis: 100%; /* Allow each child to take full width */
+    }
+
+    .hostname-header .action-buttons {
+        justify-content: flex-start; /* Align buttons to the start */
+        margin-top: 10px; /* Add some space between the hostname and the buttons */
+    }
+
+    .host-summary {
+        order: 3; /* Ensure the summary is below the hostname and action buttons */
+        margin-top: 10px; /* Add space between action buttons and summary */
+    }
+}
+
+@media (min-width: 601px) {
+
+
+    .hostname-header h2,
+    .host-summary {
+        flex-basis: 100%; /* Allow each child to take full width */
+    }
+
+    .hostname-header .action-buttons {
+        position: absolute; /* Use absolute positioning */
+        right: 0; /* Align to the right */
+        top: 30px; /* Align to the top */
+        margin-top: 10px; /* Add some space from the top */
+        margin-right: 20px; /* Add some space from the right */
+    }
+
+    .host-summary {
+        order: 3; /* Ensure the summary is below the hostname and action buttons */
+        margin-top: 10px; /* Add space between action buttons and summary */
+        width: 100%; /* Take full width */
+    }
+}
+
+    .group-header {
+        background-color: #254d60;
+        margin-top: 2px;
+        margin-bottom: 1px;
+        color: #e3e3e3;
+        border-radius: 5px;
+        padding: 3px;
+        cursor: pointer;
+        font-size: 1.5em;
+        padding-left: 10px;
+        font-family: Arial, sans-serif;
+    }
+    .hostname-label {
+        width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 1.2em;
+    }
+    
+    
+    .group-details {
+    display: none;
+    margin-left:15px;
+    }
+    
+    .group-details.show {
+    display: block;
+    }
+    
+
+    /*** mail queue */
+
+    .hidden-column {
+        display: none;
+    }
+
+    #mail-queue-table .mail-row {
+        cursor: pointer;
+    }
+
+
+    .handle {
+        cursor: grab;
+    }
+    #mail-queue-table {
+        font-size: 0.9em;
+        border: 1px solid #eee;
+        margin:auto;
+        margin-bottom: 10px;
+        padding: 3px;
+    }
+    #mail-queue-table {
+        padding-left:10px;
+        padding-right:10px;
+    }
+    #mail-queue-table td {
+        padding: 2px;
+    }
+

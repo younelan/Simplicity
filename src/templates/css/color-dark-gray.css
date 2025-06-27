@@ -1,0 +1,84 @@
+:root {
+    /* Color Palette */
+    --primary-bg-color: #313131; /* Dark grey for header */
+    --primary-text-color: #ffffff; /* White */
+    --secondary-bg-color: #282828; /* Dark grey for footer */
+    --secondary-text-color: #ffffff; /* White */
+    --tertiary-bg-color: #424242; /* Dark grey */
+    --tertiary-text-color: #ffffff; /* White */
+    --content-bg-color: #3a3a3a; /* Dark grey */
+    --content-fg-color: #ffffff; /* White */
+    --widget-bg-color: #484848; /* Dark grey */
+    --widget-text-color: #ffffff; /* White */
+    --widget-header-bg-color: #404040; /* Dark grey */
+    --widget-header-text-color: #ffffff; /* White */
+    --label-color: #bdc3c7; /* Light grey */
+    --network-table-bg-color: #363636; /* Dark grey */
+    --status-up-color: #688d69; /* Green */
+    --status-down-color: #d32f2f; /* Dark red */
+    --status-warning-color: #ff9800; /* Orange */
+    --message-green-bg-color: #4caf50; /* Green */
+    --message-green-text-color: #ffffff; /* White */
+    --message-red-bg-color: #d32f2f; /* Dark red */
+    --message-red-text-color: #ffffff; /* White */
+    --message-gray-bg-color: #95a5a6; /* Grey */
+    --message-gray-text-color: #ffffff; /* White */
+    --navbar-bg-color: #363636; /* Dark grey */
+    --navbar-text-color: #ffffff; /* White */
+    --footer-bg-color: #363636; /* Dark grey */
+    --footer-text-color: #ffffff; /* White */
+    --button-bg-color: #363636; /* Dark grey */
+    --button-text-color: #ffffff; /* White */
+    --button-hover-bg-color: #484848; /* Dark grey */
+    --listbox-bg-color: #363636; /* Dark grey */
+    --listbox-text-color: #ffffff; /* White */
+    --listbox-hover-bg-color: #484848; /* Dark grey */
+    --submit-btn-bg-color: #363636; /* Dark grey */
+    --submit-btn-text-color: #ffffff; /* White */
+    --submit-btn-hover-bg-color: #484848; /* Dark grey */
+    --hostname-header-bg-color: #363636; /* Dark grey */
+    --hostname-header-text-color: #ffffff; /* White */
+    --hostname-header-up-bg-color: #759577; /* Green */
+    --hostname-header-down-bg-color: #b47979; /* Dark red */
+    --hostname-header-warning-bg-color: #dbc39d; /* Orange */
+    --metric-name-bg-color: #363636; /* Dark grey */
+    --metric-name-text-color: #ffffff; /* White */
+    --action-bg-color: #756c6c; /* Dark grey */
+    --action-text-color: white; /* White */
+    --action-hover-bg-color: #4caf50; /* Green */
+    --action-hover-text-color: #ffffff; /* White */
+    --column-header-bg-color: #838383; /* Grey */
+    --column-header-text-color: #ffffff; /* White */
+    --actions-header-bg-color: #363636; /* Dark grey */
+    --actions-header-text-color: #ffffff; /* White */
+    --collapse-all-btn-bg-color: #363636; /* Dark grey */
+    --collapse-all-btn-text-color: #ffffff; /* White */
+    --collapse-all-btn-hover-bg-color: #484848; /* Dark grey */
+    --vitals-bubble-bg-color: #4caf50; /* Green */
+    --vitals-bubble-text-color: #ffffff; /* White */
+    --status-up-bg-color: #688d69; /* Light green */
+    --status-up-text-color: #ffffff; /* White */
+    --status-down-bg-color: #c62828; /* Dark red */
+    --status-down-text-color: #ffffff; /* White */
+    --status-warning-bg-color: #ffb74d; /* Orange */
+    --status-warning-text-color: #000000; /* Black */
+    --text-metric-bg-color: #313131; /* Grey */
+    --text-metric-text-color: #ffffff; /* White */
+    --text-value-bg-color: #4f4f4f; /* Grey */
+    --text-value-text-color: #ffffff; /* White */
+    --percent-bar-bg-color: #4f4f4f; /* Grey */
+    --percent-fill-bg-color: #ffffff; /* White */
+    --histogram-bg-color: #4f4f4f; /* Grey */
+    --histogram-bar-bg-color: #d32f2f; /* Dark red */
+    --group-header-bg-color: #5b5b5b; /* Dark grey */
+    --group-header-text-color: #ffffff; /* White */
+    --hostname-label-text-color: #ffffff; /* White */
+    --mail-queue-table-bg-color: #363636; /* Dark grey */
+    --mail-queue-table-text-color: #ffffff; /* White */
+    --mail-queue-table-header-bg-color: #4f4f4f; /* Grey */
+    --mail-queue-table-header-text-color: #ffffff; /* White */
+    --mail-queue-table-odd-bg-color: #5e5e5e; /* Dark grey */
+    --mail-queue-table-even-bg-color: #484848; /* Dark grey */
+    --mail-queue-table-hover-bg-color: #d32f2f; /* Dark red */
+    --mail-queue-table-hover-text-color: #ffffff; /* White */
+}

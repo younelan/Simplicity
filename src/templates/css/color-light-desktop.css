@@ -1,0 +1,451 @@
+:root {
+    --primary-bg-color: #396d89;
+    --primary-text-color: black;
+    --secondary-bg-color: #061e38;
+    --secondary-text-color: white;
+    --tertiary-bg-color: #2a6370;
+    --tertiary-text-color: #96afa1;
+    --content-bg-color: white;
+    --widget-bg-color: #333f5b;
+    --widget-text-color: white;
+    --widget-header-bg-color: #333f5b;
+    --widget-header-text-color: white;
+    --label-color: #055;
+    --network-table-bg-color: #e7f7ff;
+    --status-up-color: green;
+    --status-down-color: brown;
+    --status-warning-color: #cd9f00;
+    --message-green-bg-color: rgb(206, 243, 206);
+    --message-green-text-color: green;
+    --message-red-bg-color: rgb(255, 213, 196);
+    --message-red-text-color: rgb(165, 6, 6);
+    --message-gray-bg-color: #CCC;
+    --message-gray-text-color: #777;
+    --navbar-bg-color: #061e38;
+    --navbar-text-color: white;
+    --footer-bg-color: #2a6370;
+    --footer-text-color: #5d6d8a;
+    --button-bg-color: #1c2e69;
+    --button-text-color: #fff;
+    --button-hover-bg-color: #d95d0e;
+    --listbox-bg-color: #1c2e69;
+    --listbox-text-color: #fff;
+    --listbox-hover-bg-color: #1c337e;
+    --submit-btn-bg-color: #1c2e69;
+    --submit-btn-text-color: #fff;
+    --submit-btn-hover-bg-color: #1c337e;
+    --hostname-header-bg-color: #38527b;
+    --hostname-header-text-color: white;
+    --hostname-header-up-bg-color: #286543;
+    --hostname-header-down-bg-color: #af1221;
+    --hostname-header-warning-bg-color: #cd9f00;
+    --metric-name-bg-color: #a1c9f3;
+    --metric-name-text-color: #2f2e35;
+    --action-bg-color: #1c2e69;
+    --action-text-color: #fff;
+    --action-hover-bg-color: #a5470c;
+    --action-hover-text-color: rgb(243, 243, 228);
+    --column-header-bg-color: #1f1d58;
+    --column-header-text-color: #fff;
+    --actions-header-bg-color: #2a65d3;
+    --actions-header-text-color: #fff;
+    --collapse-all-btn-bg-color: #007bff;
+    --collapse-all-btn-text-color: #fff;
+    --collapse-all-btn-hover-bg-color: #0056b3;
+    --vitals-bubble-bg-color: navy;
+    --vitals-bubble-text-color: white;
+    --status-up-bg-color: green;
+    --status-down-bg-color: rgb(128, 19, 0);
+    --status-warning-bg-color: #cd9f00;
+    --text-metric-bg-color: #693f97;
+    --text-metric-text-color: #e5e5e5;
+    --text-value-bg-color: rgb(230, 173, 227);
+    --text-value-text-color: black;
+    --percent-bar-bg-color: rgb(230, 173, 227);
+    --percent-fill-bg-color: #9620bd;
+    --histogram-bg-color: rgb(230, 173, 227);
+    --histogram-bar-bg-color: #9620bd;
+    --group-header-bg-color: #254d60;
+    --group-header-text-color: #e3e3e3;
+    --hostname-label-text-color: #fff;
+    --mail-queue-table-bg-color: #fff;
+    --mail-queue-table-text-color: #000;
+    --mail-queue-table-header-bg-color: #0056b3;
+    --mail-queue-table-header-text-color: #fff;
+    --mail-queue-table-odd-bg-color: rgb(240, 239, 186);
+    --mail-queue-table-even-bg-color: white;
+    --mail-queue-table-hover-bg-color: red;
+    --mail-queue-table-hover-text-color: white;
+}
+
+body {
+    background-color: var(--primary-bg-color);
+    color: var(--primary-text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: var(--secondary-bg-color);
+    color: var(--secondary-text-color);
+}
+
+.footer {
+    background-color: var(--tertiary-bg-color);
+    color: var(--tertiary-text-color);
+}
+
+.main-content {
+    background-color: var(--content-bg-color);
+}
+
+.widgetheader {
+    color: var(--widget-text-color);
+    background-color: var(--widget-header-bg-color);
+}
+
+.label {
+    font-weight: bold;
+    color: var(--label-color);
+}
+
+.network-table {
+    background-color: var(--network-table-bg-color);
+}
+
+.status-up,
+.connected {
+    color: var(--status-up-color);
+}
+
+.status-down,
+.disconnected {
+    color: var(--status-down-color);
+}
+
+.ifconfig-table {
+    border: 1px solid black;
+}
+
+.ifconfig-table th {
+    background-color: var(--primary-bg-color);
+    color: white;
+}
+
+.config-column {
+    padding: 5px;
+    border: 1px solid black;
+}
+
+.config-category {
+    background-color: #ccc;
+    color: black;
+}
+
+.config-table th {
+    background-color: #005;
+    color: white;
+}
+
+.config-subcategory {
+    background-color: #ffc;
+    color: black;
+}
+
+.message-green {
+    background-color: var(--message-green-bg-color);
+    color: var(--message-green-text-color);
+}
+
+.message-green:hover {
+    color: var(--message-green-bg-color);
+    background-color: green;
+}
+
+.message-red {
+    background-color: var(--message-red-bg-color);
+    color: var(--message-red-text-color);
+}
+
+.message-red:hover {
+    color: var(--message-red-bg-color);
+    background-color: var(--message-red-hover-bg-color);
+}
+
+.message-green:hover {
+    color: var(--message-green-hover-bg-color);
+    background-color: var(--message-green-hover-bg-color);
+}
+
+.message-gray:hover {
+    color: var(--message-gray-hover-text-color);
+    background-color: var(--message-gray-hover-bg-color);
+}
+
+.message a {
+    text-decoration: none;
+    color: var(--primary-text-color);
+}
+
+.message a:hover {
+    color: var(--primary-hover-text-color);
+}
+
+.message-grey {
+    background-color: var(--message-grey-bg-color);
+    color: var(--message-grey-text-color);
+}
+
+.red-dot {
+    background-color: red;
+}
+
+.grey-dot {
+    background-color: #aaa;
+}
+
+.message-header {
+    background-color: navy;
+    color: white;
+}
+
+.navbar {
+    padding-bottom: 2px;
+    padding-top: 2px;
+}
+
+.top-header h1 {
+    color: #a3cfff;
+    background-color: #1c3473;
+}
+
+.mass-actions button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+}
+
+.mass-actions button:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.listbox select {
+    background-color: var(--listbox-bg-color);
+    color: var(--listbox-text-color);
+    transition: background-color 0.3s;
+}
+
+.listbox select:hover {
+    background-color: var(--listbox-hover-bg-color);
+}
+
+.submit-btn {
+    background-color: var(--submit-btn-bg-color);
+    color: var(--submit-btn-text-color);
+}
+
+.submit-btn:hover {
+    background-color: var(--submit-btn-hover-bg-color);
+}
+
+.group-toggle {
+    color: var(--group-toggle-color);
+    cursor: pointer;
+}
+
+.host-row {
+    border: 1px solid var(--host-row-border-color);
+    border-radius: 5px;
+    background-color: var(--host-row-bg-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.hostname-header {
+    color: var(--hostname-header-text-color);
+    border-radius: 5px 5px 0 0;
+    background-color: var(--hostname-header-bg-color);
+}
+
+.hostname-header .action-buttons button:hover {
+    background-color: var(--hostname-header-button-hover-bg-color);
+    color: var(--hostname-header-button-text-color);
+}
+
+.hostname-header .action-buttons button:hover a {
+    color: var(--hostname-header-button-text-color);
+}
+
+.hostname-header.up {
+    background-color: var(--hostname-header-up-bg-color);
+}
+
+.hostname-header.down {
+    background-color: var(--hostname-header-down-bg-color);
+}
+
+.hostname-header.warning {
+    background-color: var(--hostname-header-warning-bg-color);
+}
+
+.metric .metric-name {
+    background-color: var(--metric-name-bg-color);
+    color: var(--metric-name-text-color);
+}
+
+.action {
+    background-color: var(--action-bg-color);
+    color: var(--action-text-color);
+}
+
+.details .action-buttons {
+    background-color: var(--details-action-buttons-bg-color);
+}
+
+.fas,
+.fa {
+    color: var(--fas-fa-color);
+}
+
+.device-chevron .fas {
+    color: var(--device-chevron-fas-color);
+}
+
+.action:hover {
+    background-color: var(--action-hover-bg-color);
+    color: var(--action-hover-text-color);
+    text-decoration: none;
+}
+
+.action:hover a {
+    color: var(--action-hover-text-color);
+    text-decoration: none;
+}
+
+.column-header {
+    background-color: var(--column-header-bg-color);
+    border-radius: 5px;
+    color: var(--column-header-text-color);
+}
+
+.actions-header {
+    background-color: var(--actions-header-bg-color);
+    color: var(--actions-header-text-color);
+}
+
+.collapse-all-btn {
+    background-color: var(--collapse-all-btn-bg-color);
+    color: var(--collapse-all-btn-text-color);
+}
+
+.collapse-all-btn:hover {
+    background-color: var(--collapse-all-btn-hover-bg-color);
+}
+
+.vitals-bubble,
+.status-bubble {
+    background-color: var(--vitals-status-bubble-bg-color);
+    color: var(--vitals-status-bubble-text-color);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.37);
+}
+
+.status-up {
+    background-color: var(--status-up-bg-color);
+}
+
+.status-down {
+    background-color: var(--status-down-bg-color);
+}
+
+.status-warning {
+    background-color: var(--status-warning-bg-color);
+    color: var(--status-warning-text-color);
+}
+
+.status-up,
+.check.up,
+.service.up {
+    background-color: var(--status-up-bg-color);
+    color: var(--status-up-text-color);
+}
+
+.status-down,
+.check.down,
+.service.down {
+    background-color: var(--status-down-bg-color);
+    color: var(--status-down-text-color);
+}
+
+.status-warning,
+.service.warning,
+.check.warning {
+    background-color: var(--status-warning-bg-color);
+    color: var(--status-warning-text-color);
+}
+
+.text-metric {
+    background-color: var(--text-metric-bg-color);
+    color: var(--text-metric-text-color);
+}
+
+.text-value {
+    background-color: var(--text-value-bg-color);
+    color: var(--text-value-text-color);
+}
+
+.percent-bar {
+    background-color: var(--percent-bar-bg-color);
+}
+
+.percent-fill {
+    height: 100%;
+    background-color: var(--percent-fill-bg-color);
+}
+
+.histogram {
+    background-color: var(--histogram-bg-color);
+    border: 1px solid var(--histogram-border-color);
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.histogram-bar {
+    background-color: var(--histogram-bar-bg-color);
+    border-radius: 5px;
+}
+
+.group-header {
+    background-color: var(--group-header-bg-color);
+    color: var(--group-header-text-color);
+}
+
+.hostname-label {
+    font-family: Arial, sans-serif;
+    font-size: 1.2em;
+    color: var(--hostname-label-text-color);
+}
+
+#mail-queue-table {
+    font-size: 0.9em;
+    border: 1px solid var(--mail-queue-table-border-color);
+}
+
+#mail-queue-table th {
+    background-color: var(--mail-queue-table-header-bg-color);
+    color: var(--mail-queue-table-header-text-color);
+}
+
+#mail-queue-table .odd {
+    color: var(--mail-queue-table-odd-text-color);
+    background-color: var(--mail-queue-table-odd-bg-color);
+}
+
+#mail-queue-table .even {
+    background-color: var(--mail-queue-table-even-bg-color);
+}
+
+#mail-queue-table tr:hover {
+    background-color: var(--mail-queue-table-hover-bg-color);
+}
+
+#mail-queue-table tr:hover td {
+    color: var(--mail-queue-table-hover-text-color);
+}

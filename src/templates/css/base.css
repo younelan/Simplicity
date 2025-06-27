@@ -1,0 +1,456 @@
+
+
+body {
+    background-color: var(--primary-bg-color);
+    color: var(--primary-text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.gallery { text-align: center; }
+
+.gallery-group img {max-height: 100%;max-width:90%}
+.gallery-item-title, .gallery-item-title a {font-size:1.2em;color: var(--tertiary-text-color);background-color: var(--tertiary-bg-color);text-decoration: none}
+.gallery-group h2 { display: flex; align-items: center; font-size: 1.5em}
+.row .gallery-group { padding: 25px;  padding-right: 20px;padding-left:20px}
+
+.gallery-item { display: inline-block; margin: 2px;vertical-align: top;}
+.gallery-group h2 {padding: 3px;margin-bottom: 5px;}
+.gallery-group { text-align: center; padding-top: 5px ;margin-top: 3px;vertical-align: top;} 
+.gallery-group ul {list-style-type: none}
+.gallery-links {text-align: left}
+.gallery-image:hover {transform: scale(1.2)};
+.gallery-before {text-align: left;display:block;width:100%}
+.gallery-after {text-align: right;display:block;width:100%}
+.gallery-links img {max-width:20px;height:auto;margin-right: 5px;}
+.gallery-links .bi {margin-right:5px;}
+
+.navbar {
+    background-color: var(--secondary-bg-color);
+    color: var(--secondary-text-color);
+}
+
+.footer {
+    background-color: var(--tertiary-bg-color);
+    color: var(--tertiary-text-color);
+}
+.section {
+    background-color: var(--section-bg-color);
+    vertical-align: top;
+}
+.main-content, #content {
+    background-color: var(--content-bg-color);
+    color: var(--content-fg-color);
+}
+#artist-image img {
+    position: fixed;
+    right: 0px;
+    bottom: 0px;
+    width: 80px;
+    height: auto;
+    z-index: 20;
+}
+.left-article-img {
+    margin: 3px;
+    float: left;
+    height: 130px;
+    width: auto;
+}
+.footer {
+    width: 100%;
+    padding: 5px 0;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0px;
+    height:30px;
+}
+
+
+.summary-table {
+    min-width:50%;
+    margin: auto;
+    margin-bottom: 30px;
+}
+.summary-table .odd {
+    color: var(--mail-queue-table-odd-text-color);
+    background-color: var(--mail-queue-table-odd-bg-color);
+}
+.summary-table .even {
+    background-color: var(--mail-queue-table-even-bg-color);
+}
+.summary-header {
+    background-color: var(--tertiary-bg-color);
+    color: var(--tertiary-text-color);
+}
+.widgetheader, entry-title {
+    color: var(--widget-text-color);
+    background-color: var(--widget-header-bg-color);
+}
+
+.label {
+    font-weight: bold;
+    color: var(--label-color);
+}
+
+.network-table {
+    background-color: var(--network-table-bg-color);
+}
+
+.status-up,
+.connected {
+    color: var(--status-up-color);
+}
+
+.status-down,
+.disconnected {
+    color: var(--status-down-color);
+}
+
+.ifconfig-table {
+    border: 1px solid black;
+}
+
+.ifconfig-table th {
+    background-color: var(--primary-bg-color);
+    color: white;
+}
+
+.config-column {
+    padding: 5px;
+    border: 1px solid black;
+}
+
+.config-category {
+    background-color: #ccc;
+    color: black;
+}
+
+.config-table th,  {
+    background-color: #005;
+    color: white;
+}
+
+.config-subcategory {
+    background-color: #ffc;
+    color: black;
+}
+
+.message-green {
+    background-color: var(--message-green-bg-color);
+    color: var(--message-green-text-color);
+}
+
+.message-green:hover {
+    color: var(--message-green-bg-color);
+    background-color: green;
+}
+
+.message-red {
+    background-color: var(--message-red-bg-color);
+    color: var(--message-red-text-color);
+}
+
+.message-red:hover {
+    color: var(--message-red-bg-color);
+    background-color: var(--message-red-hover-bg-color);
+}
+
+.message-green:hover {
+    color: var(--message-green-hover-bg-color);
+    background-color: var(--message-green-hover-bg-color);
+}
+
+.message-gray:hover {
+    color: var(--message-gray-hover-text-color);
+    background-color: var(--message-gray-hover-bg-color);
+}
+
+.message a {
+    text-decoration: none;
+    color: var(--primary-text-color);
+}
+
+.message a:hover {
+    color: var(--primary-hover-text-color);
+}
+
+.message-grey {
+    background-color: var(--message-grey-bg-color);
+    color: var(--message-grey-text-color);
+}
+
+.red-dot {
+    background-color: red;
+}
+
+.grey-dot {
+    background-color: #aaa;
+}
+
+.message-header {
+    background-color: navy;
+    color: white;
+}
+
+.navbar {
+    padding-bottom: 2px;
+    padding-top: 2px;
+}
+.navbar img {
+    max-width: 100%;
+}
+
+.top-header h1 {
+    color: #a3cfff;
+    background-color: #1c3473;
+}
+
+.mass-actions button {
+    background-color: var(--button-text-color);
+    color: var(--button-bg-color);
+}
+
+
+.mass-actions button:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.listbox select {
+    background-color: var(--listbox-bg-color);
+    color: var(--listbox-text-color);
+    transition: background-color 0.3s;
+}
+
+.listbox select:hover {
+    background-color: var(--listbox-hover-bg-color);
+}
+
+.submit-btn {
+    background-color: var(--submit-btn-bg-color);
+    color: var(--submit-btn-text-color);
+}
+
+.submit-btn:hover {
+    background-color: var(--submit-btn-hover-bg-color);
+}
+
+.group-toggle {
+    color: var(--group-toggle-color);
+    cursor: pointer;
+}
+
+.host-row {
+    border: 1px solid var(--host-row-border-color);
+    border-radius: 5px;
+    background-color: var(--host-row-bg-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.hostname-header {
+    color: var(--hostname-header-text-color);
+    border-radius: 5px 5px 0 0;
+    background-color: var(--hostname-header-bg-color);
+}
+
+.hostname-header .action-buttons button:hover {
+    background-color: var(--hostname-header-button-hover-bg-color);
+    color: var(--hostname-header-button-text-color);
+}
+
+.hostname-header .action-buttons button:hover a {
+    color: var(--hostname-header-button-text-color);
+}
+
+.hostname-header.up {
+    background-color: var(--hostname-header-up-bg-color);
+}
+
+.hostname-header.down {
+    background-color: var(--hostname-header-down-bg-color);
+}
+
+.hostname-header.warning {
+    background-color: var(--hostname-header-warning-bg-color);
+}
+
+.metric .metric-name {
+    background-color: var(--metric-name-bg-color);
+    color: var(--metric-name-text-color);
+}
+
+.action {
+    background-color: var(--action-bg-color);
+    color: var(--action-text-color);
+    text-decoration: none;
+}
+.summary-table h3 {
+    text-align: center;
+}
+
+.details .action-buttons {
+    background-color: var(--details-action-buttons-bg-color);
+}
+
+.fas,
+.fa {
+    color: var(--fas-fa-color);
+}
+
+.device-chevron .fas {
+    color: var(--device-chevron-fas-color);
+}
+
+.action:hover {
+    background-color: var(--action-hover-bg-color);
+    color: var(--action-hover-text-color);
+    text-decoration: none;
+}
+
+.action:hover a {
+    color: var(--action-hover-text-color);
+    text-decoration: none;
+}
+
+.column-header {
+    background-color: var(--column-header-bg-color);
+    border-radius: 5px;
+    color: var(--column-header-text-color);
+}
+
+.actions-header {
+    background-color: var(--actions-header-bg-color);
+    color: var(--actions-header-text-color);
+}
+
+.collapse-all-btn {
+    background-color: var(--collapse-all-btn-bg-color);
+    color: var(--collapse-all-btn-text-color);
+}
+
+.collapse-all-btn:hover {
+    background-color: var(--collapse-all-btn-hover-bg-color);
+}
+
+.vitals-bubble,
+.status-bubble,
+ {
+    background-color: var(--vitals-status-bubble-bg-color);
+    color: var(--vitals-status-bubble-text-color);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.37);
+}
+
+.status-up {
+    background-color: var(--status-up-bg-color);
+}
+
+.status-down {
+    background-color: var(--status-down-bg-color);
+}
+
+.status-warning {
+    background-color: var(--status-warning-bg-color);
+    color: var(--status-warning-text-color);
+}
+
+.status-up,
+.check.up,
+.service.up {
+    background-color: var(--status-up-bg-color);
+    color: var(--status-up-text-color);
+}
+
+.status-down,
+.check.down,
+.service.down {
+    background-color: var(--status-down-bg-color);
+    color: var(--status-down-text-color);
+}
+
+.status-warning,
+.service.warning,
+.check.warning {
+    background-color: var(--status-warning-bg-color);
+    color: var(--status-warning-text-color);
+}
+
+.text-metric {
+    background-color: var(--text-metric-bg-color);
+    color: var(--text-metric-text-color);
+}
+
+.text-value {
+    background-color: var(--text-value-bg-color);
+    color: var(--text-value-text-color);
+}
+
+.percent-bar {
+    background-color: var(--percent-bar-bg-color);
+}
+
+.percent-fill {
+    height: 100%;
+    background-color: var(--percent-fill-bg-color);
+}
+
+.histogram {
+    background-color: var(--histogram-bg-color);
+    border: 1px solid var(--histogram-border-color);
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.histogram-bar {
+    background-color: var(--histogram-bar-bg-color);
+    border-radius: 5px;
+}
+
+.group-header {
+    background-color: var(--group-header-bg-color);
+    color: var(--group-header-text-color);
+}
+
+.hostname-label {
+    font-family: Arial, sans-serif;
+    font-size: 1.2em;
+    color: var(--hostname-label-text-color);
+}
+
+#mail-queue-table {
+    font-size: 0.9em;
+    border: 1px solid var(--mail-queue-table-border-color);
+}
+
+#mail-queue-table th, h1, h2, h3 {
+    background-color: var(--mail-queue-table-header-bg-color);
+    color: var(--mail-queue-table-header-text-color);
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding: 3px;
+    text-align: center
+}
+.section {
+    display: inline-block;
+}
+.carousel h2 {
+    margin-top:0px;
+}
+#mail-queue-table .odd,.carousel, .block, .gallery-content {
+    color: var(--mail-queue-table-odd-text-color);
+    background-color: var(--mail-queue-table-odd-bg-color);
+}
+
+
+#mail-queue-table .even {
+    background-color: var(--mail-queue-table-even-bg-color);
+}
+
+
+
+#mail-queue-table tr:hover {
+    background-color: var(--mail-queue-table-hover-bg-color);
+}
+
+#mail-queue-table tr:hover td {
+    color: var(--mail-queue-table-hover-text-color);
+}
