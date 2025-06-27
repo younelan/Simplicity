@@ -111,16 +111,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             }
         }
     }
-    function printLog()
-    {
-        $logView = $this->plugins->get_plugin('logviewblock');
-        echo $logView->render([
-            'log_entries' => $this->filteredLog,
-            'columns' => $this->columns,
-            'filter_count' => $this->filter_count,
-            'color_cycle' => $this->config_object->get('colorCycle') ?? $this->defaultcolors
-        ]);
-    }
+
     function processCustomGraphs($entry) {
         foreach ($this->customGraphs ?? [] as $graph_name => $graph_rule) {
             $type = $graph_rule['type'] ?? 'pie';
@@ -181,6 +172,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             $this->parseLogFile($filenames);
         }
     }
+
     function parseLogFile($filename)
     {
         if (!$filename) {
@@ -346,18 +338,34 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         return $retval;
 
     }
+    function get($var) {
+        switch($var) {
+            case 'css':
+                $style = __DIR__ . '/../../templates/graphs.css';
+                if (file_exists($style)) {
+                    $style = file_get_contents($style);
+                }
+                else { die("Graphs CSS file not found: $style"); }
+                return "<style>\n$style\n</style>";
+
+            case 'results':
+                return $this->results;
+            case "filtered_log":
+                return $this->filteredLog;
+            case 'columns':
+                return $this->columns;
+            case 'graphs':
+                return $this->customGraphs;
+            default:
+                return $this->config_object->get($var);
+        }
+
+
+    }
     function getResults()
     {
         return $this->results;
     }
-    function getCss() {
-        $style = __DIR__ . '/../../templates/graphs.css';
-        if (file_exists($style)) {
-            $style = file_get_contents($style);
-        }
-        else { die("Graphs CSS file not found: $style"); }
-        return "<style>\n$style\n</style>";
 
-    }
 
 }
