@@ -124,6 +124,7 @@ class ApacheLogLine extends \Opensitez\Simplicity\Plugin
                 $details = $complexFields[$formatField] ?? null;
 
                 if ($details) {
+
                     if(count($details['fields']) > 1) {
                         $parts = explode(' ', $lineFields[$fieldIndex] ?? '', 3);
                         foreach ($details['fields'] as $index => $friendlyName) {
@@ -141,6 +142,8 @@ class ApacheLogLine extends \Opensitez\Simplicity\Plugin
                                     }
                                 } 
                             }
+                            $hostname = '';
+
                             if(isset($parts[$index])) {
                                 $mappedFields[$friendlyName] = $parts[$index];
                             } else {
@@ -150,6 +153,26 @@ class ApacheLogLine extends \Opensitez\Simplicity\Plugin
                         }
                         $fieldIndex++;
                     } else {
+                        //print "<pre>\n";
+                        $friendlyName = $details['fields'][0];
+                        if($friendlyName=="vhost") {
+                            // print "Processing vhost field: $friendlyName\n<br/>";
+                            // print_r( $lineFields[$fieldIndex]);
+                            $vhostParts = explode(':', $lineFields[$fieldIndex]);
+                            if(count($vhostParts)>1) {
+                                //$parts[0] = trim($parts[0],"www.");
+
+                                $hostname = $vhostParts[0] ?? '<span style="color: red;">Missing</span>';
+                                $port = $vhostParts[1] ?? '<span style="color: red;">Missing</span>';
+                            } else {
+                                $hostname = $parts[0] ?? "";
+                                $port = "-";
+
+                            }
+                        $mappedFields["host"] = (strpos($hostname, 'www.') === 0) ? substr($hostname, 4) : $hostname;
+                        $mappedFields["port"] = $port;
+
+                        }
                         $mappedFields[$details['fields'][0]] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
                         $fieldIndex++;
                     }
@@ -157,10 +180,10 @@ class ApacheLogLine extends \Opensitez\Simplicity\Plugin
                     $processedLineFields[] = $lineFields[$fieldIndex] ?? '<span style="color: red;">Missing</span>';
                     $fieldIndex++;
                 }
-            }
-
+         }
             if(count($missing) < 1) {
                 $mappedFields['type'] = $format; 
+
                 $mappedFields['day']=$day;
                 $mappedFields['hour']=$hour;
                 $mappedFields['clock']=$clock;               

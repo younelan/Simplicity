@@ -64,49 +64,7 @@ class BarChartBlock extends \Opensitez\Simplicity\Plugin
         $maxValue = max($data);
         $colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
         
-        $output = "<style>
-        .bar-chart-container {
-            width: 100%;
-            max-width: 280px;
-            margin: 10px auto;
-            min-height: 200px;
-        }
-        .bar-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-        .bar-label {
-            width: 80px;
-            text-align: right;
-            padding-right: 10px;
-            font-weight: bold;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .bar-visual {
-            flex: 1;
-            height: 18px;
-            background: linear-gradient(to right, #ddd 0%, #ddd 100%);
-            position: relative;
-            border-radius: 3px;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        .bar-value {
-            position: absolute;
-            right: 5px;
-            top: 1px;
-            font-size: 10px;
-            color: #333;
-            font-weight: bold;
-        }
-        </style>";
+        $output = "";
 
         $output .= "<div class='bar-chart-container' id='{$name}'>";
         

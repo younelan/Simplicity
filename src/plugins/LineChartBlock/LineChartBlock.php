@@ -23,6 +23,8 @@ class LineChartBlock extends \Opensitez\Simplicity\Plugin
     function render($block_config, $options = [])
     {
         $data = $block_config['data'] ?? [];
+        // print_r($block_config); // Debugging line to check data structure
+        // exit;
         $title = $block_config['title'] ?? 'Chart';
         $limit = $block_config['limit'] ?? 10;
         $xlabel = $block_config['xlabel'] ?? '';
@@ -60,21 +62,74 @@ class LineChartBlock extends \Opensitez\Simplicity\Plugin
         $template = new \Opensitez\Simplicity\SimpleTemplate();
         $templatePath = __DIR__ . '/../../templates/linechart.tpl';
         $template->setFile($templatePath);
+        //print_r($data); // Debugging line to check data structure
         
         // Build data list HTML with color indicators
         $colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
         $dataList = '';
         $colorIndex = 0;
-        foreach($data as $key=>$value) {
-            $color = $colors[$colorIndex % count($colors)];
-            $dataList .= "<div class=\"graph-data-entry\"><span class=\"graph-data-color\" style=\"background-color: {$color};\"></span><span class=\"graph-data-label\">" . htmlentities($key) . "</span> : &nbsp; <span class=\"graph-data-value\">$value</span></div>\n";
-            $colorIndex++;
+        
+        // Check if this is 2D array data or simple x,count data
+        $is2DArray = false;
+        foreach($data as $value) {
+            if (is_array($value)) {
+                $is2DArray = true;
+                break;
+            }
         }
+        
+        if ($is2DArray) {
+            // Handle 2D array data (x => [y => count])
+            $chartData = [];
+            $yValues = []; // Track unique Y values for positioning
+            
+            foreach($data as $x_val => $y_data) {
+                foreach($y_data as $y_val => $count) {
+                    // Track unique Y values for sequential positioning
+                    if (!in_array($y_val, $yValues)) {
+                        $yValues[] = $y_val;
+                    }
+                    
+                    $color = $colors[$colorIndex % count($colors)];
+                    $dataList .= "<div class=\"graph-data-entry\"><span class=\"graph-data-color\" style=\"background-color: {$color};\"></span><span class=\"graph-data-label\">" . htmlentities($x_val . ' → ' . $y_val) . "</span> : &nbsp; <span class=\"graph-data-value\">$count</span></div>\n";
+                    $colorIndex++;
+                }
+            }
+            
+            // Convert to chart data - group by X values and sum counts
+            $synonyms = $data['synonyms'] ?? [];
+            print_r($synonyms); // Debugging line to check synonyms
+            exit;
+            foreach($data as $x_val => $y_data) {
+                $total_for_x = array_sum($y_data);
+                $chartData[] = ['x' => $x_val, 'y' => $total_for_x];
+            }
+            
+        } else {
+            // Handle simple x,count data
+            $chartData = [];
+            
+            // Sort by x value
+            ksort($data);
+            
+            foreach($data as $x_val => $count) {
+                $chartData[] = ['x' => $x_val, 'y' => $count];
+                
+                $color = $colors[$colorIndex % count($colors)];
+                $dataList .= "<div class=\"graph-data-entry\"><span class=\"graph-data-color\" style=\"background-color: {$color};\"></span><span class=\"graph-data-label\">" . htmlentities($x_val) . "</span> : &nbsp; <span class=\"graph-data-value\">$count</span></div>\n";
+                $colorIndex++;
+            }
+        }
+        
+        // Sort chart data by x value
+        usort($chartData, function($a, $b) {
+            return strcmp($a['x'], $b['x']);
+        });
         
         // Build dataset for line chart
         $dataset = '';
-        foreach($data as $key=>$value) {
-            $dataset .= "{ x: '" . htmlentities($key) . "', y: " . intval($value) . "} , \n";
+        foreach($chartData as $point) {
+            $dataset .= "{ x: '" . htmlentities($point['x']) . "', y: " . intval($point['y']) . "} , \n";
         }
         
         $variables = [

@@ -14,6 +14,10 @@
         </div>
     </div>
 </div>
+
+
+
+
 <script>
   (function() {
     'use strict';
@@ -49,49 +53,3 @@
     });
   })();
 </script>
-<style>
-.graph-data {
-    background-color: #20365c;
-    border-radius: 10px;
-    padding: 5px;
-    height: auto;
-    min-height: 50%;
-    overflow: hidden;
-}
-.graph-canvas {
-    background-color: #e2e2b7;
-    border-radius: 10px;
-    margin-bottom: 5px;
-}
-.graph-title {
-    background-color: #000;
-    color: white;
-    border-radius: 3px;
-    padding: 5px;
-    margin-top: 0;
-    margin-bottom: 5px;
-}
-.graph-data-entry {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    color: #fff9e3;
-    text-shadow: 2px 1px #637286;
-    font-size: 0.8em;
-}
-.graph-data-color {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    margin-right: 5px;
-    flex-shrink: 0;
-}
-.graph-data-label {
-    font-weight: bold;
-    color: #e1b698;
-    text-shadow: 2px 1px black;
-}
-.graph-data-value {
-    color: #aaa;
-}
-</style>

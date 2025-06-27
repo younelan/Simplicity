@@ -23,7 +23,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
     private $filter_count;
     private $domaincache;	
     private $customGraphs;
-    private $customGraph_results;
     private $results;
     private $graphid=0;
     private $defaultcolors=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
@@ -39,7 +38,10 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         $this->total_tools=0;
         $this->parsedLog="";
         $this->ruleStats=array(); // Changed from "" to array()
-        $this->results=[];
+        $this->results=[
+            'engine_stats' => ["label"=>"Engine Stats","type"=>"pie","data"=>$this->default_stats],
+            'rule_stats' => ["label"=>"Rule Stats", "type"=>"bar", "data"=>[]]
+        ];
 
         $this->engine_stats = $this->default_stats;
         if (!isset($this->columns)) {
@@ -119,17 +121,74 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             'color_cycle' => $this->config_object->get('colorCycle') ?? $this->defaultcolors
         ]);
     }
+    function processCustomGraphs($entry) {
+        foreach ($this->customGraphs ?? [] as $graph_name => $graph_rule) {
+            $type = $graph_rule['type'] ?? 'pie';
+            $x_field = $graph_rule['x'] ?? null;
+            $y_field = $graph_rule['y'] ?? null;
 
+            if (!isset($this->results[$graph_name])) {
+                $this->results[$graph_name] = [
+                    'type' => $type,
+                    'title' => $graph_rule['label'] ?? 'Custom Graph',
+                    'label' => $graph_rule['label'] ?? 'Custom Graph',
+                    'data' => [],
+                    'xlabel' => $graph_rule['xlabel'] ?? '',
+                    'ylabel' => $graph_rule['ylabel'] ?? '',
+                    'xlabels' => [],
+                    'ylabels' => []
+                ];
+            }
+
+            if ($type === 'line') {
+                // Handle matrix data (x => [y => count])
+                $field = $graph_rule['x'] ?? null;
+                //print "Processing line chart data for $graph_name $field\n";
+                if ($field && isset($entry[$field])) {
+                    $graph_value = trim($entry[$field]);
+                    if (isset($this->results[$graph_name]['data'][$graph_value])) {
+                        $this->results[$graph_name]['data'][$graph_value]++;
+                    } else {
+                        $this->results[$graph_name]['data'][$graph_value] = 1;
+                    }
+                }
+            } else {
+                // Handle single field data (non-line charts)
+                $field = $graph_rule['field'] ?? null;
+                if ($field && isset($entry[$field])) {
+                    $graph_value = trim($entry[$field]);
+                    if (isset($this->results[$graph_name]['data'][$graph_value])) {
+                        $this->results[$graph_name]['data'][$graph_value]++;
+                    } else {
+                        $this->results[$graph_name]['data'][$graph_value] = 1;
+                    }
+                }
+            }
+
+            // Sort data by count in descending order
+            arsort($this->results[$graph_name]['data']);
+        }
+    }
     function parseLog()
     {
 
-        $filename = $this->config_object->get('file');
+        $filenames = $this->config_object->get('file');
+        if (is_array($filenames)) {
+            foreach ($filenames as $filename) {
+                $this->parseLogFile($filename);
+            }
+        } else {
+            $this->parseLogFile($filenames);
+        }
+    }
+    function parseLogFile($filename)
+    {
         if (!$filename) {
-            print("Log file not specified in configuration.");
+            print("Log file not specified in configuration.\n<br/>");
             return false;
         }
         if ( !file_exists($filename)) {
-            print("Log file " . $this->filename . " does not exist or is inaccessible.");
+            print("Log file " . $filename . " does not exist or is inaccessible.\n<br/>");
             return false;
         }
 
@@ -205,122 +264,39 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                 }
                 $coloredLine .= "<br/>";
 
-                $isEngine=false;
-                $isTool=false;
-                $isScan=false;
-                $isFilter=false;
-                $isFamily=false;
                 $rule = $this->match_rule($entry);
                 if($rule===false) {
                     $isEngine=false;
+                    $this->results['engine_stats']['data']['Visitors']++;
                 } else {
+                    $newval = $this->results['engine_stats']['data'][ucfirst($rule['category'])] ?? 0;
+                    $this->results['engine_stats']['data'][ucfirst($rule['category'])] = $newval + 1;
                     $isEngine=true;
-
-                    switch($rule['class']) {
-                        case "engine":
-                            $isEngine=true;
-                            $this->total_engines++;
-                            break;
-                        case "tool":
-                            $isTool=true;
-                            $this->total_tools++;
-                            break;
-                        case "scan":
-                            $isScan=true;
-                            $this->total_scans++;
-                            break;
-                        case "filter":
-                            $isFilter=true;
-                            $this->filter_count++;
-                            break;
-                        default:
-                            $isEngine=false;
-                            break;
-                    }
 
                 }
 
-                if(isset($this->rules["filters"]) && $isFilter===false)
+                // if(isset($this->rules["filters"]) && $isFilter===false)
+                // {
+                //     $this->filter_count++;
+                // }
+
+                if($isEngine===false)
                 {
-                    $this->filter_count++;
+                    $this->filteredLog = $coloredLine . "<br>" . $this->filteredLog;
+                    $this->total_visitors++;
+                    @$this->results['engine_stats']['Visitors']++;
                 }
                 else
                 {
-                    if($isEngine===false)
-                    {
-                        $this->filteredLog = $coloredLine . "<br>" . $this->filteredLog;
-                        $this->total_visitors++;
-                        @$this->engine_stats['Visitors']++;
-                    }
-                    else
-                    { 
-                        @$this->engine_stats[ucfirst($rule['category'])]++;
-                        $this->total_engines ++;
-                        $rule_name=$rule['name'];
-                        $newstat = $this->ruleStats[trim($rule_name)]??0;
-                        $this->ruleStats[trim($rule_name)] = $newstat+1;
+                    @$this->results['engine_stats'][ucfirst($rule['category'])]++;
+                    $this->total_engines ++;
+                    $rule_name=$rule['name'];
+                    $newstat = $this->results['rule_stats']['data'][trim($rule_name)]??0;
+                    $this->results['rule_stats']['data'][trim($rule_name)] = $newstat+1;
 
-                    }
-                    if($isEngine==false)
-                    {
-                        // Check the custom graphs
-                        $tmpgraphs = [];
-                        foreach ($this->customGraphs ?? [] as $graph_name => $graph_rule) {
-                            $type = $graph_rule['type'] ?? 'pie';
-                            $x_field = $graph_rule['x'] ?? null;
-                            $y_field = $graph_rule['y'] ?? null;
-                            $y_index = 0;
-                            $x_index = 0;
-                            if (!isset($this->customGraph_results[$graph_name])) {
-                                $this->customGraph_results[$graph_name] = [];
-                            }
-
-                            if ($type === 'line') {
-                                // Handle matrix data (x => [y => count])
-                                if(!isset($this->customGraph_results[$graph_name])) {
-                                    $this->customGraph_results[$graph_name] = [
-                                        'type' => 'line',
-                                        'data' => [],
-                                        'xlabel' => $graph_rule['xlabel'] ?? '',
-                                        'ylabel' => $graph_rule['ylabel'] ?? '',
-                                        'xlabels' => [],
-                                        'ylabels' => []
-                                    ];
-                                }
-
-                                $field = $graph_rule['x'] ?? null;
-                                if ($field && isset($entry[$field])) {
-                                    $graph_value = trim($entry[$field]);
-                                    if (isset($this->customGraph_results[$graph_name][$graph_value])) {
-                                        $this->customGraph_results[$graph_name]['data'][$graph_value]++;
-                                    } else {
-                                        $this->customGraph_results[$graph_name]['data'][$graph_value] = 1;
-                                    }
-                                }
-
-
-                            } else {
-                                // Handle single field data (non-line charts)
-                                $field = $graph_rule['field'] ?? null;
-                                if ($field && isset($entry[$field])) {
-                                    $graph_value = trim($entry[$field]);
-                                    if (isset($this->customGraph_results[$graph_name][$graph_value])) {
-                                        $this->customGraph_results[$graph_name]['data'][$graph_value]++;
-                                    } else {
-                                        $this->customGraph_results[$graph_name]['data'][$graph_value] = 1;
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
-                if(isset($this->rules["families"]) && $isFamily===false ) {
-                    @$rule_name=$this->results["families"][$isEngine]['name'];
-                    if(isset($this->results['family_types'][trim($rule_name)]))
-                        $this->results['family_types'][trim($rule_name)]++;
-                    else
-                        $this->results['family_types'][trim($rule_name)]=1;
-                }
+                $this->processCustomGraphs($entry);
+
             }
         }
     }
@@ -370,96 +346,18 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         return $retval;
 
     }
-    function showAllGraphs()
+    function getResults()
     {
-        print "<style>
-        .graphs-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            justify-content: center;
-        }
-        .graph {
-            width: 300px;
-            min-height: 300px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 7px;
-            text-align: center;
-        }
-        .graph-canvas {
-            width: 100%;
-            height: auto;
-        }
-        @media (max-width: 768px) {
-            .graph {
-                width: 100%;
-                margin: 0;
-            }
-        }
-    </style>";
-
-        print "<div class='graphs-container'>";
-        $pieChart = $this->get_plugin('piechartblock');
-        $barChart = $this->get_plugin('barchartblock');
-        $vbarChart = $this->get_plugin('vbarchartblock');
-        $lineChart = $this->get_plugin('linechartblock');
-        
-        if ($pieChart && isset($this->filteredLog) && strlen($this->filteredLog) > 0) {
-            // Engine Stats - default to pie chart
-            echo $pieChart->render([
-                'data' => $this->engine_stats,
-                'title' => 'Engine Stats',
-                'graphId' => 'graph1',
-                'limit' => 10
-            ]);
-
-            // Rule Stats - default to pie chart
-            if (is_array($this->ruleStats)) {
-                arsort($this->ruleStats);
-                echo $pieChart->render([
-                    'data' => $this->ruleStats,
-                    'title' => 'Rule Stats',
-                    'graphId' => 'tenarray',
-                    'limit' => 10
-                ]);
-            }
-
-            // Custom graphs - check type, default to pie
-            foreach ($this->customGraphs ?? [] as $key => $value) {
-                $title = $value['label'] ?? "Custom Graph";
-                $type = $value['type'] ?? 'pie';
-                $xlabel = $value['xlabel'] ?? '';
-                $ylabel = $value['ylabel'] ?? '';
-                
-                $data =  $this->customGraph_results[$key] ?? [];
-                $data['title'] = $title;
-                $data['graphId'] = "customgraph_$key";
-                $data['limit'] = 10;
-                switch($type) {
-                    case 'pie':
-                        echo $pieChart->render($data);
-                        break;
-                    case 'bar':
-                        echo $barChart->render($data);
-                        break;
-                    case 'vbar':
-                        echo $vbarChart->render($data);
-                        break;
-                    case 'line':
-                        $data = $this->customGraph_results[$key] ?? [];
-                        $data['xlabel'] = $xlabel;
-                        $data['ylabel'] = $ylabel;
-                        echo $lineChart->render($data);
-                        break;
-                    default:
-                        $data = $value['data'] ?? [];
-                }   
-
-            }
-        } 
-
-        print "</div>";
+        return $this->results;
     }
+    function getCss() {
+        $style = __DIR__ . '/../../templates/graphs.css';
+        if (file_exists($style)) {
+            $style = file_get_contents($style);
+        }
+        else { die("Graphs CSS file not found: $style"); }
+        return "<style>\n$style\n</style>";
+
+    }
+
 }
