@@ -25,7 +25,7 @@ class SimpleDebug
     {
         $output = '';
 
-        foreach ($array as $key => $value) {
+        foreach ($array??[] as $key => $value) {
             $has_children = is_array($value);
             $is_expanded = $depth < $visible_depth ? 'open' : '';
 
@@ -37,7 +37,7 @@ class SimpleDebug
                 $output .= '<div class="child-key">' . htmlentities($key) . '</div>';
                 
                 // Handle very long values with expand/collapse
-                $value_str = htmlentities($value);
+                $value_str = htmlentities($value??"");
                 if (strlen($value_str) > $this->max_text_length) {
                     $short_value = substr($value_str, 0, $this->max_text_length) . '...';
                     $output .= '<div class="child-value long-value">';
@@ -64,7 +64,7 @@ class SimpleDebug
                 $non_array_values = [];
                 foreach ($value as $child_key => $child_value) {
                     if (!is_array($child_value)) {
-                        $child_value_str = htmlentities($child_value);
+                        $child_value_str = htmlentities($child_value??"");
                         $key_html = "<div class=child-key>" . htmlentities($child_key) . '</div>';
                         
                         if (strlen($child_value_str) > $this->max_text_length) {
