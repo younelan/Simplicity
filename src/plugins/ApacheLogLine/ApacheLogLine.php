@@ -53,8 +53,8 @@ class ApacheLogLine extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'apachelogline');
-            $this->plugins->register_type('contentprovider', 'apachelogline');
+            // $this->plugins->register_type('blocktype', 'apachelogline');
+            // $this->plugins->register_type('contentprovider', 'apachelogline');
         }
         parent::on_event($event);
     }
