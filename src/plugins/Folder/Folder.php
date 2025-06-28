@@ -185,7 +185,8 @@ class Folder extends \Opensitez\Simplicity\Plugin
         $current_site = $this->config_object->get('site');
         $paths = $this->config_object->get('paths');
 
-        $basedir = $paths['datafolder'];
+        $basedir = $paths['datafolder'] ?? "";
+        if(!$basedir??false) return "No data folder defined";
         $basedir_value = $app['basedir'] ?? "";
         
         // Handle case where basedir might be an array
