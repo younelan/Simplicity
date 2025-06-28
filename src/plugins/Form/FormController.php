@@ -7,14 +7,6 @@ class FormController extends \Opensitez\Simplicity\Plugin
 {
     private $formManager;
     private $field_types;
-    // private $config;
-    // priva
-    // public function __construct($config) {
-    //     $this->config = $config;
-    // }
-    // public function set_config(&$config) {
-    //     $this->config = $config;
-    // }
     public function set_field_types($field_types)
     {
         $this->field_types = $field_types;
@@ -62,7 +54,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'form_editor' => '',
         ];
         $masterTemplate = file_get_contents(__DIR__ . '/views/form_add_form.html');
-        return $this->replace_placeholders($masterTemplate, $data);
+        return $this->replace_vars($masterTemplate, $data);
     }
     function deleteForm($app = [])
     {
@@ -168,7 +160,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'testdata' => 'hello',
         ];
         $formEditor = file_get_contents(__DIR__ . '/views/form_editor.html');
-        $formEditor = $this->replace_placeholders($formEditor, $editorData);
+        $formEditor = $this->replace_vars($formEditor, $editorData);
         $data = [
             'form_header' => 'Edit form',
             'form_action' => '?plugin=form&page=update_form&form_id=' . intval($app['form_id']),
@@ -180,7 +172,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'form_description' => $form['form_description']
         ];
         $masterTemplate = file_get_contents(__DIR__ . '/views/form_add_form.html');
-        return $this->replace_placeholders($masterTemplate, $data);
+        return $this->replace_vars($masterTemplate, $data);
     }
 
     function listForms($app = [])
@@ -198,11 +190,11 @@ class FormController extends \Opensitez\Simplicity\Plugin
         // Get forms from the database
         $forms = $this->formManager->getForms();
         foreach ($forms as $form) {
-            $rows .= $this->replace_placeholders($formTemplate, $form);
+            $rows .= $this->replace_vars($formTemplate, $form);
         }
         $data['rows'] = $rows;
 
 
-        return $this->replace_placeholders($masterTemplate, $data);
+        return $this->replace_vars($masterTemplate, $data);
     }
 }

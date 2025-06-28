@@ -209,25 +209,13 @@ class Plugin extends Base
     }
 
     /*substitute vars and placeholders should be one really eventually */
-    function replace_placeholders($content, $data)
-    {
-        foreach ($data as $key => $value) {
-            $placeholder = '{' . $key . '}';
-            $content = str_replace($placeholder, $value, $content);
-        }
+    // function replace_placeholders($content, $data)
+    // {
+    //     foreach ($data as $key => $value) {
+    //         $placeholder = '{' . $key . '}';
+    //         $content = str_replace($placeholder, $value, $content);
+    //     }
 
-        return $content;
-    }
-    function substitute_vars($text, $arrays)
-    {
-        foreach ($arrays as $vararray) {
-            foreach ($vararray ?? [] as $tplvar => $tplvalue) {
-                if (is_string($tplvalue)) {
-                    $tplvar = '{{$' . $tplvar . "}}";
-                    $text = str_replace($tplvar, $tplvalue, $text);
-                }
-            }
-        }
-        return $text;
-    }
+    //     return $content;
+    // }
 }
