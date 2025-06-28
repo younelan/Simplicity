@@ -1,0 +1,138 @@
+{
+    "default-palette": "desktop",
+	"palettes": {
+		"desktop": {
+			"css": [
+				"styles.css",
+                "base.css",
+				"color-light-desktop.css"
+			]			
+		},
+		"loud": {
+			"css": [
+				"styles.css",
+                "base.css",
+				"color-loud.css"
+			]			
+		},
+        "loud2": {
+			"css": [
+				"styles.css",
+                "base.css",
+				"color-loud2.css"
+			]			
+		},
+		"loud3": {
+			"css": [
+				"styles.css",
+                "base.css",
+				"color-loud3.css"
+			]			
+		},
+		"loud4": {
+			"css": [
+				"styles.css",
+                "base.css",
+				"color-loud4.css"
+			]			
+		},
+        "dark-red" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-red.css"
+            ]
+        },
+        "dark-blue" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-blue.css"
+            ]
+        },
+        "dark-chocolate" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-chocolate.css"
+            ]
+        },
+        "dark-purple" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-purple.css"
+            ]
+        },
+        "dark-silicon" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-silicon.css"
+            ]
+        },
+        "dark-gray" : {
+            "css": [
+                "styles.css",
+                "base.css",
+                "color-dark-gray.css"
+            ]
+        },
+
+
+        "coffee": {
+			"css": [
+				"coffee.css"
+			],
+			"style": {
+				"body": {
+					"background-color": "#1e1616",
+					"color": "black",
+					"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+				},
+				".navbar": {
+					"background-color": "#594b51",
+					"color": "white"	
+				},
+				".footer": {
+					"background-color": "#554f50",
+					"color": "#635e5e"	
+				},
+				".main-content": {
+					"background-color": "#6b6a6b",
+					"border-radius": "10px",
+					"box-shadow": "0 0 20px rgba(0, 0, 0, 0.1)"				
+				},
+				".widgetheader": {
+	
+				},
+				".mass-actions button": {
+				}
+	
+			}
+		},
+		"custom": {
+			"css": [
+				"styles.css",
+				"default_colors.css"
+			],
+			"style": {
+				"body": {
+					"background-color": "{{$pagebg}}",
+					"color": "{{$pagefg}}",
+					"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+					
+				},
+				".navbar": {
+					"background-color": "{{$menubg}}",
+					"color": "{{$menufg}}"	
+				},
+				".footer": {
+					"background-color": "{{$footerbg}}",
+					"color": "{{$footerfg}}"			
+				}	
+			}
+		} 
+	}
+
+}

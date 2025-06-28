@@ -1,0 +1,64 @@
+{
+    "debug": false,
+    "caching": true,
+    "timeout": 120,
+    "palette": "desktop",
+    "timezone": "America/New_York",
+    "db": "default",
+    "autofolder": false,
+    "default-site": "default",
+    "site-override": false,
+    "charset": "UTF-8",
+    "connections":  [{
+        "host": "127.0.0.1",
+        "db": "simplicity",
+        "user": "simplicity",
+        "pass": "simplicity",
+        "driver": "mysql"      
+    }
+    ],
+    "definition": {
+        "vars": {
+            "content": "default hello",
+            "title": "Simplicity Default",
+            "description": "Simplicity Default Page",
+            "logo": "{{themepath}}/default_logo.svg"
+        },
+        "theme": "bootstrap",
+        "admin-theme": "bootstrap",
+        "template": "main.tpl",
+        "default-route": "default",
+        "404-route": "notfound"
+    },
+    "layouts": {
+        "osdefault": {
+            "columns": {
+                "content": {
+                    "class": "col-md-8"
+                },
+                "sidebarDiv": {
+                    "class": "col-md-4"
+                }
+
+            },
+            "blocks": {
+                "content": ""
+            }
+        }
+    },
+
+    "colors":  {
+        "menufg": "white",
+        "menubg": "#8f3131",
+        "storyevenbg": "white",
+        "storyevenfg": "black",
+        "storyoddbg": "#FFE",
+        "storyoddfg": "black",
+        "footerfg": "white",
+        "footerbg": "#411a2a",
+        "pagebg": "#4f1f31",
+        "pagefg": "white",
+        "newstitlebg": "#335",
+        "newstitlefg": "#000"   
+    }
+}
