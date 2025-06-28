@@ -28,6 +28,14 @@ class Base
 
         return $page;
     }
+    /**
+     * Get a translation for a given string in the specified language.
+     * If no language is specified, defaults to French ('fr').
+     *
+     * @param string $i18nstr The string to translate.
+     * @param string $lang The language code (e.g., 'en', 'fr'). Defaults to 'fr'.
+     * @return string The translated string or the original string if no translation is found.
+     */
     function get_translation($i18nstr, $lang = "")
     {
         if (!$lang) {
@@ -54,4 +62,32 @@ class Base
         ];
         return $menus;
     }
+
+    /**
+     * Validate that a folder name is safe (no directory traversal)
+     * @param string $folderName The folder name to validate
+     * @return bool True if safe, false otherwise
+     */
+    private function isValidFolderName(string $folderName): bool
+    {
+        // Check for empty string
+        if (empty($folderName)) {
+            return false;
+        }
+        
+        // Check for directory traversal attempts
+        if (strpos($folderName, '..') !== false || 
+            strpos($folderName, '/') !== false || 
+            strpos($folderName, '\\') !== false) {
+            return false;
+        }
+        
+        // Check for hidden files/folders
+        if (strpos($folderName, '.') === 0) {
+            return false;
+        }
+        
+        return true;
+    }
+
 }
