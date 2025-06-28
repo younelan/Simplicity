@@ -9,7 +9,7 @@ namespace Opensitez\Simplicity;
     $mytemplate -> render();
 */
 
-class SimpleTemplate
+class SimpleTemplate extends \Opensitez\Simplicity\Base
 {
     private $FileName;
     private $contents;
@@ -82,26 +82,27 @@ class SimpleTemplate
     /* generic method where you pass a template string, variables to substitute and delimeters
      * this is so that you can parse multiple sub templates without having multiple class instances 
      */
-    public function substitute_vars($contents, $vars, $leftdelim = false, $rightdelim = false)
-    {
-        if (!$leftdelim)
-            $leftdelim = $this->leftdelim;
-        if (!$rightdelim)
-            $rightdelim = $this->rightdelim;
+    // public function substitute_vars($contents, $vars, $blocks = [])
+    // {
+        
+    //     if (!$leftdelim)
+    //         $leftdelim = $this->leftdelim;
+    //     if (!$rightdelim)
+    //         $rightdelim = $this->rightdelim;
 
-        $keys = array_map(fn ($key) => $leftdelim . $key . $rightdelim, array_keys($vars));
-        $values = array_values($vars);
-        foreach ($values as $key => $value) {
-            if (is_array($value)) {
-                $values[$key] = "<<array>>";
-            }
-        }
+    //     $keys = array_map(fn ($key) => $leftdelim . $key . $rightdelim, array_keys($vars));
+    //     $values = array_values($vars);
+    //     foreach ($values as $key => $value) {
+    //         if (is_array($value)) {
+    //             $values[$key] = "<<array>>";
+    //         }
+    //     }
 
-        if ($keys) {
-          $contents = str_replace($keys, $values??[], $contents??"");
-        }
-        return $contents;
-    }
+    //     if ($keys) {
+    //       $contents = str_replace($keys, $values??[], $contents??"");
+    //     }
+    //     return $contents;
+    // }
     /* function to render a template pass*/
     function render($contents = "", $vars = false)
     {
