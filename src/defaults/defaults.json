@@ -18,6 +18,7 @@
     }
     ],
     "definition": {
+        "layout": "system",
         "css": [
             
         ],
@@ -36,8 +37,9 @@
         "default-route": "default",
         "404-route": "notfound"
     },
+    "default-layout": "system",
     "layouts": {
-        "osdefault": {
+        "system": {
             "columns": {
                 "content": {
                     "class": "col-md-8"

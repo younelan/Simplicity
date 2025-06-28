@@ -49,25 +49,34 @@ class Page extends \Opensitez\Simplicity\Plugin
     }
     public function set_layout($app = false)
     {
+        // $debug = $this->plugins->get_plugin('debug');
+        // print "<h1>Defaults</h1>";
+        // $defaults = $this->config_object->get('defaults');
+        // echo $debug->printArray($defaults);
+        
+        // print "<h1>Current Site</h1>";
+        // $current_site = $this->config_object->get('site');
+        // echo $debug->printArray($current_site);
         $this->layout_name = $this->app["layout"]
-            ?? $this->current_site['vars']["layout"]
-            ?? $this->defaults['default-layout'];
-        if (isset($this->current_site['layouts'][$this->layout_name])) {
-            $this->layout = $this->current_site['layouts'][$this->layout_name];
+            ?? $current_site["layout"]
+            ?? $defaults['layout']?? $defaults['default-layout']
+            ?? "system";
+        if (isset($current_site['layouts'][$this->layout_name??""])) {
+            $this->layout = $current_site['layouts'][$this->layout_name];
             if (isset($this->layout['blocks'])) {
-                $this->blocks = $this->current_site['layouts'][$this->layout_name]['blocks'];
+                $this->blocks = $current_site['layouts'][$this->layout_name]['blocks'];
             } else {
-                $this->blocks = array_keys($this->current_site['blocks']);
+                $this->blocks = array_keys($current_site['blocks']);
             }
-        } elseif (isset($this->defaults['layouts'][$this->layout_name])) {
-            $this->layout = $this->defaults['layouts'][$this->layout_name] ?? [];
-            $this->blocks = $this->defaults['layouts'][$this->layout_name]['blocks'] ?? [];
+        } elseif (isset($defaults['layouts'][$this->layout_name??false])) {
+            $this->layout = $defaults['layouts'][$this->layout_name] ?? [];
+            $this->blocks = $defaults['layouts'][$this->layout_name]['blocks'] ?? [];
         } else {
-            $this->layout_name = $this->defaults['vars']['layout'];
-            $this->layout = $this->defaults['layouts'][$this->layout_name];
-            $this->blocks = $this->defaults['layouts'][$this->layout_name]['blocks'];
+            $this->layout_name = $defaults['layout']?? $defaults['layout'] ?? "system";
+            $this->layout = $defaults['layouts'][$this->layout_name]??[];
+            $this->blocks = $defaults['layouts'][$this->layout_name]['blocks']??[];
         }
-        $this->default_section = $this->layout['default-section'] ?? $this->defaults['default-section'] ?? "content";
+        $this->default_section = $this->layout['default-section'] ?? $defaults['default-section'] ?? "content";
     }
     public function create_sections()
     {
@@ -87,14 +96,14 @@ class Page extends \Opensitez\Simplicity\Plugin
             $default_section = $this->app['default-section']
                 ?? $this->layout['default-section']
                 ?? $this->current_site['vars']['default-section']
-                ?? $defaults['vars']['default-section'];
+                ?? $defaults['vars']['default-section']?? "content";
         } else {
             $default_section = $section;
         }
         if (!$blocks) {
             $blocks = $this->blocks;
         }
-        foreach ($blocks as $idx => $block_name) {
+        foreach ($blocks ?? [] as $idx => $block_name) {
             $current_block = $this->current_site['blocks'][$block_name] ?? [];
             $current_block['name'] = $block_name;
             if ($current_block) {
