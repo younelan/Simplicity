@@ -18,6 +18,11 @@
     }
     ],
     "definition": {
+        "css": [
+            
+        ],
+        "js": [
+        ],
         "vars": {
             "content": "default hello",
             "title": "Simplicity Default",
@@ -25,6 +30,7 @@
             "logo": "{{themepath}}/default_logo.svg"
         },
         "theme": "bootstrap",
+        "check-language-files": true,
         "admin-theme": "bootstrap",
         "template": "main.tpl",
         "default-route": "default",
