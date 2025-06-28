@@ -5,16 +5,44 @@ class Base
 {
     protected $config_object = null;
     private $data = [];
+    protected $leftdelim = "{{";
+    protected $rightdelim = "}}";
     function __construct($config_object=null)
     {
         $this->config_object = $config_object;
+    }
+    // Substitute variables in the template
+    public function substitute_vars($content, $vars, $blocks = [])
+    {
+        $leftDelim = preg_quote($this->leftdelim, '/'); // Escape special characters for regex
+        $rightDelim = preg_quote($this->rightdelim, '/'); // Escape special characters for regex
+        $pattern = "/{$leftDelim}([^}]+){$rightDelim}/"; // Match anything between delimiters
+
+        $content = preg_replace_callback($pattern, function ($matches) use ($vars) {
+            $varName = $matches[1];
+            $keys = explode('.', $varName);
+
+            $value = $vars;
+            foreach ($keys as $key) {
+                if (is_array($value) && array_key_exists($key, $value)) {
+                    $value = $value[$key];
+                    //print " found $key <br/>\n";
+                } else {
+                    //print " not found $key <br/>\n";
+                    return $matches[0]; // Return original placeholder if no match found
+                }
+            }
+            return is_string($value) || is_numeric($value) ? $value : $matches[0];
+        }, $content);
+
+        return $content;
     }
     function translate_page($page, $lang = "")
     {
         
         $lang = "fr";
         if($this->config_object) {
-            $lang = $this->config_object->get("lang") ?? "fr";
+            $lang = $this->config_object->get("site.lang") ?? "fr";
         }
         $translations = $this->config_object->get("translations") ?? [];
         if (!isset($translations[$lang])) {
@@ -24,10 +52,12 @@ class Base
             $translations = $translations[$lang] ?? $translations['en'] ?? [];
         }
         $template = new \Opensitez\Simplicity\SimpleTemplate();
-        $page = $template->substitute_vars($page, $translations ?? []);
+        $page = $this->substitute_vars($page, $translations ?? []);
 
         return $page;
     }
+
+    
     /**
      * Get a translation for a given string in the specified language.
      * If no language is specified, defaults to French ('fr').
@@ -36,15 +66,18 @@ class Base
      * @param string $lang The language code (e.g., 'en', 'fr'). Defaults to 'fr'.
      * @return string The translated string or the original string if no translation is found.
      */
-    function get_translation($i18nstr, $lang = "")
+    function get_translation($i18nstr, $translations = false, $lang = false)
     {
+        if (!$translations) {
+            $translations = $this->config_object->get("translations") ?? [];
+        }
         if (!$lang) {
             $lang = "fr";
             if($this->config_object) {
                 $lang = $this->config_object->get("lang") ?? "fr";
             }
         }
-        $translations = $this->config['translations'] ?? [];
+        //$translations = $this->config['translations'] ?? [];
         $retval = $translations[$lang][$i18nstr] ?? $i18nstr;
         return $retval;
     }
