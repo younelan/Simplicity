@@ -93,7 +93,7 @@ class Menu extends \Opensitez\Simplicity\Plugin
             } elseif ($menutype == "menu") {
                 $nav .= "    <div id='$navid'>\n        <ul class='navbar-nav ml-auto'>\n";
                 $imagedir = $navblock['imagedir'] ?? "";
-                $imagedir = '/' . $paths['sitepath'] . '/' . $imagedir;
+                $imagedir = '/' . ($paths['sitepath'] ?? "") . '/' . $imagedir;
                 $defimages = [
                     'menu-glyph' => '',
                     'menu-icon' => '',
