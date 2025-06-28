@@ -11,7 +11,8 @@ class SimpleCache
     }
     function getFileName($url)
     {
-        $cache_dir = $this->options['cache-dir'] ?? (__DIR__ . "/cache");
+
+        $cache_dir = $this->options['cache-dir'] ?? $this->config_object->get('paths.cache') ?? (__DIR__ . "/cache");
         $urlmd5 = md5($url);
         $cache_file = "$cache_dir/$urlmd5.txt";
 
