@@ -20,7 +20,7 @@ class LineChartBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($block_config, $options = [])
+    function render($block_config)
     {
         $data = $block_config['data'] ?? [];
         // print_r($block_config); // Debugging line to check data structure

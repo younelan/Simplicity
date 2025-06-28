@@ -20,7 +20,7 @@ class BarChartBlock extends \Opensitez\Simplicity\Plugin
         parent::on_event($event);
     }
 
-    function render($block_config, $options = [])
+    function render($block_config)
     {
         $data = $block_config['data'] ?? [];
         $title = $block_config['title'] ?? 'Chart';
