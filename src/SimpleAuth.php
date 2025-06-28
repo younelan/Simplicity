@@ -1,6 +1,6 @@
 <?php
 namespace Opensitez\Simplicity;
-class SimpleAuth
+class SimpleAuth extends Base
 {
     private $config = [];
     private $users;
@@ -53,10 +53,10 @@ class SimpleAuth
             <form method="POST" action="?action=change_password">
                 <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
                 <table class="loginform">
-                <tr><td><label>{{Current Password}}</label></td><td><input type="password" name="current_password" /></td></tr>
-                <tr><td><label>{{New Password}}</label></td><td><input type="password" name="new_password" /></td></tr>
-                <tr><td><label>{{Confirm Password}}</label></td><td><input type="password" name="confirm_password" /></td></tr>
-                <tr><td colspan=2 align=right><button type="submit">{{Update Password}}</button></td></tr>
+                <tr><td><label>{{Current_Password}}</label></td><td><input type="password" name="current_password" /></td></tr>
+                <tr><td><label>{{New_Password}}</label></td><td><input type="password" name="new_password" /></td></tr>
+                <tr><td><label>{{Confirm_Password}}</label></td><td><input type="password" name="confirm_password" /></td></tr>
+                <tr><td colspan=2 align=right><button type="submit">{{Update_Password}}</button></td></tr>
                 <tr class=trailer><td colspan=2>{{trailer}}</td></tr>
                 </table>
             </form>
@@ -104,46 +104,29 @@ class SimpleAuth
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
 
-    // Substitute variables in the template
-    private function substitute_vars($template, $vars = false)
-    {
-        //print_r($vars) ;exit;
-        if (!$vars) {
-            $vars = $this->vars ?? [];
-        }
-        foreach ($vars ?? [] as $key => $value) {
-            if (!is_array($value)) {
-                $template = str_replace('{{' . $key . "}}", $value, $template);
-            }
-        }
-        $template = str_replace("{{nocache}}", "", $template);
-        $template = str_replace("{{/nocache}}", " ", $template);
-        return $template;
-    }
-
     // Display the login form
     public function show_login_form()
     {
-        //print_r($this->translations);
         $users = $this->users;
-        //print_r($users);
-        //print "<hr/>";
-        //print_r($this->config->get('users'));exit;
-
-        $this->vars['csrf_token'] = $_SESSION['csrf_token'];
-        $this->vars['content'] = $this->substitute_vars($this->form_template);
+        $vars = $this->vars;
+        $vars['csrf_token'] = $_SESSION['csrf_token'];
+        $vars['content'] = $this->substitute_vars($this->form_template, $vars);
         //print($this->vars['content']);exit;
-        
-        $this->vars['content'] = $this->substitute_vars($this->vars['content'], $this->translations[$this->lang ?? "en"]);
-        $this->vars['trailer'] = $this->translations[$this->lang]['Login Required'] ?? 'Login Required';
+
+        $vars['content'] = $this->substitute_vars($vars['content'], $this->translations[$this->lang ?? "en"]);
+        $vars['trailer'] = $this->translations[$this->lang]['Login Required'] ?? 'Login Required';
+        $vars['content'] = $this->substitute_vars($vars['content'], $vars );
         if ($this->errors) {
             foreach ($this->errors as $idx => $error) {
                 $this->errors[$idx] = $this->translations[$this->lang][$error] ?? $error;
             }
-            $this->vars['trailer'] .= "<br/>" . implode("<br/>", $this->errors);
+            $vars['trailer'] .= "<br/>" . implode("<br/>", $this->errors);
+        } else {
+            $vars['trailer'] = "";
         }
-        $template = $this->substitute_vars($this->template, $this->translations);
-        $template = $this->substitute_vars($template, $this->vars);
+        $template = $this->substitute_vars($this->template, $this->translations[$this->lang ?? "en"]);
+        
+        $template = $this->substitute_vars(   $template, $vars);
         echo $template;
         exit;
     }
@@ -157,7 +140,7 @@ class SimpleAuth
             $this->vars['trailer'] = implode("<br/>", $this->errors);
         }
         $this->vars['csrf_token'] = $_SESSION['csrf_token'];
-        $this->vars['content'] = $this->substitute_vars($this->edit_password_template);
+        $this->vars['content'] = $this->substitute_vars($this->edit_password_template, $this->vars);
         $this->vars['content'] = $this->substitute_vars($this->vars['content'], $this->translations);
         $template = $this->substitute_vars($this->template, $this->translations);
         $template = $this->substitute_vars($template, $this->vars);
@@ -315,11 +298,28 @@ class SimpleAuth
         }
         return false;
     }
-    private function get_translation($untranslated)
-    {
-        return $this->translations[$untranslated] ?? $untranslated;
-    }
+    // private function get_translation($untranslated)
+    // {
+    //     return $this->translations[$untranslated] ?? $untranslated;
+    // }
     // Validate password complexity
+
+
+    // private function substitute_vars($template, $vars = false)
+    // {
+    //     //print_r($vars) ;exit;
+    //     if (!$vars) {
+    //         $vars = $this->vars ?? [];
+    //     }
+    //     foreach ($vars ?? [] as $key => $value) {
+    //         if (!is_array($value)) {
+    //             $template = str_replace('{{' . $key . "}}", $value, $template);
+    //         }
+    //     }
+    //     $template = str_replace("{{nocache}}", "", $template);
+    //     $template = str_replace("{{/nocache}}", " ", $template);
+    //     return $template;
+    // }
     private function validate_password($password)
     {
         if (strlen($password) < 8) {
