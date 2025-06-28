@@ -19,9 +19,10 @@
             $this->on_init();
         }
         public function on_init() {
-            $this->load_primary_config();
+            $this->loadPrimaryConfig();
+            $this->setSiteVars();
             $this->setWebRoot();
-            $this->set_default_language();
+            $this->setDefaultLanguage();
         }
 
         public function load(string $yamlFile): bool {
@@ -39,17 +40,19 @@
                 // Handle YAML parsing errors silently or log them
                 return false;
             }
-            $this->set_default_language();
-            print_r($this->settings);
+            $this->setDefaultLanguage();
+
+            
             return false;
         }
-        function set_default_language($lang = false)
+        function setDefaultLanguage($lang = false)
         {
+
             if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
                 foreach (explode(",", $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? []) as $lang_str) {
                     $lang_split = explode(";", $lang_str);
                     $lang = $lang_split[0];
-                    $weight = $lang_split[1] ?? 0;
+                    $weight = $lang_split[1] ?? 1;
                     if (strstr($weight, "=")) {
                         $weight = explode("=", $weight)[1];
                     }
@@ -62,6 +65,7 @@
             }
             $current_lang = $this->getDefaultLang();
             $this->settings['site']['default-lang'] = $current_lang;
+            $this->settings['site']['accepted-langs'] = $this->settings['langs'] ?? [];
         }
         function getDefaultLang()
         {
@@ -78,7 +82,19 @@
             }
             return $default_lang;
         }
-        function load_primary_config()
+        /**
+         * Get the current domain
+         * @return string The domain (e.g., "localhost", "example.com")
+         */
+        // public function getDomain(): string
+        // {
+        //     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        //     $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+            
+        //     return $host;
+        // }
+
+        function loadPrimaryConfig()
         {
             $paths = $this->settings['paths'] ?? [];
             $simplicity_path = __DIR__;
@@ -96,6 +112,19 @@
             }
             //print_r($this->settings);exit;
             //$this->settings['defaults'] = $defaults;
+        }
+        /**
+         * Set site variables from the configuration
+         * This method sets the 'site.vars' configuration
+         * @return void
+         */
+        public function setSiteVars(): void
+        {
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+
+            $this->settings['site']['protocol'] = $protocol;
+            $this->settings['site']['host'] = $host;
         }
         /**
          * Get a configuration value by key
