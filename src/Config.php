@@ -97,6 +97,13 @@
             //print_r($this->settings);exit;
             //$this->settings['defaults'] = $defaults;
         }
+        /**
+         * Get a configuration value by key
+         * Supports nested keys using dot notation (e.g., 'site.name')
+         * @param string $key The configuration key (e.g., 'site.name')
+         * @param mixed $default The default value to return if the key does not exist
+         * @return mixed The configuration value or the default value if not found
+         */
         public function get(string $key, $default = null) {
             $keys = explode('.', $key);
             $value = $this->settings;
@@ -110,7 +117,12 @@
             
             return $value;
         }
-
+        /**
+         * Set a configuration key to a value
+         * If the key does not exist, it will be created
+         * @param string $key The configuration key (e.g., 'site.name')
+         * @param mixed $value The value to set (can be an array or a single value)
+         */
         public function set(string $key, $value) {
             $keys = explode('.', $key);
             $current = &$this->settings;
@@ -124,6 +136,12 @@
             
             $current = $value;
         }
+        /**
+         * Merge a value into an existing configuration key
+         * If the key does not exist, it will be created
+         * @param string $key The configuration key (e.g., 'site.name')
+         * @param mixed $value The value to merge (can be an array or a single value)
+         */
         public function merge(string $key, $value): void {
             $currentValue = $this->get($key, []);
             if (!is_array($currentValue)) {
@@ -137,6 +155,11 @@
             }
             $this->set($key, $mergedValue);
         }
+        /**
+         * Check if a configuration key exists
+         * @param string $key The configuration key (e.g., 'site.name')
+         * @return bool True if the key exists, false otherwise
+         */
         public function has(string $key): bool {
             $keys = explode('.', $key);
             $current = $this->settings;
@@ -151,7 +174,7 @@
             return true;
         }
 
-        /**
+    /**
      * Get the web root path based on current script location
      * @return string The web root path (e.g., '/impress/public' or '')
      */
@@ -170,6 +193,8 @@
 
     /**
      * Set the web root path in the paths configuration
+     * This method sets the 'paths.webroot' configuration
+     * @return void
      */
     public function setWebRoot(): void
     {
