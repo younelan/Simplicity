@@ -21,6 +21,7 @@ class Feed extends \Opensitez\Simplicity\Plugin
     public function on_render_page($app)
     {
         $this->app = $app;
+        
         $subtype = isset($app['subtype']) ? $app['subtype'] : 'rss';
         $maxLength = isset($app['max-length']) ? $app['max-length'] : 200;
         $suffix = $app['suffix'] ?? "";
@@ -45,14 +46,10 @@ class Feed extends \Opensitez\Simplicity\Plugin
 
     private function fetch($url, $get_params, $suffix)
     {
-        $current_site = $this->config_object->getCurrentSite();
-        $paths = $this->config_object->getPaths();
+        $current_site = $this->config_object->get('site');
+        $paths = $this->config_object->get('paths');
         $rf = new \Opensitez\Simplicity\SimpleHttpRequest($this->config_object);
-        $cachedir = $app['vars']['cache-dir'] ?? $current_site['vars']['cache-dir'] ?? "";
-        if ($cachedir) {
-            $cachedir = $paths['base'] . "/" . $paths['sitepath'] . "/"  . $cachedir;
-        }
-
+        $cachedir = $this->config_object->get('paths.cache') ?? "";
         $queryString = http_build_query($get_params);
         if ($get_params) {
             $end_url = $url . "?" . $queryString . $suffix;
@@ -67,7 +64,6 @@ class Feed extends \Opensitez\Simplicity\Plugin
         ];
 
         $page = $rf->fetch($options);
-        //print_r($page);exit;
         return $page;
     }
 
