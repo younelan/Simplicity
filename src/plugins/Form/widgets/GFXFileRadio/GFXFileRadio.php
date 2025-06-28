@@ -2,11 +2,11 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class GFXFileRadio extends FormField
+class GFXFileRadio extends \Opensitez\Simplicity\FormField
 {
     private $columns = 5;
     private $OptVars = "";
-    function render()
+    function render($app=[])
     {
         $theError = $this->render_error();
         $retval  = "<td $this->colspan>$this->label </td><td>";

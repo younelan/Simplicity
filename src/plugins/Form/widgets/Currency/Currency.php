@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Currency extends FormField
+class Currency extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app)
     {
         $retval = "";
         $retval .= "<td $colspan><table><tr>\n";

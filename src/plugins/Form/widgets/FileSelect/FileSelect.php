@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class FilesList extends FormField
+class FileSelect extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app=[])
     {
         $theError = $this->render_error();
 

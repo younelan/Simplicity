@@ -2,7 +2,7 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-require_once dirname(__FILE__) . "/widgets/FormField.php";
+//require_once dirname(__FILE__) . "/widgets/FormField.php";
 require_once dirname(__FILE__) . "/FormController.php";
 class Form extends \Opensitez\Simplicity\Plugin
 {
@@ -54,7 +54,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 		foreach ($field_classes as $class_name) {
 			$this->available_fields[strtolower($class_name)] = $class_name;
 		}
-		$this->plugins->load_plugins(__DIR__ . "/widgets");
+		$this->plugins->load_plugins(__DIR__ . "/widgets", 'Opensitez\\Simplicity\\Plugins', 'core');
 
 		$replacements = [
 			"number" => "Text", "integer" => "Text", "currency" => "Text",
@@ -137,9 +137,9 @@ class Form extends \Opensitez\Simplicity\Plugin
 
 			if ($this->showtr == true)
 				$retval .= "<tr>";
-
+			$app = [];
 			//$retval=$field->render_label();
-			$retval .= $field->render();
+			$retval .= $field->render($app);
 		}
 		if ($this->fields ?? false) {
 			$retval .= "<div class='form-submit'><input type=submit name=action></div>";

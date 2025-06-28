@@ -19,9 +19,9 @@ if (!isset($lstmonths))
         "12" => ["en" => "December", "fr" => "Decembre"]
     ];
 
-class Birthday extends FormField
+class Birthday extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app)
     {
         $theError = $this->render_error();
         $label = $this->label;

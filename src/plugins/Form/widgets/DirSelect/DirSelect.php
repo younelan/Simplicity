@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class DirSelect extends FormField
+class DirSelect extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app=[])
     {
         $retval = "";
         $theError = $this->render_error();

@@ -2,10 +2,10 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class OptionList extends FormField
+class OptionList extends \Opensitez\Simplicity\FormField
 {
     var $linecount = 4;
-    function render()
+    function render($app=[])
     {
         $theError = $this->render_error();
         $label = $this->label;

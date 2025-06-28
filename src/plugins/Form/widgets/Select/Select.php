@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Select extends FormField
+class Select extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app=[])
     {
         $theError = $this->render_error();
         $label = $this->get_i18n_value($this->label, $this->lang);

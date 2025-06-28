@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Hidden extends FormField
+class Hidden extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app=[])
     {
         $name = $this->name;
 

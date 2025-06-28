@@ -2,10 +2,10 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Checklist extends FormField
+class Checklist extends \Opensitez\Simplicity\FormField
 {
     protected $rowsize = 5;
-    function render()
+    function render($app)
     {
         $value = $this->value;
         $retval = "";

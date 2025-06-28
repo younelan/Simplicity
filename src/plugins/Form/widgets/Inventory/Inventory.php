@@ -2,13 +2,13 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Inventory extends FormField
+class Inventory extends \Opensitez\Simplicity\FormField
 {
     protected $rowsize = 3;
     protected $maxlength = 3;
     protected $size = 3;
     protected $invValue = 0;
-    function render()
+    function render($app=[])
     {
         $value = $this->value;
 

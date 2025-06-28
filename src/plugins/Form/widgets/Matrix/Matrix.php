@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
-class Matrix extends FormField
+class Matrix extends \Opensitez\Simplicity\FormField
 {
-    function render()
+    function render($app=[])
     {
         $theError = $this->render_error();
         $label = $this->label;
