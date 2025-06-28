@@ -264,12 +264,14 @@ class Framework extends Base
         $newmenu = "";
         $menu = [];
         //Gather Menus from plugins
-        foreach ($this->plugins as $name => $plugin) {
-            foreach ($plugin->get_menus() as $menuname => $tmpmenu) {
-                if (!isset($menu[$menuname])) {
-                    $menu[$menuname] = $tmpmenu;
-                } else {
-                    $menu[$menuname] = array_replace_recursive($menu[$menuname], $tmpmenu);
+        foreach ($this->plugins as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $plugin) {
+                foreach ($plugin->get_menus() as $menuname => $tmpmenu) {
+                    if (!isset($menu[$menuname])) {
+                        $menu[$menuname] = $tmpmenu;
+                    } else {
+                        $menu[$menuname] = array_replace_recursive($menu[$menuname], $tmpmenu);
+                    }
                 }
             }
         }
