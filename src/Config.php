@@ -3,11 +3,25 @@
 
     class Config extends Base {
         private $settings = [];
+        private $langs = [];
+        private $default_config_files = [
+            "defaults" => "defaults.json",
+            "palettes" => "palettes.json",
+            "vars" => "vars.json",
+            "auth" => "auth.json"
+        ];
 
-        function __construct(&$config = [])
+        function __construct($config = [])
         {
+            //print_r($config);exit;
+            parent::__construct();
             $this->settings = $config;
-            //$this->on_init();
+            $this->on_init();
+        }
+        public function on_init() {
+            $this->load_primary_config();
+            $this->setWebRoot();
+            $this->set_default_language();
         }
 
         public function load(string $yamlFile): bool {
@@ -25,10 +39,64 @@
                 // Handle YAML parsing errors silently or log them
                 return false;
             }
-            
+            $this->set_default_language();
+            print_r($this->settings);
             return false;
         }
+        function set_default_language($lang = false)
+        {
+            if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+                foreach (explode(",", $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? []) as $lang_str) {
+                    $lang_split = explode(";", $lang_str);
+                    $lang = $lang_split[0];
+                    $weight = $lang_split[1] ?? 0;
+                    if (strstr($weight, "=")) {
+                        $weight = explode("=", $weight)[1];
+                    }
+                    $weight = floatval($weight);
+                    $lang = strtolower(substr(trim($lang), 0, 2));
+                    if (ctype_alnum($lang)) {
+                        $this->settings['langs'][$lang] = ["id" => $lang, "weight" => $weight];
+                    }
+                }
+            }
+            $current_lang = $this->getDefaultLang();
+            $this->settings['site']['default-lang'] = $current_lang;
+        }
+        function getDefaultLang()
+        {
+            $default_lang = 'en';
+            $current_score = 0;
+            $lang_keys = array_keys($this->settings['langs'] ?? []);
+            $default_lang = array_shift($lang_keys);
+            foreach ($this->settings['langs'] as $lang => $details) {
+                $lang_score = $details['weight'] ?? 0;
+                if ($lang_score > $current_score) {
+                    $default_lang = $lang;
+                    $current_score = $lang_score;
+                }
+            }
+            return $default_lang;
+        }
+        function load_primary_config()
+        {
+            $paths = $this->settings['paths'] ?? [];
+            $simplicity_path = __DIR__;
+            // $config_file = $this->config_file ?? $paths['base'] . "/local/config/config.yaml" ?? "";
+            $settings = $this->settings;
+            foreach ($this->default_config_files as $key => $default_file) {
+                $fname = $simplicity_path . "/defaults/" . $default_file;
+                $file_values = json_decode(file_get_contents($fname), true);
+                $current = $this->get($key, []);
+                if ($file_values) {
+                    $merged = array_replace_recursive($current, $file_values);
+                    $this->settings[$key] = $merged;
+                }
 
+            }
+            //print_r($this->settings);exit;
+            //$this->settings['defaults'] = $defaults;
+        }
         public function get(string $key, $default = null) {
             $keys = explode('.', $key);
             $value = $this->settings;
@@ -55,6 +123,19 @@
             }
             
             $current = $value;
+        }
+        public function merge(string $key, $value): void {
+            $currentValue = $this->get($key, []);
+            if (!is_array($currentValue)) {
+                $currentValue = [];
+            }
+            if (is_array($value)) {
+                $mergedValue = array_replace_recursive($currentValue, $value);
+            } else {
+                $mergedValue = $currentValue;
+                $mergedValue[] = $value; // Append non-array values
+            }
+            $this->set($key, $mergedValue);
         }
         public function has(string $key): bool {
             $keys = explode('.', $key);
