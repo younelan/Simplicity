@@ -6,7 +6,7 @@
         private $langs = [];
         private $default_config_files = [
             "defaults" => "defaults.json",
-            "palettes" => "palettes.json",
+            "system.palettes" => "palettes.json",
             "vars" => "vars.json",
             "auth" => "auth.json"
         ];
@@ -110,8 +110,6 @@
                 }
 
             }
-            //print_r($this->settings);exit;
-            //$this->settings['defaults'] = $defaults;
         }
         /**
          * Set site variables from the configuration
@@ -143,6 +141,7 @@
                 }
                 $value = $value[$k];
             }
+
             
             return $value;
         }
@@ -257,7 +256,7 @@
             $existingValue = $this->get($configPath, []);
             
             // Merge existing with YAML data
-            $mergedValue = array_merge($existingValue, $yamlData);
+            $mergedValue = array_replace_recursive($existingValue, $yamlData);
             
             // Set the merged value
             $this->set($configPath, $mergedValue);
