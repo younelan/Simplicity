@@ -33,7 +33,7 @@ class Base
                 }
             }
             return is_string($value) || is_numeric($value) ? $value : $matches[0];
-        }, $content);
+        }, $content??"");
 
         return $content;
     }

@@ -14,7 +14,7 @@
         function __construct($config = [])
         {
             //print_r($config);exit;
-            parent::__construct();
+            //parent::__construct($config);
             $this->settings = $config;
             $this->on_init();
         }
@@ -23,6 +23,8 @@
             $this->setSiteVars();
             $this->setWebRoot();
             $this->setDefaultLanguage();
+            
+            $this->setSimplicityPaths();
         }
 
         public function load(string $yamlFile): bool {
@@ -98,7 +100,6 @@
         {
             $paths = $this->settings['paths'] ?? [];
             $simplicity_path = __DIR__;
-            // $config_file = $this->config_file ?? $paths['base'] . "/local/config/config.yaml" ?? "";
             $settings = $this->settings;
             foreach ($this->default_config_files as $key => $default_file) {
                 $fname = $simplicity_path . "/defaults/" . $default_file;
@@ -106,7 +107,7 @@
                 $current = $this->get($key, []);
                 if ($file_values) {
                     $merged = array_replace_recursive($current, $file_values);
-                    $this->settings[$key] = $merged;
+                    $this->merge($key, $merged);
                 }
 
             }
@@ -123,6 +124,21 @@
 
             $this->settings['site']['protocol'] = $protocol;
             $this->settings['site']['host'] = $host;
+        }
+        public function setSimplicityPaths(): void 
+        {
+            $basedir = __DIR__;
+            $this->settings['system']['paths'] = [
+                'base' => $basedir,
+                'plugins' => $basedir . '/plugins',
+                'templates' => $basedir . '/templates',
+                'palettes' => $basedir . '/templates/css',
+                'themes' => $basedir . '/themes',
+                        'assets' => $basedir . '/assets',
+            ];
+            if(!isset($this->settings['system']['debug'])) {
+                $this->settings['system']['debug'] = false;
+            }
         }
         /**
          * Get a configuration value by key

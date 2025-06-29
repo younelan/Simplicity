@@ -24,11 +24,27 @@
         ],
         "js": [
         ],
+        "style": {
+            "menu": {
+                "fg": "white",
+                "bg": "#8f3131"
+            },
+            "body": {
+                "fg": "white",
+                "bg": "#4f1f31"
+            },
+            "footer": {
+                "fg": "white",
+                "bg": "#411a2a"
+            }
+        },
         "vars": {
             "content": "default hello",
+            "sidebar": "default sidebar",
             "title": "Simplicity Default",
             "description": "Simplicity Default Page",
-            "logo": "{{themepath}}/default_logo.svg"
+            "logo": "{{themepath}}/default_logo.svg",
+            
         },
         "theme": "bootstrap",
         "check-language-files": true,

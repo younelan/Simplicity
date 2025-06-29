@@ -1,147 +1,147 @@
 {
-		"desktop": {
-			"type": "system",
-			"css": [
-				"styles.css",
-                "base.css",
-				"color-light-desktop.css"
-			]			
-		},
-		"loud": {
-			"type": "system",
-			"css": [
-				"styles.css",
-                "base.css",
-				"color-loud.css"
-			]			
-		},
-        "loud2": {
-			"type": "system",
-			"css": [
-				"styles.css",
-                "base.css",
-				"color-loud2.css"
-			]			
-		},
-		"loud3": {
-			"type": "system",
-			"css": [
-				"styles.css",
-                "base.css",
-				"color-loud3.css"
-			]			
-		},
-		"loud4": {
-			"type": "system",
-			"css": [
-				"styles.css",
-                "base.css",
-				"color-loud4.css"
-			]			
-		},
-        "dark-red" : {
-            "type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-red.css"
-            ]
-        },
-        "dark-blue" : {
-			"type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-blue.css"
-            ]
-        },
-        "dark-chocolate" : {
-			"type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-chocolate.css"
-            ]
-        },
-        "dark-purple" : {
-			"type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-purple.css"
-            ]
-        },
-        "dark-silicon" : {
-			"type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-silicon.css"
-            ]
-        },
-        "dark-gray" : {
-			"type": "system",
-            "css": [
-                "styles.css",
-                "base.css",
-                "color-dark-gray.css"
-            ]
-        },
+	"desktop": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-light-desktop.css"
+		]			
+	},
+	"loud": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-loud.css"
+		]			
+	},
+	"loud2": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-loud2.css"
+		]			
+	},
+	"loud3": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-loud3.css"
+		]			
+	},
+	"loud4": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-loud4.css"
+		]			
+	},
+	"dark-red" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-red.css"
+		]
+	},
+	"dark-blue" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-blue.css"
+		]
+	},
+	"dark-chocolate" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-chocolate.css"
+		]
+	},
+	"dark-purple" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-purple.css"
+		]
+	},
+	"dark-silicon" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-silicon.css"
+		]
+	},
+	"dark-gray" : {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css",
+			"color-dark-gray.css"
+		]
+	},
 
 
-        "coffee": {
-			"type": "system",
-			"css": [
-				"coffee.css"
-			],
-			"style": {
-				"body": {
-					"background-color": "#1e1616",
-					"color": "black",
-					"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-				},
-				".navbar": {
-					"background-color": "#594b51",
-					"color": "white"	
-				},
-				".footer": {
-					"background-color": "#554f50",
-					"color": "#635e5e"	
-				},
-				".main-content": {
-					"background-color": "#6b6a6b",
-					"border-radius": "10px",
-					"box-shadow": "0 0 20px rgba(0, 0, 0, 0.1)"				
-				},
-				".widgetheader": {
-	
-				},
-				".mass-actions button": {
-				}
-	
+	"coffee": {
+		"type": "system",
+		"css": [
+			"coffee.css"
+		],
+		"style": {
+			"body": {
+				"background-color": "#1e1616",
+				"color": "black",
+				"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+			},
+			".navbar": {
+				"background-color": "#594b51",
+				"color": "white"	
+			},
+			".footer": {
+				"background-color": "#554f50",
+				"color": "#635e5e"	
+			},
+			".main-content": {
+				"background-color": "#6b6a6b",
+				"border-radius": "10px",
+				"box-shadow": "0 0 20px rgba(0, 0, 0, 0.1)"				
+			},
+			".widgetheader": {
+
+			},
+			".mass-actions button": {
 			}
-		},
-		"custom": {
-			"type": "system",
-			"css": [
-				"styles.css",
-				"default_colors.css"
-			],
-			"style": {
-				"body": {
-					"background-color": "{{pagebg}}",
-					"color": "{{pagefg}}",
-					"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-					
-				},
-				".navbar": {
-					"background-color": "{{menubg}}",
-					"color": "{{menufg}}"	
-				},
-				".footer": {
-					"background-color": "{{footerbg}}",
-					"color": "{{footerfg}}"			
-				}	
+
+		}
+	},
+	"custom": {
+		"type": "system",
+		"css": [
+			"styles.css",
+			"base.css"
+		],
+		"style": {
+			"body": {
+				"background-color": "{{page.background}}",
+				"color": "{{page.color}}",
+				"font-family": "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+				
+			},
+			".navbar": {
+				"background-color": "{{menu.background}}",
+				"color": "{{menu.color}}"	
+			},
+			".footer": {
+				"background-color": "{{footer.background}}",
+				"color": "{{footer.color}}"
 			}
-		} 
+		}
+	} 
 }

@@ -96,11 +96,24 @@ class Theme extends \Opensitez\Simplicity\Plugin
     }
     function assign_template_vars()
     {
-
+        $defaults = $this->config_object->get('defaults');
         $left_delim = $this->template_engine->getLeftDelim();
         $right_delim = $this->template_engine->getRightDelim();
+        //print_r($defaults);
+        $debug_obj = $this->plugins->get_plugin('debug');
+        // echo "<h1>defaults</h1>";
+        // echo $debug_obj->printArray($defaults);
+        // echo "<h1>current site</h1>";
+        // echo $debug_obj->printArray($this->current_site);
+        // exit;
+        //print_r($this->current_site);
+        $palette_definition = $this->current_site['palette'] ?? [];
+        $palette_plugin = new \Opensitez\Simplicity\Palette( $this->config_object);
+        $palette_vars = $this->current_site['definition']['style'] ?? [];
+        $palette = $palette_plugin->get_palette($this->app, $palette_definition, $palette_vars);
 
-        $palette = $this->get_palette($this->app);
+        //print_r($palette_definition); exit;
+        //$palette = $this->get_palette($this->app);
         $config = $this->config_object->get('site');
 
         $this->init_paths();
@@ -121,20 +134,19 @@ class Theme extends \Opensitez\Simplicity\Plugin
         $menus= $this->current_site['definition']['navigation'] ?? [];
 
         $navigation = $menumaker->make_menu($menus ?? [], $menuopts);
-
         $this->template_engine->assign("themepath", $this->current_site['themepath']);
         $this->template_engine->assign("sitepath", $this->paths['sitepath'], true);
         $this->template_engine->assign("navigationmenu", $navigation);
 
         $this->template_engine->assign("webroot", $this->paths['webroot'], true);
-        $this->template_engine->assign("host", $this->current_site['domain'], true);
+        $this->template_engine->assign("host", $this->current_site['host'], true);
         $this->theme = $this->current_site['theme'] ?? $this->defaults['theme'] ?? "$this->default_theme";
         $this->pagestyle = '';
 
         foreach ($this->current_site["style"] ?? [] as $key => $value) {
             $this->pagestyle .= "      $key {" . $value . ";}\n";
         }
-        $this->pagestyle = "$palette\n<style>\n$this->pagestyle\n</style>\n\n";
+        $this->pagestyle = "<!-- YOW -->$palette\n<style>\n$this->pagestyle\n</style>\n\n";
 
         foreach ($this->current_site['theme']['js'] ?? [] as $script) {
             $script = $this->replace_paths($script);

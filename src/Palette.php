@@ -8,6 +8,64 @@ class Palette extends \Opensitez\Simplicity\Plugin
     var $basedir = false;
     var $paths=".";
     var $defaults = false;
+    function get_palette($app, $palette_definition = [],$vars = []) {
+        $current_site = $this->config_object->get('site');   
+
+        $basedir = $palette_definition['folder'];
+        //print_r($palette_definition);exit;
+        $css = $palette_definition['css'] ?? [];
+        $styles = $palette_definition['style'] ?? [];
+        $content = "";
+        if ($css) {
+            $content .= $this->include_files("$basedir", $css)  ;
+        }
+        //print_r($vars);
+        if ($styles) {
+            $styles_content = $this->make_style_rules($styles);
+        } else {
+            $styles_content = "";
+        }
+
+        if($vars) {
+            $styles_content = $this->substitute_vars($styles_content, $vars);
+        }
+        $content .= "<!--fun-->" . $styles_content;
+        //print $content;
+        return $content;
+
+    }
+    function include_files($basedir, $files = [])
+    {
+        $retval = "";
+        if ($files) {
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+            foreach ($files as $file) {
+                $fname = "$basedir/$file";
+                if (file_exists($fname)) {
+                    $retval .= "<style>\n" . file_get_contents($fname) . "</style>\n";
+                } else {
+                    echo "File not found: $fname<br/>\n";
+                }
+            }
+        }
+        return $retval;
+    }
+    function make_style_rules($styles = [])
+    {
+        $retval = "";
+        if ($styles) {
+            foreach ($styles as $rule_name => $style) {
+                $rule = "";
+                foreach ($style as $attr => $arr_value) {
+                    $rule .= "    $attr: $arr_value;\n";
+                }
+                $retval .= "$rule_name {\n$rule}\n";
+            }
+        }
+        return "<style>\n" . $retval . "\n</style>\n\n";
+    }
     function render($app)
     {
         $this->current_site = $this->config_object->get('site');

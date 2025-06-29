@@ -8,40 +8,38 @@ class Framework extends Base
     private $registry = [];
     function __construct($config_object = null)
     {
-        $this->on_init($config_object);
-
         parent::__construct($config_object);
-    }
-    function on_init($config_object = null)
-    {
 
-        $default_config = [
-            $basedir = dirname(__DIR__),
-            'simplicity' => [
-                'paths' => [
-                    'base' => $basedir,
-                    'plugins' => __DIR__ . '/plugins',
-                    'templates' => $basedir . 'templates',
-                    'themes' => $basedir . 'public/themes',
-                    'assets' => __DIR__ . '/assets',
-                ],
-                'debug' => false,
-            ],
-        ];
-        if ($config_object) {
+        if(is_array($config_object)) {
+            $config_object = new \Opensitez\Simplicity\Config($config_object);
+            // print_r($config_object->get("system"));
+            // print "Config object created from array\n<br/>";
+        } else if (!$config_object) {
+            //print "No config object provided, creating default\n<br/>";
+            print_r($config_object->get("system"));
+            $config_object = new \Opensitez\Simplicity\Config();
+        } else if ($config_object instanceof \Opensitez\Simplicity\Config) {
+            //print "Using provided config object\n<br/>";
+            //print_r($config_object->get("system"));
+
             $this->config_object = $config_object;
         } else {
+            throw new \InvalidArgumentException("Invalid config object provided. Expected an instance of Opensitez\\Simplicity\\Config or an array.");
+        }
+
+        $this->on_init();
+    }
+    function on_init()
+    {
+        if (!$this->config_object) {
             $this->config_object = new \Opensitez\Simplicity\Config($default_config);
         }
-        // Load default plugins from library
         $this->load_default_plugins();
     }
-
     function getConfigObject()
     {
         return $this->config_object;
     }
-
     function on_event($event)
     {
         foreach ($this->plugins ?? [] as $group => $group_plugins) {
@@ -91,7 +89,6 @@ class Framework extends Base
             $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins', 'core');
         }
     }
-
     function load_plugins($curpath, $namespace = 'Opensitez\\Plugins', $group = 'local')
     {
         if (!is_dir($curpath)) {
@@ -124,7 +121,6 @@ class Framework extends Base
                         if ($plugin_instance && method_exists($plugin_instance, 'on_event')) {
                             $plugin_instance->on_event(['type' => MSG::PluginLoad]);
                         }
-                        //echo "Loaded plugin: $file from namespace: $namespace into group: $group\n<br/>";
                     } else {
                         echo "Class $classname not found in $plugin_file\n<br/>";
                     }
@@ -133,13 +129,10 @@ class Framework extends Base
                 }
             }
         }
-
         return true;
     }
-
     function initialize_plugins()
     {
-        // Second pass: send plugin-load event to all loaded plugins in all groups
         foreach ($this->plugins as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 if ($plugin && method_exists($plugin, 'on_event')) {
@@ -148,7 +141,6 @@ class Framework extends Base
             }
         }
     }
-
     function load_external_plugins($plugin_paths = [])
     {
         foreach ($plugin_paths as $path_config) {
@@ -191,15 +183,12 @@ class Framework extends Base
                 }
             }
         }
-        
         if (!isset($this->registry[$type])) {
             $this->registry[$type] = [];
         }
         
         $this->registry[$type][$key] = ['plugin' => $plugin_name];
-        //echo "Registered $type: $key -> $plugin_name\n<br/>";
     }
-    
     function get_registered_type($type, $key)
     {
         if (isset($this->registry[$type][$key])) {
@@ -208,12 +197,10 @@ class Framework extends Base
         }
         return null;
     }
-    
     function get_registered_type_list($type)
     {
         return $this->registry[$type] ?? [];
     }
-    
     function get_plugin($name)
     {
         // Check if name contains dot notation (group.plugin)
@@ -244,21 +231,7 @@ class Framework extends Base
         
         return false;
     }
-    // function get_route_types()
-    // {
-    // Keeping for now in case we need backwards compatibility
-    //     $types = [];
-    //     foreach ($this->plugins as $name => $plugin) {
-    //         $route_types = $plugin->get_route_types();
-    //         if ($route_types) {
-    //             foreach ($route_types as $route_name => $route_type) {
-    //                 $types[$route_name] = $route_type['name'];
-    //             }
-    //         }
-    //         $types[$name] = $route_type['name'];
-    //     }
-    //     return $types;
-    // }
+
     function gen_menu()
     {
         $newmenu = "";
@@ -306,8 +279,6 @@ class Framework extends Base
                     }
                     $childlink = "?" . http_build_query($query);
                 }
-
-                //$childtext=get_translation($childmenu['text']??"");
                 $childtext = $childmenu['text'] ?? "";
                 $childentry = [
                     "text" => $childtext,
@@ -348,7 +319,5 @@ function weight_sort($sort_arr, $field = 'weight')
     uasort($sort_arr, function ($item1, $item2) {
         return $item1['weight'] ?? 0 <=> $item2["weight"] ?? 0;
     });
-    //print_r($sort_arr);
-    //exit;
     return $sort_arr;
 }
