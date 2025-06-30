@@ -52,6 +52,60 @@ class Plugin extends Base
         }
     }
     
+    public function add_section($idx, $new_section=[])
+    {
+            $section_options = $this->config_object->get('site.sections.' . $idx, false);
+            if(!$section_options) {
+                $value['name'] = $idx;
+                $section_options = $new_section;
+                $new_section = new Section($this->config_object);
+                $new_section->set_handler($this->plugins);
+                $new_section->set_section_options($section_options);
+                $this->config_object->set('site.sections.' . $idx, $new_section);
+            }
+            return $new_section;
+    
+    }
+    public function valid_var_name($block_name)
+    {
+        if (preg_match('/^[a-zA-Z][a-zA-Z0-9-]*$/', $block_name)) {
+            return true;
+        } else {
+            
+            return false;
+        }
+    }
+    public function add_block($block)
+    {
+        if (!$this->valid_var_name($block['name'])) {
+            print "Invalid block name: " . $block['name'] . " (must match pattern [a-zA-Z][a-zA-Z0-9-]*)\n";
+            return;
+        }
+        $defaults = $this->config_object->get('defaults');
+        $block['type'] = $block['type'] ?? 'text';
+        $block['content'] = $block['content'] ?? '';
+        $block['content-type'] = $block['content-type'] ?? 'html';
+        $block['template'] = $block['template'] ?? 'default.tpl';
+
+        $block_name = $block['name'] ;
+        $section = $block['section'] ?? $defaults['section'] ?? "content";
+        if (!$this->valid_var_name($section)) {
+            print "Invalid section name: " . $section . " (must match pattern [a-zA-Z][a-zA-Z0-9-]*)\n";
+            $section = 'content';
+        }
+        $block['section'] = $section;
+
+        if (!$this->config_object->get('site.sections.' . $section)) {
+            $this->add_section($section);
+        }
+
+        $block_instance = new Block($this->config_object);
+        $block_instance->set_block_options($block);
+        $block_instance->set_handler($this->plugins);
+
+        $this->config_object->set("site.blocks.$block_name", $block_instance);
+    }
+
 
     function anchor($url, $param, $rel = 'rel=external')
     {
