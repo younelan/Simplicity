@@ -1,14 +1,15 @@
 <?php
-    namespace Opensitez\Simplicity\Plugins;
+    namespace Opensitez\Simplicity;
 
     use Opensitez\Simplicity\MSG;
 
-    class Block extends \Opensitez\Simplicity {
+    class Block extends \Opensitez\Simplicity\Plugin {
         public $name="Block";
         public $block_options=[];
         public $block_name="";
         public $block_type="block";
-        public $content_type = "text"; // Default content type for blocks
+        protected $content_type = "text"; // Default content type for blocks
+        protected $options = [];
 
         public $default = [
             'encoding' => 'utf-8',
@@ -16,11 +17,12 @@
         ]; // Default options for blocks
         public $text_block=false;
         public $description="Implements a basic block";
+
         public function set_block_options($options) {
-            $this->block_options = $options;
-            $this->block_name = $options['name']??'undefined';
-            $this->block_type = $options['type'] ?? 'block';
-            $this->content_type = $options['content-type']??"text";
+            $options['name'] = $options['name'] ?? 'undefined';
+            $options['type'] = $options['type'] ?? 'block';
+            $options['content-type'] = $options['content-type'] ?? 'text';
+            $this->set_options($options);
         }
         function on_event($event)
         {
@@ -39,15 +41,12 @@
         /*here for legacy until other classes stop using it*/
         function render_insert_text($text,$options=[]) {
 
-            $content_type = $options['content-type'] ?? $this->default['content-type'];
-            //print $content_type;exit;
-            // Try to get a registered block type plugin
+            $content_type = $options['content-type'] ?? $this->options['content-type'] ?? 'html';
+
             $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
             
             if ($block_plugin && method_exists($block_plugin, 'render')) {
-                // Create block config structure
                 $block_config = ['content' => $text];
-                // Merge in any additional options as block config
                 $block_config = array_merge($block_config, $options);
                 return $block_plugin->render($block_config, $options);
             }
@@ -95,22 +94,34 @@
 
             return $this->render($options);
         }   
-        function render($app) {
-
+        function render($app = null) {
+            $defaults = $this->config_object->get('defaults');
+            if (!$app) {
+                $app = $this->options;
+            }
+            $vars = [
+                'block' => $app
+            ];
             $retval = "";
             $i18n = $this->plugins->get_plugin('i18n');
-            $section=$this->block_options;
-            $this->content_type = $app['content-type'] ?? 'html';
-            $this->block_type = $app['type'] ?? 'block';
-            $app['content-type'] = $this->content_type;
-            $app['type'] = $this->block_type;
+            $app['section'] = $app['section'] ?? $defaults['section'] ?? 'content';
+            $block_name = $app['name'] ?? "undefined";
+            $content_type = $app['content-type'] ?? $defaults['content-type'] ?? 'text';
+            $block_type = $app['type'] ?? 'block';
+            $blockclass="block block-$block_name block-$block_type";
+            if($app['file']??false) {
+                $fcontents = $this->fetch_file($app['file'], $app);
+                if ($fcontents) {
+                    $app['content'] = $fcontents;
+                }
+            }
             $fname = $app['file'] ?? '';
-            $blocklink=$section['link']??"";
-            $blockclass=$section['class']??"block block-$this->block_name";
+            $blocklink=$app['link']??"";
+
             $retval = "";
             $blockoptions = $this->default;
-            if(isset($section['title'])) {
-                $cur_title=$i18n->get_i18n_value($section['title']);
+            if(isset($app['section']['title'])) {
+                $cur_title=$i18n->get_i18n_value($app['title']);
                 if($blocklink) {
                     $retval .= "<h2 class='block-title'><a href='$blocklink'>" . $cur_title. "</a></h2>";
                 } else {
