@@ -7,6 +7,7 @@ class Base
     private $data = [];
     protected $leftdelim = "{{";
     protected $rightdelim = "}}";
+    protected $options = [];
     function __construct($config_object=null)
     {
         $this->config_object = $config_object;
