@@ -24,6 +24,7 @@ class TextFormatBlock extends \Opensitez\Simplicity\Plugin
 
     function render($block_config, $options = [])
     {
+        //print_r($block_config);exit;
         $content_type = $block_config['content-type'] ?? $options['content-type'] ??  'html';
         $text = $block_config['content'] ?? $block_config;
         

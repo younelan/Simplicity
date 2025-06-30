@@ -71,6 +71,7 @@
             }
 
             $found = false;
+
             $file_path = $paths["datafolder"] . "/" . $incfile;
 
             if ($i18n) {
@@ -99,6 +100,7 @@
             if (!$app) {
                 $app = $this->options;
             }
+
             $vars = [
                 'block' => $app
             ];
@@ -107,6 +109,7 @@
             $app['section'] = $app['section'] ?? $defaults['section'] ?? 'content';
             $block_name = $app['name'] ?? "undefined";
             $content_type = $app['content-type'] ?? $defaults['content-type'] ?? 'text';
+
             $block_type = $app['type'] ?? 'block';
             $blockclass="block block-$block_name block-$block_type";
             if($app['file']??false) {
@@ -117,7 +120,6 @@
             }
             $fname = $app['file'] ?? '';
             $blocklink=$app['link']??"";
-
             $retval = "";
             $blockoptions = $this->default;
             if(isset($app['section']['title'])) {
@@ -137,42 +139,56 @@
             }
             $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
             
-            $block_plugin = $this->plugins->get_registered_type('blocktype', $this->content_type);
+            $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
+            // print get_class($block_plugin) . " - " . $this->content_type . "\n";
+            // print "Types: " . print_r($this->plugins->get_registered_type_list("blocktype"), true) . "\n";
             if ($block_plugin && method_exists($block_plugin, 'render')) {
+                //print "Rendering block type: $content_type\n";
                 $retval .= $block_plugin->render($app, $blockoptions);
+                //print $retval . "\n";
   
             } else {
-                $current_plugin = $this->plugins->get_plugin($this->content_type); 
-                if($current_plugin ) {
-                    $plugin_content =$current_plugin->on_render_page($section);
-                    $retval .= $plugin_content;
+                print "No block plugin found for type: $content_type\n";
+                $block_plugin = $this->plugins->get_registered_type('blocktype', "text");
+                if ($block_plugin && method_exists($block_plugin, 'render')) {
+                    $app['content-type'] = $app['content-type'] ?? 'text';
+                    $retval .= $block_plugin->render($app, $blockoptions);
                 } else {
-                    // Final fallback to legacy switch statement
-                    switch($this->content_type) {
-                        case "text":
-                            $options = ['content-type'=>$section['content-type']??"html"];
-
-                            $tmpcontent = $section['content'] ?? $section['text'] ?? "";
-                            $tmpcontent = $i18n->get_i18n_value($tmpcontent);
-                            if(!is_array($tmpcontent)) {
-                                $tmpcontent = [ $tmpcontent];
-                            }
-                            $tmpcontent = implode("\n",$tmpcontent);
-                            $parsed_content = $this->render_insert_text($tmpcontent,$options,$section);
-                            $retval .= $parsed_content;
-                            break; 
-                        case "include":
-                            $options = ['content-type'=>$section['content-type']??"html"];
-                            $incfile = $section['file']??"";
-                            // Use the include block type plugin
-                            $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
-                            if ($include_plugin) {
-                                $retval .= $include_plugin->render($incfile, $options);
-                            }
-                            break; 
-                    }
+                    $retval .= "";
                 }
             }
+            // else {
+            //     $current_plugin = $this->plugins->get_plugin($this->content_type); 
+            //     if($current_plugin ) {
+            //         $plugin_content =$current_plugin->on_render_page($section);
+            //         $retval .= $plugin_content;
+            //     } else {
+            //         // Final fallback to legacy switch statement
+            //         switch($this->content_type) {
+            //             case "text":
+            //                 $options = ['content-type'=>$section['content-type']??"html"];
+
+            //                 $tmpcontent = $section['content'] ?? $section['text'] ?? "";
+            //                 $tmpcontent = $i18n->get_i18n_value($tmpcontent);
+            //                 if(!is_array($tmpcontent)) {
+            //                     $tmpcontent = [ $tmpcontent];
+            //                 }
+            //                 $tmpcontent = implode("\n",$tmpcontent);
+            //                 $parsed_content = $this->render_insert_text($tmpcontent,$options,$section);
+            //                 $retval .= $parsed_content;
+            //                 break; 
+            //             case "include":
+            //                 $options = ['content-type'=>$section['content-type']??"html"];
+            //                 $incfile = $section['file']??"";
+            //                 // Use the include block type plugin
+            //                 $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
+            //                 if ($include_plugin) {
+            //                     $retval .= $include_plugin->render($incfile, $options);
+            //                 }
+            //                 break; 
+            //         }
+            //     }
+            // }
             if($retval) {
                 $retval = "<div class='$blockclass'>\n" . $retval . "</div>\n";
             }
