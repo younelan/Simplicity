@@ -43,7 +43,7 @@
             "sidebar": "default sidebar",
             "title": "Simplicity Default",
             "description": "Simplicity Default Page",
-            "logo": "{{themepath}}/default_logo.svg",
+            "logo": "{{themepath}}/default_logo.svg"    
             
         },
         "theme": "bootstrap",
@@ -54,35 +54,64 @@
         "404-route": "notfound"
     },
     "default-layout": "system",
+    "route-type": "page",
+    "default-section": "content",
+    "sections": {
+
+    },
+    "blocks": {
+    },
     "layouts": {
         "system": {
-            "columns": {
-                "content": {
-                    "class": "col-md-8"
+            "name": "System Layout",
+            "type": "system",
+            "sections": {
+                "header": {
+                    "class": "header",
+                    "file": "header.tpl"
                 },
-                "sidebarDiv": {
-                    "class": "col-md-4"
+                "navigation": {
+                    "class": "col-md-12",
+                    "file": "navigation.tpl"
+                },
+                "content": {
+                    "class": "content-section",
+                    "file": "defaults.tpl"
+                },
+                "sidebar": {
+                    "class": "sidebar-section",
+                    "file": "defaults.tpl"
+                },
+                "footer": {
+                    "class": "footer-section",
+                    "file": "footer.tpl"
                 }
 
             },
             "blocks": {
-                "content": ""
+                "content": [
+                    {
+                        "type": "text",
+                        "content-type": "html",
+                        "section": "content",
+                        "visible": true,
+                        "content": "{{content}}"
+                    }
+                ]
             }
         }
     },
 
     "colors":  {
-        "menufg": "white",
-        "menubg": "#8f3131",
-        "storyevenbg": "white",
-        "storyevenfg": "black",
-        "storyoddbg": "#FFE",
-        "storyoddfg": "black",
-        "footerfg": "white",
-        "footerbg": "#411a2a",
-        "pagebg": "#4f1f31",
-        "pagefg": "white",
-        "newstitlebg": "#335",
-        "newstitlefg": "#000"   
+        "menu.foreground": "white",
+        "menu.background": "#8f3131",
+        "post.background": "white",
+        "post.foreground": "black",
+        "footer.foreground": "white",
+        "footer.background": "#411a2a",
+        "page.background": "#4f1f31",
+        "page.foreground": "white",
+        "title.background": "#335",
+        "title.foreground": "#000"
     }
 }
