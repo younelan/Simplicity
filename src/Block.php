@@ -3,7 +3,7 @@
 
     use Opensitez\Simplicity\MSG;
 
-    class Block extends \Opensitez\Simplicity\Plugin {
+    class Block extends \Opensitez\Simplicity {
         public $name="Block";
         public $block_options=[];
         public $block_name="";
@@ -90,6 +90,11 @@
 
             return $fcontents;
         }
+        function on_render_section($app) {
+            $options = $this->block_options;
+
+            return $this->render($options);
+        }   
         function render($app) {
 
             $retval = "";
@@ -126,9 +131,6 @@
                 $retval .= $block_plugin->render($app, $blockoptions);
   
             } else {
-                // print "no plugin found for block type: $this->content_type";
-                // print_r($this->plugins->get_registered_type_list('blocktype'));
-                // Fallback to checking for a named plugin (legacy support)
                 $current_plugin = $this->plugins->get_plugin($this->content_type); 
                 if($current_plugin ) {
                     $plugin_content =$current_plugin->on_render_page($section);
@@ -167,7 +169,6 @@
 
         }
         function on_render_page($app) {
-            // This method is intentionally left empty, as the render logic is handled in the render method
             return $this->render($app);
         }
     }

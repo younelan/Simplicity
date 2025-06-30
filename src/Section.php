@@ -4,13 +4,14 @@ namespace Opensitez\Simplicity\Plugins;
 use Opensitez\Simplicity\MSG;
 
 
-class Section extends \Opensitez\Simplicity\Plugin
+class Section extends \Opensitez\Simplicity
 {
     private $contents = [];
     private $style = "";
     private $class = "section";
     private $section_name = "content";
     private $blocks = [];
+    private $template = "";
     private $section_options = [];
     function on_event($event)
     {
@@ -22,10 +23,14 @@ class Section extends \Opensitez\Simplicity\Plugin
         }
         return parent::on_event($event);
     }
-    
+
     function set_section_options($options)
     {
         $this->section_options = $options;
+        //print "Setting section options: " . print_r($options, true) . "\n";
+        if ($options['file']) {
+            $this->template = $this->load_template("sections/" . $options['file']);
+        }
         $this->section_name = $options['name'] ?? 'content';
         $this->class = $options['class'] ?? "";
         $this->style = $options['style'] ?? "";
@@ -45,22 +50,12 @@ class Section extends \Opensitez\Simplicity\Plugin
         $output = "<div id='$this->section_name' class='section $this->class'>";
         //$output .= "<h1 class='footer'>section $this->section_name</h1>";
         foreach ($this->blocks as $block) {
-            $output .= $block->render($app);
+            $output .= $block->on_render_section($app);
         };
         $output .= "</div>";
         return $output;
     }
-    function add_block($block, $idx)
-    {
-        $block_type = $block['type'] ?? 'text';
-        //  print "<p>adding {$block['name']}" . $this->block_type . " to " . $this->section_name . "<p>\n";
-        $new_block = new Block($this->config_object);
-        $block['name'] = $idx;
-        $block['type'] = $block_type;
-        $new_block->set_block_options($block);
-        $new_block->set_handler($this->plugins);
-        $this->blocks[$idx] = $new_block;
-    }
+
     /* todo add logic to add before/after section */
     // function on_render_before() {
     //     // if(!is_array($contentbefore)) {
