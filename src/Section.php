@@ -1,10 +1,10 @@
 <?php
 
-namespace Opensitez\Simplicity\Plugins;
+namespace Opensitez\Simplicity;
 use Opensitez\Simplicity\MSG;
 
 
-class Section extends \Opensitez\Simplicity
+class Section extends \Opensitez\Simplicity\Plugin
 {
     private $contents = [];
     private $style = "";
