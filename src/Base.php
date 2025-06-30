@@ -37,6 +37,43 @@ class Base
 
         return $content;
     }
+    public function set_options ($options) {
+        $this->options = $options;
+    }
+    function load_template($file,$default_folder = false)
+    {
+        $paths = $this->config_object->get('paths');
+        $syspath = $this->config_object->get('system.paths');
+        
+        $site_template_path = $paths['datafolder'] . "/templates" . "/" . $file;
+        $full_path = $paths['core-templates'] . "/" . $file;
+
+        $sys_template_path = $syspath['templates'] . "/" . $file;
+
+        if (is_file($site_template_path)) {
+            //print "Loading site template file: $site_template_path\n";
+            $full_path = $site_template_path;
+            $template_contents = @file_get_contents($full_path);
+        } 
+        elseif (is_file($full_path)) {
+            //print "Loading template file: $full_path\n";
+            $template_contents = @file_get_contents($full_path);
+
+        } 
+        elseif (is_file($sys_template_path)) {
+            $full_path = $sys_template_path;
+            //print "Loading system template file: $full_path\n";
+            $template_contents = @file_get_contents($full_path);
+        } elseif (is_file($default_folder . "/" . $file)) {
+            //print "Loading default template file: $default_folder/$file\n";
+            $full_path = $default_folder . "/" . $file;
+            $template_contents = @file_get_contents($full_path);
+        } else {
+            $template_contents = "";
+            //print "No template file found for $file\n";
+        }
+        return $template_contents;
+    }
     function translate_page($page, $lang = "")
     {
         
