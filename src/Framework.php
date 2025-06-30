@@ -85,6 +85,16 @@ class Framework extends Base
     {
         // Load plugins from the default library plugins folder into 'core' group
         $default_plugins_path = __DIR__ . '/plugins';
+        $core_plugins = ['Page',"Block","Section"];
+        foreach($core_plugins as $plugin) {
+            $new_plugin_name = 'Opensitez\\Simplicity\\' . $plugin;
+            $instance = new $new_plugin_name($this->config_object);
+            $instance->set_handler($this);
+            $this->plugins['core'][strtolower($plugin)] = $instance;
+            if (method_exists($instance, 'on_event')) {
+                $instance->on_event(['type' => MSG::PluginLoad]);  
+            }
+        }
         if (is_dir($default_plugins_path)) {
             $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins', 'core');
         }
