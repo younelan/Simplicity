@@ -20,15 +20,14 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
     }
     public function render($app = [])
     {
-        //print_r($app);exit;
-        $current_site = $this->config_object->getCurrentSite();
-        $paths = $this->config_object->getPaths();
+        $current_site = $this->config_object->get('site');
+        $paths = $this->config_object->get('paths');
 
         $page = $this->plugins->get_plugin("page");
         $i18n = $this->plugins->get_plugin("i18n");
         $output = "\n";
         if (!$app) {
-            $app = $this->config['current'];
+            $app = $this->config_object->get('current')??[];
         }
         $filter = $app['filter'] ?? "";
 
