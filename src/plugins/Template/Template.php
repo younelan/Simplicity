@@ -14,7 +14,6 @@ class Template extends \Opensitez\Simplicity\Plugin
     private $default_theme;
     private $current_theme;
     private $themedir;
-    private $options;
     private $current_template;
     private $i18n;
     private $master;

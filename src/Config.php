@@ -267,10 +267,9 @@
             if (!is_array($yamlData)) {
                 return false;
             }
-            
             // Get existing value or empty array
             $existingValue = $this->get($configPath, []);
-            
+
             // Merge existing with YAML data
             $mergedValue = array_replace_recursive($existingValue, $yamlData);
             
@@ -285,3 +284,4 @@
     }
 
     }
+

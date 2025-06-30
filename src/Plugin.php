@@ -100,6 +100,7 @@ class Plugin extends Base
         }
 
         $block_instance = new Block($this->config_object);
+        print "Adding block: " . $block_name . " to section: " . $section . "\n";
         $block_instance->set_block_options($block);
         $block_instance->set_handler($this->plugins);
 
