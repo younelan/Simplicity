@@ -1,8 +1,10 @@
 <?php
 
 namespace Opensitez\Simplicity;
+//require_once("base.php");
+//require_once("plugin.php");
 
-class PHPTemplate
+class PHPTemplate extends Plugin
 {
     private $template;
     private $data = [];
@@ -17,7 +19,7 @@ class PHPTemplate
         $this->data[$variable] = $value;
     }
 
-    public function render()
+    public function render($app=[])
     {
         $output = $this->renderTemplate($this->template, $this->data);
         eval(' ?>' . $output . '<?php ');
@@ -66,8 +68,23 @@ class PHPTemplate
         return $output;
     }
 }
+//$restaurants = file_get_contents('restaurant.html');
+$restaurants = "
+{{restaurant}}
+    {{address}}
+    <div>
+        {{if city == 'Los Angeles'}}
+        <p>This restaurant is located in Los Angeles, California.</p>
+        {{/if}}
+        <p>City: {{city}}</p>
+        <p>State: {{state}}</p>
+        <p>Street: {{street}}</p>
+    </div>
+    {{/address}}
+{{/restaurant}}
+";
+$template = new PHPTemplate($restaurants);
 
-$template = new PHPTemplate(file_get_contents('restaurant.html'));
 
 // Assign variables
 $template->assign('pagetitle', 'Restaurant Page');
