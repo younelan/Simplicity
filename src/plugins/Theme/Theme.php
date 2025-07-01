@@ -61,7 +61,11 @@ class Theme extends \Opensitez\Simplicity\Plugin
         //print $themefile . "<br/>";exit;
         $this->config_object->mergeYaml('site.theme', "$themefile");
         $theme_config = $this->config_object->get('site.theme');
-        foreach ($theme_config['sections'] as $section => $details) {
+        if (!$theme_config) {
+            print "Theme configuration file not found at $themefile. Using default theme configuration.<br/>";
+            $theme_config = [];
+        }
+        foreach ($theme_config['sections'] ?? [] as $section => $details) {
             if (isset($details['file'])) {
                 $fullpath = $this->themedir . "/" . $details['file'];
                 $theme_config['sections'][$section]['fullpath'] = $fullpath;
