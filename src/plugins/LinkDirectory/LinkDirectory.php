@@ -131,7 +131,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		</div>
 		";
 
-		//print_r($itemhide);exit;
 		foreach ($node_types[$dbitem['node_type']]['fields'] ?? [] as $field => $dbfield) {
 			$item[$dbfield] = $dbitem["field$field"];
 			if (in_array($dbfield, $itemhide)) {
@@ -273,7 +272,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 				$output .= "<span class='link-item-text'>"
 					. $this->anchor($url, $row['catname'] . $iconurl, 'rel=external')
 					. "</span>\n";
-				//print $itemCount;
 				$output .= $this->style;
 				$output .= "<div class='item-count'>$itemCount</div>\n";
 				$output .= "</li>\n";
@@ -338,12 +336,11 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 			$dest =0;
 		}
 		$feature_id = intval($app['id'] ?? 0) ?? null;
-		// if (ctype_alnum($dest)) {
-		// 	$feature_id = $app['id'] ?? "";
-		// } else {
-		// 	$feature_id = null;
-		// }
-		print "<h1>$action->$dest : feature $feature_id</h1>";
+		if ( is_int($dest) || ctype_alnum($dest)) {
+			$feature_id = $app['id'] ?? "";
+		} else {
+			$feature_id = null;
+		}
 
 		$debug = $this->get_plugin('debug');
 
