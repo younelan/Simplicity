@@ -11,7 +11,7 @@ class Menu extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a content provider for WordPress
-                $this->plugins->register_type('blocktype', 'menu');
+                $this->framework->register_type('blocktype', 'menu');
 
                 break;
         }
@@ -20,7 +20,7 @@ class Menu extends \Opensitez\Simplicity\Plugin
     function make_menu($menus, $params = [])
     {
 
-        $i18n = $this->plugins->get_plugin("i18n");
+        $i18n = $this->framework->get_component("i18n");
         $paths = $this->config_object->get('paths');
         $defaults = [
             "activeclass" => "",

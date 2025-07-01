@@ -4,7 +4,7 @@ namespace Opensitez\Simplicity;
 
 class Framework extends Base
 {
-    private $plugins = [];
+    private $components = [];
     private $registry = [];
     function __construct($config_object = null)
     {
@@ -42,7 +42,7 @@ class Framework extends Base
     }
     function on_event($event)
     {
-        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+        foreach ($this->components ?? [] as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 if ($plugin->enabled) {
                     $plugin->on_event($event);
@@ -52,7 +52,7 @@ class Framework extends Base
     }
     function on_action($action)
     {   
-        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+        foreach ($this->components ?? [] as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 if ($plugin->enabled) {
                     $plugin->on_action(["p" => $name, "a" => $action]);
@@ -63,7 +63,7 @@ class Framework extends Base
     } 
     function set_handler($plugin_handler)
     {
-        foreach ($this->plugins ?? [] as $group => $group_plugins) {
+        foreach ($this->components ?? [] as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 if ($plugin) {
                     $plugin->set_handler($plugin_handler);
@@ -77,7 +77,7 @@ class Framework extends Base
 
  
         if (!isset($no_template_output)) {
-            $render = $this->plugins[$render_plugin] ?? false;
+            $render = $this->components[$render_plugin] ?? false;
             echo $render->show_page();
         }
     }
@@ -90,7 +90,7 @@ class Framework extends Base
             $new_plugin_name = 'Opensitez\\Simplicity\\' . $plugin;
             $instance = new $new_plugin_name($this->config_object);
             $instance->set_handler($this);
-            $this->plugins['core'][strtolower($plugin)] = $instance;
+            $this->components['core'][strtolower($plugin)] = $instance;
             if (method_exists($instance, 'on_event')) {
                 $instance->on_event(['type' => MSG::PluginLoad]);  
             }
@@ -105,8 +105,8 @@ class Framework extends Base
             return false;
         }
 
-        if (!isset($this->plugins[$group])) {
-            $this->plugins[$group] = [];
+        if (!isset($this->components[$group])) {
+            $this->components[$group] = [];
         }
 
         $file_list = scandir($curpath);
@@ -126,7 +126,7 @@ class Framework extends Base
 
                     if (class_exists($classname)) {
                         $plugin_instance = new $classname($this->config_object);
-                        $this->plugins[$group][strtolower($file)] = $plugin_instance;
+                        $this->components[$group][strtolower($file)] = $plugin_instance;
                         $plugin_instance->set_handler($this);
                         if ($plugin_instance && method_exists($plugin_instance, 'on_event')) {
                             $plugin_instance->on_event(['type' => MSG::PluginLoad]);
@@ -143,7 +143,7 @@ class Framework extends Base
     }
     function initialize_plugins()
     {
-        foreach ($this->plugins as $group => $group_plugins) {
+        foreach ($this->components as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 if ($plugin && method_exists($plugin, 'on_event')) {
                     $plugin->on_event(['type' => MSG::PluginLoad]);
@@ -184,7 +184,7 @@ class Framework extends Base
         if (!$plugin_name) {
             // Find which plugin is calling this by looking at the backtrace
             $backtrace = debug_backtrace();
-            foreach ($this->plugins as $group => $group_plugins) {
+            foreach ($this->components as $group => $group_plugins) {
                 foreach ($group_plugins as $name => $plugin) {
                     if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $plugin) {
                         $plugin_name = "$group.$name";
@@ -203,7 +203,7 @@ class Framework extends Base
     {
         if (isset($this->registry[$type][$key])) {
             $plugin_name = $this->registry[$type][$key]['plugin'];
-            return $this->get_plugin($plugin_name);
+            return $this->get_component($plugin_name);
         }
         return null;
     }
@@ -211,13 +211,13 @@ class Framework extends Base
     {
         return $this->registry[$type] ?? [];
     }
-    function get_plugin($name)
+    function get_component($name)
     {
         // Check if name contains dot notation (group.plugin)
         if (strpos($name, '.') !== false) {
             list($group, $plugin_name) = explode('.', $name, 2);
-            if (isset($this->plugins[$group][$plugin_name])) {
-                return $this->plugins[$group][$plugin_name];
+            if (isset($this->components[$group][$plugin_name])) {
+                return $this->components[$group][$plugin_name];
             }
             return false;
         }
@@ -226,7 +226,7 @@ class Framework extends Base
         $search_order = ['core', 'local'];
         
         // Add any other groups to the search order
-        foreach (array_keys($this->plugins) as $group) {
+        foreach (array_keys($this->components) as $group) {
             if (!in_array($group, $search_order)) {
                 $search_order[] = $group;
             }
@@ -234,8 +234,8 @@ class Framework extends Base
         
         // Search through groups in order
         foreach ($search_order as $group) {
-            if (isset($this->plugins[$group][$name])) {
-                return $this->plugins[$group][$name];
+            if (isset($this->components[$group][$name])) {
+                return $this->components[$group][$name];
             }
         }
         
@@ -247,7 +247,7 @@ class Framework extends Base
         $newmenu = "";
         $menu = [];
         //Gather Menus from plugins
-        foreach ($this->plugins as $group => $group_plugins) {
+        foreach ($this->framework as $group => $group_plugins) {
             foreach ($group_plugins as $name => $plugin) {
                 foreach ($plugin->get_menus() as $menuname => $tmpmenu) {
                     if (!isset($menu[$menuname])) {

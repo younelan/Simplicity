@@ -198,7 +198,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         $logformat = $this->config_object->get('logformat') ?? "combined";
 
         // Get Apache log parser plugin
-        $logParser = $this->get_plugin('apachelogline');
+        $logParser = $this->get_component('apachelogline');
         if (!$logParser) {
             $logParser = new \Opensitez\Simplicity\Plugins\ApacheLogLine($this->config_object);
         }

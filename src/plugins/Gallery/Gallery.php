@@ -29,7 +29,7 @@ class Gallery extends \Opensitez\Simplicity\Plugin
         $page = $app['page'] ?? "list";
         $galleries = new \Opensitez\Plugins\GalleryController($this->config_object);
         //print(get_class($galleries));
-        $galleries->set_handler($this->plugins);
+        $galleries->set_handler($this->framework);
         //$galleries->set_config($this->config);
         $galleries->connect();
         if ($_POST['gallery_id'] ?? false) {

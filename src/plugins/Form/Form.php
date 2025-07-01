@@ -36,7 +36,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 		$this->vars = $vars;
 		$this->lang = $app['lang'] ?? $vars['lang'] ?? false;
 		$lang = $this->lang;
-		$i18n = $this->plugins->get_plugin("i18n");
+		$i18n = $this->framework->get_component("i18n");
 		if (!$lang) {
 			$langs = $i18n->accepted_langs();
 			if ($langs) {
@@ -54,7 +54,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 		foreach ($field_classes as $class_name) {
 			$this->available_fields[strtolower($class_name)] = $class_name;
 		}
-		$this->plugins->load_plugins(__DIR__ . "/widgets", 'Opensitez\\Simplicity\\Plugins', 'core');
+		$this->framework->load_plugins(__DIR__ . "/widgets", 'Opensitez\\Simplicity\\Plugins', 'core');
 
 		$replacements = [
 			"number" => "Text", "integer" => "Text", "currency" => "Text",
@@ -77,7 +77,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 						try {
 							$current_class_name = "\\Opensitez\\Plugins\\" . $this->available_fields[$field_type];
 							$new_field = new $current_class_name($this->config_object);
-							$new_field->set_handler($this->plugins);
+							$new_field->set_handler($this->framework);
 							$new_field->set_fields($field_def);
 							$this->fields[] = $new_field;
 							//print "created $field_type<br/>\n";
@@ -155,7 +155,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 		$page = $app['page'] ?? "list";
 		$app['form_id'] = $_POST['form_id'] ?? $_GET['form_id'] ?? false;
 		$forms = new FormController($this->config_object);
-		$forms->set_handler($this->plugins);
+		$forms->set_handler($this->framework);
 		$forms->set_field_types($this->available_fields);
 		$forms->connect();
 		switch ($page) {

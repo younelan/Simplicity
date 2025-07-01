@@ -30,7 +30,7 @@ class Template extends \Opensitez\Simplicity\Plugin
 
     function init_paths()
     {
-        $this->i18n = $this->plugins->get_plugin("i18n");
+        $this->i18n = $this->framework->get_component("i18n");
         $this->current_site = $this->config_object->get('site');
         $this->defaults = $this->config_object->get('defaults');
         $this->paths = $this->config_object->get('paths');
@@ -118,7 +118,7 @@ class Template extends \Opensitez\Simplicity\Plugin
         $this->init_paths();
         $this->get_template($app);
         $menumaker = new Menu($this->config_object);
-        $menumaker->set_handler($this->plugins);
+        $menumaker->set_handler($this->framework);
         // print_r($current_site);exit;
 
         $menuopts = [
@@ -193,7 +193,7 @@ class Template extends \Opensitez\Simplicity\Plugin
     }
     function on_render_page($app)
     {
-        //$engine = $plugins->get_plugin("smartytemplate");
+        //$engine = $plugins->get_component("smartytemplate");
         $engine = "simplicity";
         switch ($engine) {
             case 'smarty':
@@ -206,7 +206,7 @@ class Template extends \Opensitez\Simplicity\Plugin
             default:
                 $this->template_engine = new \Opensitez\Simplicity\Plugins\SimpleTemplate($this->config_object);
         }
-        $this->template_engine->set_handler($this->plugins);
+        $this->template_engine->set_handler($this->framework);
         $this->template_engine->engine_init();
         $this->on_render_template($app);
 

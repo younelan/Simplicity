@@ -18,7 +18,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
     {
         //print_r($this->config);exit;
         $this->galleryManager = new \Opensitez\Plugins\GalleryGroupModel($this->config_object);
-        $this->galleryManager->set_handler($this->plugins);
+        $this->galleryManager->set_handler($this->framework);
         $this->galleryManager->connect();
     }
 

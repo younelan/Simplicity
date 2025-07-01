@@ -11,8 +11,8 @@ class Feed extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
-                $this->plugins->register_type('routetype', 'feed');
-                $this->plugins->register_type('blocktype', 'feed');
+                $this->framework->register_type('routetype', 'feed');
+                $this->framework->register_type('blocktype', 'feed');
                 break;
         }
         return parent::on_event($event);

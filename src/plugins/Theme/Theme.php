@@ -13,7 +13,6 @@ class Theme extends \Opensitez\Simplicity\Plugin
     private $default_theme;
     private $current_theme;
     private $themedir;
-    private $options;
     private $current_template;
     private $i18n;
     private $master;
@@ -27,7 +26,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
     function init_paths()
     {
         $print_config = $this->config_object->get('debug') ?? true;
-        $this->i18n = $this->plugins->get_plugin("i18n");
+        $this->i18n = $this->framework->get_component("i18n");
         $this->current_site = $this->config_object->get('site');
         $this->defaults = $this->config_object->get('defaults');
         $this->paths = $this->config_object->get('paths');
@@ -84,43 +83,28 @@ class Theme extends \Opensitez\Simplicity\Plugin
     }
     function replace_paths($string)
     {
-        foreach ($this->paths as $key => $value) {
-            if (is_array($value)) {
-                continue; // Skip arrays
-            }
-            $string = str_replace("{{$key}}", $value, $string);
-            $string = str_replace("{{themepath}}", $this->themepath, $string);
-        }
-        
-        return $string;
+        $paths = $this->config_object->get('paths');
+        $paths['themepath'] = $this->themepath;
+        return $this->substitute_vars($string, $paths);        
     }
     function assign_template_vars()
     {
         $defaults = $this->config_object->get('defaults');
         $left_delim = $this->template_engine->getLeftDelim();
         $right_delim = $this->template_engine->getRightDelim();
-        //print_r($defaults);
-        $debug_obj = $this->plugins->get_plugin('debug');
-        // echo "<h1>defaults</h1>";
-        // echo $debug_obj->printArray($defaults);
-        // echo "<h1>current site</h1>";
-        // echo $debug_obj->printArray($this->current_site);
-        // exit;
-        //print_r($this->current_site);
+        $debug_obj = $this->framework->get_component('debug');
         $palette_definition = $this->current_site['palette'] ?? [];
         $palette_plugin = new \Opensitez\Simplicity\Palette( $this->config_object);
         $palette_vars = $this->current_site['definition']['style'] ?? [];
         $palette = $palette_plugin->get_palette($this->app, $palette_definition, $palette_vars);
 
-        //print_r($palette_definition); exit;
-        //$palette = $this->get_palette($this->app);
         $config = $this->config_object->get('site');
 
         $this->init_paths();
 
     
         $menumaker = new Menu($this->config_object);
-        $menumaker->set_handler($this->plugins);
+        $menumaker->set_handler($this->framework);
         // print_r($current_site);exit;
 
         $menuopts = [
@@ -159,7 +143,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
         }
 
         $template_arrays = [
-            "blocks" => $this->current_site["blocks"] ?? [], "colors" => $this->defaults["colors"] ?? [],
+             "colors" => $this->defaults["colors"] ?? [],
                          "vars" => $this->current_site['vars'] ?? [], "var2s" => $this->current_site['definition']['vars'] ?? [],
         ];
         $this->template_engine->assign("pagestyle", $this->pagestyle);
@@ -215,14 +199,14 @@ class Theme extends \Opensitez\Simplicity\Plugin
         //$this->show_debug();exit;
         $engine = $this->config_object->get('site.theme.engine') ?? 'simplicity';
         $this->app = $app;
-        $template_engine = $this->plugins->get_registered_type('templateengine', strtolower($engine));
+        $template_engine = $this->framework->get_registered_type('templateengine', strtolower($engine));
         
         if ($template_engine) {
             $this->template_engine = $template_engine;
         } else {
             print "Template engine '$engine' not found, falling back to default.<br/>";
             // Fallback to default SimpleTemplate if available
-            $default_engine = $this->plugins->get_registered_type('templateengine', 'simpletemplate');
+            $default_engine = $this->framework->get_registered_type('templateengine', 'simpletemplate');
             if ($default_engine) {
                 $this->template_engine = $default_engine;
             } else {
@@ -230,7 +214,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
             }
         }
         
-        $this->template_engine->set_handler($this->plugins);
+        $this->template_engine->set_handler($this->framework);
         $this->template_engine->engine_init();
         $this->assign_template_vars();
         $rendered = $this->on_render_templates($app);

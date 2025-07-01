@@ -15,7 +15,7 @@ class SimpleTemplate extends \Opensitez\Simplicity\Plugin
     {
         switch ($event['type']) {
             case MSG::PluginLoad:
-                $this->plugins->register_type('templateengine', 'simpletemplate');
+                $this->framework->register_type('templateengine', 'simpletemplate');
                 break;
         }
         return parent::on_event($event);

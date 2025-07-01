@@ -13,10 +13,10 @@ class TextFormatBlock extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
-                //$this->plugins->register_type('routetype', 'text');
-                $this->plugins->register_type('blocktype', 'text');
-                $this->plugins->register_type('blocktype', 'html');
-                $this->plugins->register_type('blocktype', 'nl2br');
+                //$this->framework->register_type('routetype', 'text');
+                $this->framework->register_type('blocktype', 'text');
+                $this->framework->register_type('blocktype', 'html');
+                $this->framework->register_type('blocktype', 'nl2br');
                 break;
         }
         return parent::on_event($event);

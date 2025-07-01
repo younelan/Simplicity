@@ -13,8 +13,8 @@ class LogViewBlock extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'logview');
-            $this->plugins->register_type('contentprovider', 'logview');
+            $this->framework->register_type('blocktype', 'logview');
+            $this->framework->register_type('contentprovider', 'logview');
         }
         parent::on_event($event);
     }

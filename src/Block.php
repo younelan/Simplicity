@@ -29,10 +29,10 @@
             switch ($event['type']) {
                 case MSG::PluginLoad:
                     // Register this plugin as a route type handler for redirects
-                    $this->plugins->register_type('sectiontype', 'block');
-                    $this->plugins->register_type('sectiontype', 'include');
-                    $this->plugins->register_type('routetype', 'block');
-                    $this->plugins->register_type('routetype', 'include');
+                    $this->framework->register_type('sectiontype', 'block');
+                    $this->framework->register_type('sectiontype', 'include');
+                    $this->framework->register_type('routetype', 'block');
+                    $this->framework->register_type('routetype', 'include');
                     break;
             }
             return parent::on_event($event);
@@ -43,7 +43,7 @@
 
             $content_type = $options['content-type'] ?? $this->options['content-type'] ?? 'html';
 
-            $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
+            $block_plugin = $this->framework->get_registered_type('blocktype', $content_type);
             
             if ($block_plugin && method_exists($block_plugin, 'render')) {
                 $block_config = ['content' => $text];
@@ -61,7 +61,7 @@
 
         function fetch_file($incfile,$block_config=[])
         {
-            $i18n = $this->plugins->get_plugin('i18n');
+            $i18n = $this->framework->get_component('i18n');
             $paths = $this->config_object->get('paths');
 
             $incfile = $block_config['file'] ?? $block_config['content'] ?? $block_config;
@@ -105,7 +105,7 @@
                 'block' => $app
             ];
             $retval = "";
-            $i18n = $this->plugins->get_plugin('i18n');
+            $i18n = $this->framework->get_component('i18n');
             $app['section'] = $app['section'] ?? $defaults['section'] ?? 'content';
             $block_name = $app['name'] ?? "undefined";
             $content_type = $app['content-type'] ?? $defaults['content-type'] ?? 'text';
@@ -139,9 +139,9 @@
             }
             $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
             
-            $block_plugin = $this->plugins->get_registered_type('blocktype', $content_type);
+            $block_plugin = $this->framework->get_registered_type('blocktype', $content_type);
             // print get_class($block_plugin) . " - " . $this->content_type . "\n";
-            // print "Types: " . print_r($this->plugins->get_registered_type_list("blocktype"), true) . "\n";
+            // print "Types: " . print_r($this->framework->get_registered_type_list("blocktype"), true) . "\n";
             if ($block_plugin && method_exists($block_plugin, 'render')) {
                 //print "Rendering block type: $content_type\n";
                 $retval .= $block_plugin->render($app, $blockoptions);
@@ -149,7 +149,7 @@
   
             } else {
                 print "No block plugin found for type: $content_type\n";
-                $block_plugin = $this->plugins->get_registered_type('blocktype', "text");
+                $block_plugin = $this->framework->get_registered_type('blocktype', "text");
                 if ($block_plugin && method_exists($block_plugin, 'render')) {
                     $app['content-type'] = $app['content-type'] ?? 'text';
                     $retval .= $block_plugin->render($app, $blockoptions);
@@ -158,7 +158,7 @@
                 }
             }
             // else {
-            //     $current_plugin = $this->plugins->get_plugin($this->content_type); 
+            //     $current_plugin = $this->framework->get_component($this->content_type); 
             //     if($current_plugin ) {
             //         $plugin_content =$current_plugin->on_render_page($section);
             //         $retval .= $plugin_content;
@@ -181,7 +181,7 @@
             //                 $options = ['content-type'=>$section['content-type']??"html"];
             //                 $incfile = $section['file']??"";
             //                 // Use the include block type plugin
-            //                 $include_plugin = $this->plugins->get_registered_type('blocktype', 'include');
+            //                 $include_plugin = $this->framework->get_registered_type('blocktype', 'include');
             //                 if ($include_plugin) {
             //                     $retval .= $include_plugin->render($incfile, $options);
             //                 }

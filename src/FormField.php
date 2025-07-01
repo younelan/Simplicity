@@ -24,12 +24,12 @@ class FormField extends \Opensitez\Simplicity\Plugin
 	}
 	function get_i18n_value($str, $lang = false, $debug = false)
 	{
-		$i18n = $this->plugins->get_plugin("i18n");
+		$i18n = $this->framework->get_component("i18n");
 		return $i18n->get_i18n_value($str, $lang, $debug);
 	}
 	function init($field_def, $defaultlang = false)
 	{
-		$i18n = $this->plugins->get_plugin("i18n");
+		$i18n = $this->framework->get_component("i18n");
 		if (!$defaultlang) {
 			$this->lang = $field_def["lang"] ?? "en";
 		} else {

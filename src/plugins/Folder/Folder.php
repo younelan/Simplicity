@@ -41,8 +41,8 @@ class Folder extends \Opensitez\Simplicity\Plugin
     {
         if ($event['type'] === MSG::PluginLoad) {
             error_log("DEBUG: Folder plugin registering route types");
-            $this->plugins->register_type('contentprovider', 'folder');
-            $this->plugins->register_type('routetype', 'folder');
+            $this->framework->register_type('contentprovider', 'folder');
+            $this->framework->register_type('routetype', 'folder');
             error_log("DEBUG: Folder plugin registration complete");
         }
         parent::on_event($event);
@@ -66,13 +66,13 @@ class Folder extends \Opensitez\Simplicity\Plugin
 
     public function list_dir($prefix, $basedir, $app_path, $options)
     {
-        $block_plugin = $this->plugins->get_plugin('block');
+        $block_plugin = $this->framework->get_component('block');
         $current_site = $this->config_object->get('site');
         $paths = $this->config_object->get('paths');
 
         $retval = "";
         $full_path = "$basedir/$app_path";
-        $i18n = $this->plugins->get_plugin("i18n");
+        $i18n = $this->framework->get_component("i18n");
         $defaults = [
             "allowindex" => "yes",
             "capitalize" => "yes",
@@ -168,7 +168,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
     {
         print "hi exit";exit;
         $app = $app ?? [];
-        $block_plugin = $this->plugins->get_plugin('block');
+        $block_plugin = $this->framework->get_component('block');
         $app['basedir'] = $app['basedir'] ?? "";
         $app['path'] = $app['path'] ?? "";
         $app['route'] = $app['route'] ?? "";
@@ -179,7 +179,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
     public function on_render_page($app)
     {
 
-        $block_plugin = $this->plugins->get_plugin('block');
+        $block_plugin = $this->framework->get_component('block');
         $debug = "";
         $validpath = false;
         $current_site = $this->config_object->get('site');
@@ -233,7 +233,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
         } else {
             //$fname = $basedir . "/" . $path;
             //print $full_path;exit;
-            $i18n = $this->plugins->get_plugin("i18n");
+            $i18n = $this->framework->get_component("i18n");
 
             $found = false;
             foreach ($i18n->accepted_langs() as $lang => $lang_details) {

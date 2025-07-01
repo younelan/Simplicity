@@ -16,7 +16,7 @@ class TwigTemplate extends \Opensitez\Simplicity\Plugin
     {
         switch ($event['type']) {
             case MSG::PluginLoad:
-                $this->plugins->register_type('templateengine', 'twigtemplate');
+                $this->framework->register_type('templateengine', 'twigtemplate');
                 break;
         }
         return parent::on_event($event);

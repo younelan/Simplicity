@@ -27,8 +27,8 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	public function on_event($event)
 	{
 		if ($event['type'] === MSG::PluginLoad) {
-			$this->plugins->register_type('routetype', 'linkdirectory');
-			$this->plugins->register_type('blocktype', 'linkdirectory');
+			$this->framework->register_type('routetype', 'linkdirectory');
+			$this->framework->register_type('blocktype', 'linkdirectory');
 		}
 		parent::on_event($event);
 	}
@@ -64,7 +64,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		$data['links'] = $explorer_model->getlinks($feature_id, $dest);
 		$data['node_types'] = $this->node_types;
 
-		$debug = $this->get_plugin('debug');
+		$debug = $this->get_component('debug');
 
 		return $data;
 	}
@@ -96,7 +96,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	}
 	function render_item($data)
 	{
-		$block_plugin = $this->plugins->get_plugin('block');
+		$block_plugin = $this->framework->get_component('block');
 		$dbitem = $data['item'] ?? [];
 		$node_types = $data['node_types'];
 		$output = "";
@@ -342,7 +342,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 			$feature_id = null;
 		}
 
-		$debug = $this->get_plugin('debug');
+		$debug = $this->get_component('debug');
 
 		if ($action == "category" || $action == "categories") {
 			$data =	$this->categories($dest, $feature_id);

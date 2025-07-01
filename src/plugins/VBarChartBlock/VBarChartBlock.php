@@ -14,8 +14,8 @@ class VBarChartBlock extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'vbarchart');
-            $this->plugins->register_type('contentprovider', 'vbarchart');
+            $this->framework->register_type('blocktype', 'vbarchart');
+            $this->framework->register_type('contentprovider', 'vbarchart');
         }
         parent::on_event($event);
     }

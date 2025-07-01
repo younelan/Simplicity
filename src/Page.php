@@ -20,7 +20,7 @@ class Page extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
-                $this->plugins->register_type('routetype', 'page');
+                $this->framework->register_type('routetype', 'page');
                 break;
         }
         return parent::on_event($event);
@@ -102,7 +102,7 @@ class Page extends \Opensitez\Simplicity\Plugin
         $this->current_site = $this->config_object->get('site');
 
         $this->app = $app;
-        //$config_object = $this->plugins->getConfigObject();
+        //$config_object = $this->framework->getConfigObject();
         $this->set_layout();
 
         foreach ($this->layout['sections'] ?? [] as $idx => $value) {

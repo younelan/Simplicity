@@ -14,7 +14,7 @@ class WPContent extends \Opensitez\Simplicity\DBLayer
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a content provider for WordPress
-                $this->plugins->register_type('contentprovider', 'wordpress');
+                $this->framework->register_type('contentprovider', 'wordpress');
                 break;
         }
         return parent::on_event($event);

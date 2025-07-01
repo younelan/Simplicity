@@ -21,7 +21,7 @@ class Plugin extends Base
     public $name;
     public $description;
     public $enabled = true;
-    protected $plugins = false;
+    protected $framework = false;
     protected $config = [];
     protected $app = null;
     protected $config_object = null;
@@ -59,7 +59,7 @@ class Plugin extends Base
                 $value['name'] = $idx;
                 $section_options = $new_section;
                 $new_section = new Section($this->config_object);
-                $new_section->set_handler($this->plugins);
+                $new_section->set_handler($this->framework);
                 $new_section->set_section_options($section_options);
                 $this->config_object->set('site.sections.' . $idx, $new_section);
             }
@@ -102,7 +102,7 @@ class Plugin extends Base
         $block_instance = new Block($this->config_object);
         print "Adding block: " . $block_name . " to section: " . $section . "\n";
         $block_instance->set_block_options($block);
-        $block_instance->set_handler($this->plugins);
+        $block_instance->set_handler($this->framework);
 
         $this->config_object->set("site.blocks.$block_name", $block_instance);
     }
@@ -149,12 +149,12 @@ class Plugin extends Base
     }
     function generate_input($data)
     {
-        $form = $this->get_plugin("form");
+        $form = $this->get_component("form");
         return $form->generate_input($data);
     }
     function set_handler(&$handler)
     {
-        $this->plugins = &$handler;
+        $this->framework = &$handler;
     }
     function on_plugin_load()
     {
@@ -185,10 +185,10 @@ class Plugin extends Base
         return $this->debug;
     }
     
-    function get_plugin($plugin_name)
+    function get_component($plugin_name)
     {
-        $plugins = $this->plugins;
-        return $plugins->get_plugin($plugin_name);
+        $plugins = $this->framework;
+        return $plugins->get_component($plugin_name);
     }
     function set_app($app)
     {
@@ -197,7 +197,7 @@ class Plugin extends Base
     public function get_palette($app)
     {
         $palette = new Palette($this->config_object);
-        $palette->set_handler($this->plugins);
+        $palette->set_handler($this->framework);
         $palette = $palette->render($app);
         return $palette;
     }
@@ -227,7 +227,7 @@ class Plugin extends Base
     }
     function SendMessage($message)
     {
-        $this->plugins->SendMessage($message);
+        $this->framework->SendMessage($message);
     }
     function on_site_definition($params)
     {

@@ -12,8 +12,8 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
-                $this->plugins->register_type('routetype', 'imagemenu');
-                $this->plugins->register_type('blocktype', 'imagemenu');
+                $this->framework->register_type('routetype', 'imagemenu');
+                $this->framework->register_type('blocktype', 'imagemenu');
                 break;
         }
         return parent::on_event($event);
@@ -23,8 +23,8 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
         $current_site = $this->config_object->get('site');
         $paths = $this->config_object->get('paths');
 
-        $page = $this->plugins->get_plugin("page");
-        $i18n = $this->plugins->get_plugin("i18n");
+        $page = $this->framework->get_component("page");
+        $i18n = $this->framework->get_component("i18n");
         $output = "\n";
         if (!$app) {
             $app = $this->config_object->get('current')??[];
@@ -161,7 +161,7 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
             } else {
                 $output .= "<div id='$groupid' class='gallery-group'>\n";
             }
-            $section_object = $this->plugins->get_plugin("section");
+            $section_object = $this->framework->get_component("section");
             $before_inserts = $section_object->render_section_contents($before, $app);
             $output .= "<div class='gallery-before'>\n" . $before_inserts . "\n</div>\n";
             $output .= "<div class='gallery-content'>";

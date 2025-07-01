@@ -234,7 +234,43 @@
 
         return $baseDir;
     }
-
+    /**
+     * Get the path after the script name
+     * For URL like http://localhost/index.php/path/2/3/4/ returns "path/2/3/4"
+     * @return string The path segments after the script
+     */
+    public function getWebPath(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        
+        // Remove query string if present
+        $requestUri = strtok($requestUri, '?');
+        
+        // If script name is in the URI, extract path after it
+        if (!empty($scriptName) && strpos($requestUri, $scriptName) === 0) {
+            $path = substr($requestUri, strlen($scriptName));
+        } else {
+            // Fallback: use PATH_INFO if available
+            $path = $_SERVER['PATH_INFO'] ?? '';
+            
+            // If no PATH_INFO, try to extract from REQUEST_URI
+            if (empty($path)) {
+                $path = $requestUri;
+                
+                // Remove the script directory from the path
+                $scriptDir = dirname($scriptName);
+                if ($scriptDir !== '/' && strpos($path, $scriptDir) === 0) {
+                    $path = substr($path, strlen($scriptDir));
+                }
+            }
+        }
+        
+        // Clean up the path: remove leading/trailing slashes
+        $path = trim($path, '/');
+        
+        return $path;
+    }
     /**
      * Set the web root path in the paths configuration
      * This method sets the 'paths.webroot' configuration

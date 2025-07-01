@@ -18,7 +18,7 @@ class Section extends \Opensitez\Simplicity\Plugin
         switch ($event['type']) {
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
-                $this->plugins->register_type('routetype', 'section');
+                $this->framework->register_type('routetype', 'section');
                 break;
         }
         return parent::on_event($event);
@@ -80,11 +80,11 @@ class Section extends \Opensitez\Simplicity\Plugin
         $style = $app['style'] ?? $this->style;
         $class = $app['class'] ?? "";
         $class = "section " . $this->class;
-        $block_plugin = $this->plugins->get_plugin("block");
+        $block_plugin = $this->framework->get_component("block");
         $paths = $this->config_object->get('paths');
         $content = "";
 
-        $i18n = $this->plugins->get_plugin('i18n');
+        $i18n = $this->framework->get_component('i18n');
         if (!is_array($inserts)) {
             $inserts = [$inserts];
         }
@@ -97,7 +97,7 @@ class Section extends \Opensitez\Simplicity\Plugin
             }
             $inctype = $incblock['type'] ?? "text";
 
-            $current_plugin = $this->plugins->get_plugin($inctype);
+            $current_plugin = $this->framework->get_component($inctype);
             if (!isset($incblock['type'])) {
                 $incblock = ['content' => $incblock];
                 $incblock['type'] = $inctype ?? "text";

@@ -14,7 +14,7 @@ class RainbowTextBlock extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'rainbow-text');
+            $this->framework->register_type('blocktype', 'rainbow-text');
         }
         parent::on_event($event);
     }

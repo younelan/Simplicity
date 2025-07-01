@@ -14,8 +14,8 @@ class PieChartBlock extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         if ($event['type'] === MSG::PluginLoad) {
-            $this->plugins->register_type('blocktype', 'piechart');
-            $this->plugins->register_type('contentprovider', 'piechart');
+            $this->framework->register_type('blocktype', 'piechart');
+            $this->framework->register_type('contentprovider', 'piechart');
         }
         parent::on_event($event);
     }
