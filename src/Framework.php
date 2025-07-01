@@ -6,6 +6,8 @@ class Framework extends Base
 {
     private $components = [];
     private $registry = [];
+    private $core_plugins = ['Page',"Block","Section","Palette"];
+
     function __construct($config_object = null)
     {
         parent::__construct($config_object);
@@ -85,8 +87,7 @@ class Framework extends Base
     {
         // Load plugins from the default library plugins folder into 'core' group
         $default_plugins_path = __DIR__ . '/plugins';
-        $core_plugins = ['Page',"Block","Section"];
-        foreach($core_plugins as $plugin) {
+        foreach($this->core_plugins as $plugin) {
             $new_plugin_name = 'Opensitez\\Simplicity\\' . $plugin;
             $instance = new $new_plugin_name($this->config_object);
             $instance->set_handler($this);
