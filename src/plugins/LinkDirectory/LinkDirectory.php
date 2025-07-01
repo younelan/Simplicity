@@ -63,6 +63,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		$data['categories'] = $explorer_model->getcategories($feature_id, $dest);
 		$data['links'] = $explorer_model->getlinks($feature_id, $dest);
 		$data['node_types'] = $this->node_types;
+
 		$debug = $this->get_plugin('debug');
 
 		return $data;
@@ -269,8 +270,6 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 					$iconurl = '<img class="ui-li-icon" src="' 
 								. $this->absolute_link(  $imgpath . $icon) . "\">\n";
 				}
-			// 		print "{$row['catname']}</span> $url";
-			// exit;
 				$output .= "<span class='link-item-text'>"
 					. $this->anchor($url, $row['catname'] . $iconurl, 'rel=external')
 					. "</span>\n";
@@ -321,8 +320,11 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	}
 	public function on_render_page($app)
 	{
-		$this->init();
 
+		$this->init();
+		if (!$app) {
+			$app = $this->options;
+		}
 		$this->app = $app;
 		$retval = "";
 
@@ -330,22 +332,23 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 		if (!$action) {
 			$action = "category";
 		}
+
 		$dest = strtolower($app['segments'][1] ?? "");
-		$feature_id = intval($app['id'] ?? 0) ?? "";
-		if (ctype_alnum($dest)) {
-			$feature_id = $app['id'] ?? "";
-		} else {
-			$feature_id = null;
+		if (!$dest) {
+			$dest =0;
 		}
-		//print "<h1>$action->$dest : feature $feature_id</h1>";
+		$feature_id = intval($app['id'] ?? 0) ?? null;
+		// if (ctype_alnum($dest)) {
+		// 	$feature_id = $app['id'] ?? "";
+		// } else {
+		// 	$feature_id = null;
+		// }
+		print "<h1>$action->$dest : feature $feature_id</h1>";
 
 		$debug = $this->get_plugin('debug');
 
 		if ($action == "category" || $action == "categories") {
 			$data =	$this->categories($dest, $feature_id);
-			
-			//echo $debug->printArray($data) . "\n<hr>";
-			//echo $debug->printArray($app) . "\n<hr>";
 
 			$retval = $this->render_category($data);
 			$retval .=  $this->render_links($data);
@@ -354,5 +357,11 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 			$retval = $this->render_item($data);
 		}
 		return $retval;
+	}
+	function render($app=false) {
+		if(!$app) {
+			$app = $this->options;
+		}
+		return $this->on_render_page($app);
 	}
 }

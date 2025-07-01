@@ -21,7 +21,10 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 				return [];
 		}
 	}
-	function getcategories($site,$categoryid) {
+	function getcategories($site,$categoryid=0) {
+		$tree_table = $this->osz_fields['tbl_tree'];
+		$node_table = $this->osz_fields['tbl_nodes'];
+		$feature = $this->osz_fields['node_group'];
 
 		if(!$this->is_valid_slug($categoryid)) { 
 			$categoryid=0;
@@ -29,13 +32,15 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 		if(!is_numeric($categoryid)) {
 
 			$tree_table = $this->osz_fields['tbl_tree'];
-			$lookup_query = "SELECT treeID FROM $tree_table WHERE slug = '$categoryid' LIMIT 1";
+			$lookup_query = "SELECT treeID FROM $tree_table WHERE $feature = '$site' AND slug = '$categoryid' LIMIT 1";
 			$lookup_result = $this->fetch_query($lookup_query);
 			if($lookup_result && count($lookup_result) > 0) {
 				$categoryid = intval($lookup_result[0]['treeID']);
 			} else {
 				$categoryid = 0;
 			}
+		} else {
+			$categoryid = intval($categoryid);
 		}
 		$site = intval($site);
 
@@ -44,9 +49,7 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 			$sort=' order by catname';
 		else
 			$sort='';
-		$tree_table = $this->osz_fields['tbl_tree'];
-		$node_table = $this->osz_fields['tbl_nodes'];
-		$feature = $this->osz_fields['node_group'];
+
 
 		$catcount = 		"		( SELECT COUNT(*)
 		FROM $tree_table c2
@@ -54,17 +57,30 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 		
 		GROUP BY c.treeID,c.catname,c.icon,c.parent,c.slug  $sort ;
 		";
-$myquery="SELECT tree1.treeID,node.category1,tree1.slug, COUNT(node.id) AS poicount, 
-( SELECT COUNT(*)
-		FROM $tree_table tree2
-		WHERE tree2.parent = tree2.treeID ) AS catcount
-, tree1.catname, tree1.icon, tree1.parent, tree1.treeid , tree1.*
-FROM $tree_table tree1
-LEFT OUTER JOIN $node_table node ON tree1.treeid=node.category1
-LEFT JOIN $tree_table tree2 ON tree1.parent=tree2.treeid
-WHERE (tree2.treeID = \"$categoryid\" or tree2.slug = \"$categoryid\")
-AND tree1.$feature='$site'
-GROUP BY tree1.treeID,tree1.catname,tree1.icon,tree1.parent,tree1.slug  $sort ;";
+if($categoryid == 0) {
+	$myquery="SELECT tree1.treeID,node.category1,tree1.slug, COUNT(node.id) AS poicount, 
+	( SELECT COUNT(*)
+			FROM $tree_table tree2
+			WHERE tree2.parent = tree1.treeID ) AS catcount
+	, tree1.catname, tree1.icon, tree1.parent, tree1.treeid , tree1.*
+	FROM $tree_table tree1
+	LEFT OUTER JOIN $node_table node ON tree1.treeid=node.category1
+	WHERE tree1.parent = 0
+	AND tree1.$feature='$site'
+	GROUP BY tree1.treeID,tree1.catname,tree1.icon,tree1.parent,tree1.slug  $sort ;";
+} else {
+	$myquery="SELECT tree1.treeID,node.category1,tree1.slug, COUNT(node.id) AS poicount, 
+	( SELECT COUNT(*)
+			FROM $tree_table tree2
+			WHERE tree2.parent = tree1.treeID ) AS catcount
+	, tree1.catname, tree1.icon, tree1.parent, tree1.treeid , tree1.*
+	FROM $tree_table tree1
+	LEFT OUTER JOIN $node_table node ON tree1.treeid=node.category1
+	LEFT JOIN $tree_table tree2 ON tree1.parent=tree2.treeid
+	WHERE (tree2.treeID = \"$categoryid\" or tree2.slug = \"$categoryid\")
+	AND tree1.$feature='$site'
+	GROUP BY tree1.treeID,tree1.catname,tree1.icon,tree1.parent,tree1.slug  $sort ;";
+}
 
 
 		$results=$this->fetch_query($myquery);
