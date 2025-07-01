@@ -16,6 +16,8 @@
             //print_r($config);exit;
             //parent::__construct($config);
             $this->settings = $config;
+            $this->setDefaultLanguage();
+
             $this->on_init();
         }
         public function on_init() {
@@ -42,7 +44,6 @@
                 // Handle YAML parsing errors silently or log them
                 return false;
             }
-            $this->setDefaultLanguage();
 
             
             return false;
@@ -73,9 +74,12 @@
         {
             $default_lang = 'en';
             $current_score = 0;
+            // if( isset($this->settings['langs'])) {
+            //     $this->setDefaultLanguage();
+            // }
             $lang_keys = array_keys($this->settings['langs'] ?? []);
             $default_lang = array_shift($lang_keys);
-            foreach ($this->settings['langs'] as $lang => $details) {
+            foreach ($this->settings['langs'] ?? [] as $lang => $details) {
                 $lang_score = $details['weight'] ?? 0;
                 if ($lang_score > $current_score) {
                     $default_lang = $lang;

@@ -248,9 +248,9 @@ class Framework extends Base
         $newmenu = "";
         $menu = [];
         //Gather Menus from plugins
-        foreach ($this->framework as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $plugin) {
-                foreach ($plugin->get_menus() as $menuname => $tmpmenu) {
+        foreach ($this->components as $group => $group_plugins) {
+            foreach ($group_plugins as $name => $component) {
+                foreach ($component->get_menus() as $menuname => $tmpmenu) {
                     if (!isset($menu[$menuname])) {
                         $menu[$menuname] = $tmpmenu;
                     } else {
