@@ -9,14 +9,15 @@
     "default-site": "default",
     "site-override": false,
     "charset": "UTF-8",
-    "connections":  [{
-        "host": "127.0.0.1",
-        "db": "simplicity",
-        "user": "simplicity",
-        "pass": "simplicity",
-        "driver": "mysql"      
-    }
-    ],
+    "connections":  {
+        "default": {
+            "host": "127.0.0.1",
+            "db": "simplicity",
+            "user": "simplicity",
+            "pass": "simplicity",
+            "driver": "mysql"
+        }
+    },
     "definition": {
         "layout": "system",
         "css": [
