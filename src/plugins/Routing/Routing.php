@@ -32,7 +32,6 @@ class Routing extends \Opensitez\Simplicity\Plugin
                 echo "<strong>Debug:</strong> Site provider '$provider' does not have checkSiteConfiguration method<br/>";
             }
         }
-        $filesite->checkSiteConfiguration($domain);
         $palette_plugin = $this->framework->get_component("palette");
 
         $routeProviders = $this->framework->get_registered_type_list("routeprovider");
