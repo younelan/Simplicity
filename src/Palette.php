@@ -66,6 +66,59 @@ class Palette extends \Opensitez\Simplicity\Plugin
         }
         return "<style>\n" . $retval . "\n</style>\n\n";
     }
+
+    function setPalette()
+    {
+        $site = $this->config_object->get("site", []);
+        $site_palettes = $this->config_object->get(
+            "site.definition.palettes",
+            []
+        );
+        $default_palettes = $this->config_object->get("palettes", []);
+        $system_palettes = $this->config_object->get("system.palettes", []);
+        $default_palette_name = $this->config_object->get(
+            "defaults.palette",
+            "dark-red"
+        );
+        $current_palette_name = $this->config_object->get(
+            "site.definition.palette",
+            $default_palette_name
+        );
+
+        if (isset($site_palettes[$current_palette_name])) {
+            $current_palette = $site_palettes[$current_palette_name];
+            $current_palette["name"] = $current_palette_name;
+            $current_palette["type"] = "site";
+            $current_palette["folder"] =
+                $this->config_object->get("paths.sites") .
+                "/" .
+                $site["folder"] .
+                "/css";
+        } elseif (isset($default_palettes[$current_palette_name])) {
+            $current_palette = $default_palettes[$current_palette_name];
+            $current_palette["name"] = $current_palette_name;
+            $current_palette["type"] = $current_palette["type"] ?? "default";
+            $current_palette["folder"] =
+                $this->config_object->get("paths.base") .
+                "/local/config/css/" .
+                $current_palette_name;
+        } elseif (isset($system_palettes[$current_palette_name])) {
+            $current_palette = $system_palettes[$current_palette_name] ?? [];
+            $current_palette["name"] = $current_palette_name;
+            $current_palette["type"] = "system";
+
+            $current_palette["folder"] =
+                $this->config_object->get("system.paths.palettes") ?? "";
+        } else {
+            $current_palette = $default_palettes["desktop"] ?? [];
+            $current_palette["name"] = "desktop";
+            $current_palette["type"] = "default";
+            $current_palette["folder"] =
+                $this->config_object->get("system.paths.palettes") ?? "";
+        }
+        $this->config_object->set("site.palette", $current_palette);
+    }
+
     function render($app)
     {
         $this->current_site = $this->config_object->get('site');
