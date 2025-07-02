@@ -1,9 +1,20 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 class FileSelect extends \Opensitez\Simplicity\FormField
 {
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for blogs
+                $this->framework->register_type('widget', 'fileselect');
+                break;
+        }
+        return parent::on_event($event);
+    }
     function render($app=[])
     {
         $theError = $this->render_error();

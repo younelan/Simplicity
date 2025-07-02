@@ -1,10 +1,20 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 class Checklist extends \Opensitez\Simplicity\FormField
 {
     protected $rowsize = 5;
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->framework->register_type('widget', 'checklist');
+                break;
+        }
+        return parent::on_event($event);
+    }
     function render($app)
     {
         $value = $this->value;

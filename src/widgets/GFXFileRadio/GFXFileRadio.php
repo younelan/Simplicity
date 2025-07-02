@@ -1,11 +1,22 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 class GFXFileRadio extends \Opensitez\Simplicity\FormField
 {
     private $columns = 5;
     private $OptVars = "";
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                // Register this plugin as a route type handler for blogs
+                $this->framework->register_type('widget', 'gfxfileradio');
+                break;
+        }
+        return parent::on_event($event);
+    }
     function render($app=[])
     {
         $theError = $this->render_error();

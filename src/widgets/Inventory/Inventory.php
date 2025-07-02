@@ -1,6 +1,7 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 class Inventory extends \Opensitez\Simplicity\FormField
 {
@@ -8,6 +9,15 @@ class Inventory extends \Opensitez\Simplicity\FormField
     protected $maxlength = 3;
     protected $size = 3;
     protected $invValue = 0;
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->framework->register_type('widget', 'inventory');
+                break;
+        }
+        return parent::on_event($event);
+    }
     function render($app=[])
     {
         $value = $this->value;

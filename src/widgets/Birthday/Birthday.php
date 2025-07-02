@@ -1,10 +1,12 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
 
-if (!isset($lstmonths))
-    $lstmonths = [
+class Birthday extends \Opensitez\Simplicity\FormField
+{
+    private $lstmonths = [
         "1" => ["en" => "January", "fr" => "Janvier"],
         "2" => ["en" => "February", "fr" => "Fevrier"],
         "3" => ["en" => "March", "fr" => "Mars"],
@@ -18,9 +20,15 @@ if (!isset($lstmonths))
         "11" => ["en" => "November", "fr" => "Novembre"],
         "12" => ["en" => "December", "fr" => "Decembre"]
     ];
-
-class Birthday extends \Opensitez\Simplicity\FormField
-{
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->framework->register_type('widget', 'birthday');
+                break;
+        }
+        return parent::on_event($event);
+    }
     function render($app)
     {
         $theError = $this->render_error();
