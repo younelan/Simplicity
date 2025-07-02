@@ -21,7 +21,10 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
     public function render($app = [])
     {
         $current_site = $this->config_object->get('site');
+        $debug = $this->framework->get_component('debug') ?? false;
         $paths = $this->config_object->get('paths');
+
+        // echo $debug->printArray($current_site);
 
         $page = $this->framework->get_component("page");
         $i18n = $this->framework->get_component("i18n");
@@ -115,9 +118,15 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
             $show[$idx] = $app['show'][$idx] ?? $value;
         }
         $galleryid = $app['id'] ?? "";
-        if (!is_string($galleryid) || !isset($current_site['data'][$galleryid]))
+        if (!is_string($galleryid) || !isset($current_site['definition']['data'][$galleryid])) {
             return "[invalid gallery id $galleryid]";
-        foreach ($current_site['data'][$galleryid] ?? [] as $groupid => $group) {
+        }
+
+        $galleryData = $current_site['definition']['data'][$galleryid] ?? [];
+
+        // echo $debug->printArray($galleryData);
+
+        foreach ($galleryData as $groupid => $group) {
             $groupid = str_replace(" ", "-", $groupid);
             if ($filter && !in_array($groupid, $filter)) {
                 continue;
