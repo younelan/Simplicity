@@ -1,8 +1,8 @@
 <?php
 
 namespace Opensitez\Simplicity\Plugins;
+use Opensitez\Simplicity\MSG;
 
-//require_once dirname(__FILE__) . "/widgets/FormField.php";
 require_once dirname(__FILE__) . "/FormController.php";
 class Form extends \Opensitez\Simplicity\Plugin
 {
@@ -14,6 +14,22 @@ class Form extends \Opensitez\Simplicity\Plugin
 	private $action = "post";
 	protected $available_fields = [];
 	protected $lang;
+
+	function on_event($event)
+	{
+		switch ($event['type']) {
+			case MSG::PluginLoad:
+				$widget_dir =dirname(dirname(__DIR__)) . "/widgets";
+				$this->framework->load_plugins($widget_dir, 'Opensitez\\Simplicity\\Plugins', 'widgets');
+
+				$this->framework->register_type('routetype', 'form');
+				$this->framework->register_type('blocktype', 'form');
+				break;
+
+
+		}
+		return parent::on_event($event);
+	}
 	function get_menus($app = [])
 	{
 
@@ -54,8 +70,9 @@ class Form extends \Opensitez\Simplicity\Plugin
 		foreach ($field_classes as $class_name) {
 			$this->available_fields[strtolower($class_name)] = $class_name;
 		}
-		$this->framework->load_plugins(__DIR__ . "/widgets", 'Opensitez\\Simplicity\\Plugins', 'core');
-
+		$this->framework->load_plugins(dirname(__DIR__) . "/widgets", 'Opensitez\\Simplicity\\Plugins', 'widgets');
+		print "<!-- Available fields: " . implode(", ", $this->available_fields) . " -->\n";
+		//print_r($this->available_fields);
 		$replacements = [
 			"number" => "Text", "integer" => "Text", "currency" => "Text",
 			"list" => "Select", "enum" => "Select", "location" => "Text", "localisation" => "Text", "color" => "text", "amount" => "text"
@@ -64,7 +81,6 @@ class Form extends \Opensitez\Simplicity\Plugin
 			$this->available_fields[$fname] = $fclass;
 		}
 		foreach ($vars["fields"] ?? [] as $name => $field_def) {
-			//print "$name<br/>\n";// print_r($field_def);
 			$field_type = $field_def["type"] ?? "text";
 			$field_def["name"] = $name;
 
@@ -80,14 +96,11 @@ class Form extends \Opensitez\Simplicity\Plugin
 							$new_field->set_handler($this->framework);
 							$new_field->set_fields($field_def);
 							$this->fields[] = $new_field;
-							//print "created $field_type<br/>\n";
-							// $new_field->set_config($vars);
 						} catch (Exception $e) {
 							//print ("field type set but error creating class");
 						}
 					}
 				} else {
-					//print "error creating $field_type<br/>\n";
 				}
 			} else {
 				//print "<div style=\"color:red;font-size:1.5em\">Unknown $field_type</div><br>\n";
@@ -207,6 +220,15 @@ class Form extends \Opensitez\Simplicity\Plugin
 	}
 	function generate_input($data)
 	{
+
+        // $keys = array_keys($this->framework->get_registered_type_list("widget"));
+
+        // $form_types = array_combine($keys, $keys);
+		// print_r($form_types);  // For debugging purposes, remove in production
+		// exit;
+
+	///	$form_types = $this->framework->get_registered_type_list('widget');
+		//print_r(array_keys($form_types));
 		$data_type = $data['type'] ?? "select";
 		$label = $data['label'] ?? "";
 		$retval = "";
@@ -218,22 +240,32 @@ class Form extends \Opensitez\Simplicity\Plugin
 		if ($name && $label) {
 			$retval .= "<label for='$name'>$label:</label>\n";
 		}
+		$debug = $this->framework->get_component('debug');
 
+	   $field_plugin = $this->framework->get_registered_type('widget', strtolower($data_type));
 
-		switch ($data_type) {
-			case "select":
-				$retval .= "<select $input_id $input_name>\n";
-				foreach ($data['values'] ?? [] as $key => $value) {
+	   $retval .= $field_plugin->render_field($data);
+		// switch ($data_type) {
+		// 	case "select":
+		// 		$retval .= "<select $input_id $input_name>\n";
+		// 		foreach ($data['values'] ?? [] as $key => $value) {
 
-					$selected = $key == $default ? "selected" : "";
-					$retval .= "<option value='$key' $selected>$value</option>\n";
-				}
-				$retval .= "</select>";
-				break;
-			case "text":
-			default:
-				$retval .= "<input type='text' $input_id $input_name>";
-		}
+		// 			$selected = $key == $default ? "selected" : "";
+		// 			//$value = is_array($value) ? $value['name'] : $value;
+		// 			$retval .= "<option value='$key' $selected>$value</option>\n";
+		// 		if(is_array($value)) {
+		// 			print "<h3>Values for $name</h3>\n";
+		// 			print_r($value);
+
+		// 		}
+
+		// 		}
+		// 		$retval .= "</select>";
+		// 		break;
+		// 	case "text":
+		// 	default:
+		// 		$retval .= "<input type='text' $input_id $input_name>";
+		// }
 		return $retval;
 	}
 }

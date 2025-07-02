@@ -68,7 +68,7 @@ class FormField extends \Opensitez\Simplicity\Plugin
 	{
 		return $this->label;
 	}
-	function render_field()
+	function render_field($data=[])
 	{
 		return $this->value;
 	}

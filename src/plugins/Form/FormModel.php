@@ -7,14 +7,16 @@ use \PDO;
 class FormModel extends \Opensitez\Simplicity\DBLayer
 {
     protected $formsTable = "sites__forms";
-    protected $routeTale = "sites__routes";
+    protected $routesTable = "sites__routes";
+    protected $user;
+    protected $userID;
     public function set_params($app = [])
     {
         //$this->connection = $this->connection;
         $this->user = $this->config_object->getUser();
         $this->userID = $this->user['username'];
-        $this->formsTable = $app['form-table'] ?? "sites__forms";
-        $this->routesTable = $app['route-table'] ?? "sites__routes";
+        $this->formsTable = $app['form-table'] ?? $this->formsTable;
+        $this->routesTable = $app['route-table'] ?? $this->routesTable;
     }
 
     public function getForms()
@@ -90,9 +92,9 @@ class FormModel extends \Opensitez\Simplicity\DBLayer
             return false; // Error occurred
         }
     }
-    public function deleteSite($siteID)
+    public function deleteForm($formID)
     {
-        $query = "DELETE FROM " . $this->formTable . "WHERE fid = :id";
+        $query = "DELETE FROM " . $this->formsTable . " WHERE fid = :id";
         $stmt = $this->connection->prepare($query);
         $stmt->bindParam(':id', $formID, PDO::PARAM_INT);
         $stmt->execute();

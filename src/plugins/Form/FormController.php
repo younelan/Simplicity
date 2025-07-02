@@ -15,13 +15,16 @@ class FormController extends \Opensitez\Simplicity\Plugin
     {
         //print_r($this->config);exit;
         $this->formManager = new FormModel($this->config_object);
-        $this->formManager->set_handler($this->handler);
+        $this->formManager->set_handler($this->framework);
         $this->formManager->connect();
     }
     function addForm($app = [])
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $siteId = $app['site_id'];
+            $siteId = $app['site_id']?? false;
+            if (!$siteId) {
+                print "Invalid site ID";
+            }
             $formLanguage = 'en';
             $formStatus = 1;
             $formTheme = "bootstrap";
@@ -29,13 +32,15 @@ class FormController extends \Opensitez\Simplicity\Plugin
             $formName = $_POST['form_name'] ?? "";
             $formDomain = $_POST['form_domain'] ?? "";
             $formDescription = $_POST['form_description'];
+            $formDefinition = [];
+
             $form = [
                 'form_name' => $formName,
                 'site_id' => $siteId,
                 'form_owner' => $formOwner,
                 'form_description' => $formDescription,
                 'form_status' => $formStatus,
-                'definition' => $formDefinition,
+                'definition' => $formDefinition ,
             ];
             $lastid = $this->formManager->addForm($form);
             //$lastid = $dbh->lastInsertId();
@@ -54,7 +59,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'form_editor' => '',
         ];
         $masterTemplate = file_get_contents(__DIR__ . '/views/form_add_form.html');
-        return $this->replace_vars($masterTemplate, $data);
+        return $this->substitute_vars($masterTemplate, $data);
     }
     function deleteForm($app = [])
     {
@@ -160,7 +165,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'testdata' => 'hello',
         ];
         $formEditor = file_get_contents(__DIR__ . '/views/form_editor.html');
-        $formEditor = $this->replace_vars($formEditor, $editorData);
+        $formEditor = $this->substitute_vars($formEditor, $editorData);
         $data = [
             'form_header' => 'Edit form',
             'form_action' => '?plugin=form&page=update_form&form_id=' . intval($app['form_id']),
@@ -172,7 +177,7 @@ class FormController extends \Opensitez\Simplicity\Plugin
             'form_description' => $form['form_description']
         ];
         $masterTemplate = file_get_contents(__DIR__ . '/views/form_add_form.html');
-        return $this->replace_vars($masterTemplate, $data);
+        return $this->substitute_vars($masterTemplate, $data);
     }
 
     function listForms($app = [])
@@ -190,11 +195,11 @@ class FormController extends \Opensitez\Simplicity\Plugin
         // Get forms from the database
         $forms = $this->formManager->getForms();
         foreach ($forms as $form) {
-            $rows .= $this->replace_vars($formTemplate, $form);
+            $rows .= $this->substitute_vars($formTemplate, $form);
         }
         $data['rows'] = $rows;
 
 
-        return $this->replace_vars($masterTemplate, $data);
+        return $this->substitute_vars($masterTemplate, $data);
     }
 }
