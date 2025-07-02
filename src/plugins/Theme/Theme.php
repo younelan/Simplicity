@@ -62,7 +62,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
         $this->config_object->mergeYaml('site.theme', "$themefile");
         $theme_config = $this->config_object->get('site.theme');
         if (!$theme_config) {
-            print "Theme configuration file not found at $themefile. Using default theme configuration.<br/>";
+            //print "Theme configuration file not found at $themefile. Using default theme configuration.<br/>";
             $theme_config = [];
         }
         foreach ($theme_config['sections'] ?? [] as $section => $details) {
@@ -165,7 +165,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
     {
         $theme = $this->config_object->get('site.theme');
         $sections = [];
-        foreach ( $theme['sections'] as $section => $details) {
+        foreach ( $theme['sections'] ?? [] as $section => $details) {
             $sections[$section] = $this->template_engine->render($details['contents'] ?? '',false) ;
             $this->template_engine->assign($section, $sections[$section]);
             //print "<!-- $section -->\n";
@@ -201,7 +201,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
     function on_render_page($app) {
         $this->init_paths();
         //$this->show_debug();exit;
-        $engine = $this->config_object->get('site.theme.engine') ?? 'simplicity';
+        $engine = $this->config_object->get('site.theme.engine') ?? 'simpletemplate';
         $this->app = $app;
         $template_engine = $this->framework->get_registered_type('templateengine', strtolower($engine));
         
