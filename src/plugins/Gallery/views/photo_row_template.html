@@ -1,9 +1,9 @@
 <tr>
-    <td>{photo_name}</td>
+    <td>{{photo_name}}</td>
     <td>
-        <a href='?plugin=gallery&page=update_photo&photo_id={photo_id}' class="btn btn-info">Update</a>
+        <a href='?plugin=gallery&page=update_photo&photo_id={{photo_id}}' class="btn btn-info">Update</a>
         <form method="POST" action="?plugin=gallery&page=delete_photo">
-            <input type="hidden" name="gallery_id" value="{photo_id}">
+            <input type="hidden" name="gallery_id" value="{{photo_id}}">
             <button type="submit" class="btn btn-danger">Delete</button>
         </form>
     </td>

@@ -4,40 +4,41 @@
     </style>
 
     <div class="container mt-5" style="background-color:white;color:black;padding:20px;">
-        <h1>{form_title}</h1>
+        <h1>{{form_title}}</h1>
 
-        <div class="{message_class}">
-            {message}
+        <div class="{{message_class}}">
+            {{message}}
         </div>
-        <form class="uploadform" action="?plugin=gallery&page=photo_upload&gallery_id={gallery_id}" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="g_id" value="{gallery_id}">
+        <form class="uploadform" action="?plugin=gallery&page=photo_upload&gallery_id={{gallery_id}}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="g_id" value="{{gallery_id}}">
             <label for="photo">Choose a photo:</label>
             <input type="file" id="photo" name="photo[]" multiple accept="image/*">
             <input type="submit" value="Upload" style="display: inline-block; margin-top: 10px;">
         </form>
 
-        <form method="POST" action="{form_action}">
+        <form method="POST" action="{{form_action}}">
+            <input type="hidden" name="site_id" value="{{site_id}}">
             <div class="form-group">
                 <label for="title">Title:</label>
-                <input type="text" class="form-control" name="title" id="title" value="{gallery_title}">
+                <input type="text" class="form-control" name="title" id="title" value="{{gallery_title}}">
             </div>
 <!--
             <div class="form-group">
                 <label for="slug">Slug:</label>
-                <input type="text" class="form-control" name="slug" id="title" value="{gallery_slug}">
+                <input type="text" class="form-control" name="slug" id="title" value="{{gallery_slug}}">
             </div> 
         -->
             <div class="form-group" >
                 <label for="description">Description:</label>
-                <textarea class="form-control" name="description" id="description">{gallery_description}</textarea>
+                <textarea class="form-control" name="description" id="description">{{gallery_description}}</textarea>
             </div>
-            <button type="submit" class="btn btn-primary">{button_label}</button>
-            <a href='?plugin=gallery&page=view_gallery&gallery_id={gallery_id}' class="btn btn-info">View</a>
+            <button type="submit" class="btn btn-primary">{{button_label}}</button>
+            <a href='?plugin=gallery&page=view_gallery&gallery_id={{gallery_id}}' class="btn btn-info">View</a>
             <a href="?plugin=gallery&page=default" class="btn btn-primary">Gallery List</a>
         </form>
         <hr/>
 
-        <!-- <a href="{add_link}" class="btn btn-primary">Add Photo</a> -->
+        <!-- <a href="{{add_link}}" class="btn btn-primary">Add Photo</a> -->
 
         <table class="table" style="background-color:white;color:black;">
             <thead>
@@ -47,7 +48,7 @@
                 </tr>
             </thead>
             <tbody>
-                {photo_rows}
+                {{photo_rows}}
             </tbody>
         </table>
     

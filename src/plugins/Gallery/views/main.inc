@@ -2,51 +2,51 @@
 <html lang="en">
   <head>
     <script src="//ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.js" crossorigin="anonymous"></script>
-    <script>/*window.jQuery || document.write('<script src="{{$themepath}}/js/vendor/jquery-slim.min.js"><\/script>')*/</script>
+    <script>/*window.jQuery || document.write('<script src="{{themepath}}/js/vendor/jquery-slim.min.js"><\/script>')*/</script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="{{$favicon}}">
+    <link rel="icon" href="{{favicon}}">
 
-    <title>{{$sitename}}</title>
+    <title>{{sitename}}</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{{$themepath}}/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{$themepath}}/main.css" rel="stylesheet">
+    <link href="{{themepath}}/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{themepath}}/main.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="{{$themepath}}/sticky-footer-navbar.css" rel="stylesheet">
+    <link href="{{themepath}}/sticky-footer-navbar.css" rel="stylesheet">
   </head>
-  {{$style}}
+  {{style}}
 <style>
 
 .bg-dark {
-background-color:{{$menubg}};
-color: {{$menufg}};
+background-color:{{menubg}};
+color: {{menufg}};
 }
 .navbar-dark .navbar-nav .nav-link {
-    color: {{$menufg}};
+    color: {{menufg}};
 }
 .footer {
-background-color:{{$footerbg}};
-color: {{$footerfg}};
+background-color:{{footerbg}};
+color: {{footerfg}};
 }
 .news-title {
-background-color:{{$newstitlebg}};
-color: {{$newstitlefg}};
+background-color:{{newstitlebg}};
+color: {{newstitlefg}};
 }
 .story-odd {
-background-color:{{$storyoddbg}};
-color: {{$storyoddfg}};
+background-color:{{storyoddbg}};
+color: {{storyoddfg}};
 }
 .story-even {
-background-color:{{$storyevenbg}};
-color: {{$storyevenfg}};
+background-color:{{storyevenbg}};
+color: {{storyevenfg}};
 }
 body {
-background-color:{{$pagebg}};
-color:{{$pagefg}}
+background-color:{{pagebg}};
+color:{{pagefg}}
 }
 
 .topheader {
@@ -61,16 +61,16 @@ color:{{$pagefg}}
     <header>
       <!-- Fixed navbar -->
       <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="/">{{$logoblock}}</a>
-<a class="navbar-brand" href="/">{{$sitename}}</a>
+        <a class="navbar-brand" href="/">{{logoblock}}</a>
+<a class="navbar-brand" href="/">{{sitename}}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav mr-auto">
-{{$menu}}
+{{menu}}
           </ul>
-{{$menurightfloat}}
+{{menurightfloat}}
 
 <!--
           <form class="form-inline mt-2 mt-md-0">
@@ -84,26 +84,26 @@ color:{{$pagefg}}
 
     <!-- Begin page content -->
     <main role="main" class="container">
-{{$topheader}}
-{{$beforecontent}}
+{{topheader}}
+{{beforecontent}}
 <div id="content">
-{{$content}}
+{{content}}
 </div>
 <div id="aftecontent">
-{{$aftercontent}}
+{{aftercontent}}
 </div>
 </div>
     </main>
 
     <footer id="pagefooter" class="footer">
       <div class="container">
-{{$footer}}
+{{footer}}
       </div>
     </footer>
 
 
-    <script src="{{$themepath}}/popper.min.js"></script>
-    <script src="{{$themepath}}/js/bootstrap.min.js"></script>
+    <script src="{{themepath}}/popper.min.js"></script>
+    <script src="{{themepath}}/js/bootstrap.min.js"></script>
   </body>
 </html>
 

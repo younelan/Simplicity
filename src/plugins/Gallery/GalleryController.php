@@ -144,7 +144,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             //print_r($gallery);
             $rowTemplate = file_get_contents(__DIR__ . '/views/photo_row_template.html');
 
-            $rowTemplate = $this->replacePlaceholders($rowTemplate, [
+            $rowTemplate = $this->substitute_vars($rowTemplate, [
                 'photo_name' => $photo['title'],
                 'photo_id' => $photo['p_id'],
             ]);
@@ -180,13 +180,13 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             //            print_r($_POST);
             // Handle the addition or update of a gallery.
             // Validate and sanitize user input
-            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             if (!$photoID) {
-                $photoID = filter_input(INPUT_POST, 'photo_id', FILTER_SANITIZE_STRING);
+                $photoID = filter_input(INPUT_POST, 'photo_id', FILTER_VALIDATE_INT);
             }
-            $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
-            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
-            $slug = filter_input(INPUT_POST, 'slug', FILTER_SANITIZE_STRING);
+            $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $slug = filter_input(INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $status = "active";
             if ($photoID) {
                 // It's an update operation
@@ -220,14 +220,26 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             'button_label' => 'Add Gallery',
             'form_title' => "Add a Gallery",
             'gallery_title' => "",
+            'site_id' => 0,
             'gallery_description' => '',
             'photo_rows' => '',
             'gallery_id' => '',
             'title' => '',
             'description' => '',
         ];
+        $siteID = filter_input(INPUT_POST, 'site_id', FILTER_VALIDATE_INT);
+        $siteID = ($siteID !== false && $siteID > 0) ? $siteID : 0;
+        $data['site_id'] = $siteID ?? 0;
+
         if ($app) {
             $data = array_replace($data, $app);
+        }
+        
+        // Also check for site_id in GET parameters if not in POST
+        if (!$siteID) {
+            $siteID = filter_input(INPUT_GET, 'site_id', FILTER_VALIDATE_INT);
+            $siteID = ($siteID !== false && $siteID > 0) ? $siteID : 0;
+            $data['site_id'] = $siteID;
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -235,13 +247,13 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             //            print_r($_POST);
             // Handle the addition or update of a gallery.
             // Validate and sanitize user input
-            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+            $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             if (!$galleryID) {
-                $galleryID = filter_input(INPUT_POST, 'gallery_id', FILTER_SANITIZE_STRING);
+                $galleryID = filter_input(INPUT_POST, 'gallery_id', FILTER_VALIDATE_INT);
             }
-            $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
-            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_STRING);
-            $slug = filter_input(INPUT_POST, 'slug', FILTER_SANITIZE_STRING);
+            $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $status = filter_input(INPUT_POST, 'status', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $slug = filter_input(INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // Perform additional validation as needed
 
@@ -293,13 +305,24 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
                     //print "--5--\n<br/>";
 
                     // It's an add operation
-                    $insertStatus = $this->galleryManager->insertGallery($title, $description);
+                    $insertStatus = $this->galleryManager->insertGallery($title, $description, $siteID);
                     $data['gallery_title'] = $title;
+                    $data['site_id'] = $siteID;
+                    if(!$siteID) {
+                        $data['message_class'] = 'alert alert-warning';
+                        $data['message'] = 'Warning: Site ID not provided, add will fail';
+                    }
                     $data['gallery_description'] = $description;
                     $data['gallery_slug'] = $galleryData['gallery_slug'] ?? "";
-                    $data['photo_rows'] = $this->getPhotoList($galleryID);
 
-                    if ($insertStatus) {
+                    if ($insertStatus && is_numeric($insertStatus)) {
+                        // insertStatus should return the new gallery ID
+                        $galleryID = $insertStatus;
+                        $data['gallery_id'] = $galleryID;
+                        $data['photo_rows'] = $this->getPhotoList($galleryID);
+                        $data['form_action'] = "?plugin=gallery&page=add_gallery&gallery_id=$galleryID";
+                        $data['button_label'] = 'Update Gallery';
+                        $data['form_title'] = 'Update Gallery';
                         $data['message_class'] = 'alert alert-success';
                         $data['message'] = 'Gallery added successfully.';
                     } else {
@@ -329,9 +352,11 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
 
             $data['form_action'] = "?plugin=gallery&page=add_gallery&gallery_id=$galleryID";
         } else {
-
+            $site_id = filter_input(INPUT_GET, 'site_id', FILTER_VALIDATE_INT);
+            $site_id = ($site_id !== false && $site_id > 0) ? $site_id : 0;
+            $data['site_id'] = $site_id;
             $data['form_title'] = "Add Gallery";
-            $data['form_action'] = "?plugin=gallery&page=update_gallery&gallery_id=$galleryID";
+            $data['form_action'] = "?plugin=gallery&page=update_gallery&gallery_id=$galleryID&site_id=$site_id";
         }
 
         // Render the common form with placeholders replaced
@@ -356,7 +381,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             ];
             //print_r($photos) ;exit;
             // Replace placeholders in the template with dynamic data
-            $template = $this->replacePlaceholders($template, $data);
+            $template = $this->substitute_vars($template, $data);
 
             // Return the populated template
             return $template;
@@ -380,7 +405,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
                 'file_path' => "$pathprefix/$fname",
                 'active' => $slideClass,
             ];
-            $slidesHtml .= $this->replacePlaceholders($template, $data);
+            $slidesHtml .= $this->substitute_vars($template, $data);
         }
         return $slidesHtml;
     }
@@ -405,7 +430,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
             //print_r($gallery);
             $rowTemplate = file_get_contents(__DIR__ . '/views/gallery_row_template.html');
 
-            $rowTemplate = $this->replacePlaceholders($rowTemplate, [
+            $rowTemplate = $this->substitute_vars($rowTemplate, [
                 'gallery_name' => $gallery['title'],
                 'gallery_id' => $gallery['g_id'],
             ]);
@@ -418,7 +443,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
         // Load the master table template and replace the {rows} placeholder
         $masterTemplate = file_get_contents(__DIR__ . '/views/gallery_master_template.html');
 
-        $masterTemplate = $this->replacePlaceholders($masterTemplate, [
+        $masterTemplate = $this->substitute_vars($masterTemplate, [
             'rows' => implode('', $galleryRows),
             'message' => $message,
             'add_link' => "?plugin=gallery&page=add_gallery",
@@ -427,14 +452,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
         return $masterTemplate;
     }
 
-    private function replacePlaceholders($content, $data)
-    {
-        foreach ($data as $key => $value) {
-            $placeholder = '{' . $key . '}';
-            $content = str_replace($placeholder, $value, $content);
-        }
-        return $content;
-    }
+
     // Function to render the form with placeholders replaced
     private function renderForm($formFile, $data)
     {
@@ -442,7 +460,7 @@ class GalleryController extends \Opensitez\Simplicity\Plugin
         $formContent = file_get_contents($formFile);
 
         // Replace placeholders dynamically
-        $formContent = $this->replacePlaceholders($formContent, $data);
+        $formContent = $this->substitute_vars($formContent, $data);
 
         return $formContent;
     }

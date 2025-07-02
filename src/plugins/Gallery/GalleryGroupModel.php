@@ -12,10 +12,11 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
     private $deleteStatus = false;
     private $extendedStatus = '';
 
-    public function set_params($app)
+    public function set_params($app = [])
     {
         $user = $this->config_object->getUser();
-        $this->userID = $user['username'];
+
+        $this->userID = $user['username'] ?? $user['user_id'] ?? null;
         $this->galleryTable = $app['gallery-table'] ?? "users__gallery_groups";
         $this->photoTable = $app['photo-table'] ?? "users__gallery_items";
     }
@@ -57,7 +58,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
 
     public function updatePhoto($photoID, $title, $description, $status)
     {
-        $this->set_params($this->app);
+        $this->set_params([]);
 
         try {
             // Verify that the gallery belongs to the user
@@ -91,7 +92,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
 
     public function updateGallery($galleryID, $title, $description)
     {
-        $this->set_params($this->app);
+        $this->set_params([]);
 
         try {
             // Verify that the gallery belongs to the user
@@ -121,21 +122,24 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
         //return $this->extendedStatus;
     }
 
-    public function insertGallery($title, $description)
+    public function insertGallery($title, $description, $siteID = null)
     {
-        $this->set_params($app);
+        $this->set_params([]);
         try {
             // Insert a new gallery
             $slug = $this->generateUniqueSlug($title);
             $userID = $this->userID;
             // print $this->galleryTable;
             // exit;
-            $stmtInsertGallery = $this->connection->prepare('INSERT INTO ' . $this->galleryTable . ' (slug, g_user, title, description, status) VALUES (?, ?, ?, ?, "active")');
-            $stmtInsertGallery->execute([$slug, $userID, $title, $description]);
+            $stmtInsertGallery = $this->connection->prepare('INSERT INTO ' . $this->galleryTable . ' (slug, g_user, title, description, status, site_id) VALUES (?, ?, ?, ?, "active", ?)');
+            $stmtInsertGallery->execute([$slug, $userID, $title, $description, $siteID]);
 
+            // Get the inserted gallery ID
+            $galleryID = $this->connection->lastInsertId();
+            
             $this->extendedStatus = 'Gallery inserted successfully.';
             //print "hi";exit;
-            return true;
+            return $galleryID; // Return the new gallery ID instead of just true
         } catch (PDOException $e) {
             $this->extendedStatus = 'Database error: ' . $e->getMessage();
             // print_r($this->extendedStatus); 
@@ -148,7 +152,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
     }
     public function insertPhoto($galleryID, $title, $description, $uploadedFilePath)
     {
-        $this->set_params($app);
+        $this->set_params([]);
         try {
             // Insert a new gallery
             $slug = $this->generateUniqueSlug($title);
@@ -156,7 +160,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
             $status = "active";
             // print $this->galleryTable;
             // exit;
-            $stmtInsertGallery = $this->connection->prepare('INSERT INTO ' . $this->photoTable . ' (slug, g_id, g_user, title, description, fname, status) VALUES (?, ?, ?, ?, ?, ?,?) ' . "\n");
+            $stmtInsertGallery = $this->connection->prepare('INSERT INTO ' . $this->photoTable . ' (slug, g_id, g_user, title, description, fname, status) VALUES (?, ?, ?, ?, ?, ?, ?)' . "\n");
             $stmtInsertGallery->execute([$slug, $galleryID, $userID, $title, $description, $uploadedFilePath, $status]);
             $this->extendedStatus = 'Photo inserted successfully.';
             //print "hi";exit;
@@ -173,9 +177,10 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
 
     public function getPhotosByGalleryID($galleryID)
     {
+        $this->set_params([]);
         try {
             // Prepare SQL statement
-            $stmt = $this->connection->prepare("SELECT * FROM $this->photoTable WHERE g_id = :gallery_id");
+            $stmt = $this->connection->prepare("SELECT * FROM " . $this->photoTable . " WHERE g_id = :gallery_id");
 
             // Bind parameters
             $stmt->bindParam(':gallery_id', $galleryID, PDO::PARAM_INT);
@@ -208,7 +213,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
 
     public function deleteGallery($galleryID)
     {
-        $this->set_params($app);
+        $this->set_params([]);
         $userID = $this->userID;
         try {
             $this->connection->beginTransaction();
@@ -233,8 +238,10 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
                 $stmtUpdateGallery->execute([$galleryID, $this->userID]);
 
                 // Mark associated photos as "deleted"
-                $stmtUpdatePhotos = $this->connection->prepare('UPDATE ' . $this->photoTable . ' SET status = "deleted" WHERE p_id IN (' . implode(',', $photoIDs) . ')');
-                $stmtUpdatePhotos->execute();
+                if (!empty($photoIDs)) {
+                    $stmtUpdatePhotos = $this->connection->prepare('UPDATE ' . $this->photoTable . ' SET status = "deleted" WHERE p_id IN (' . implode(',', $photoIDs) . ')');
+                    $stmtUpdatePhotos->execute();
+                }
 
                 $this->connection->commit();
 
@@ -276,7 +283,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
     }
     public function getGalleryByID($galleryID)
     {
-        $this->set_params($app ?? []);
+        $this->set_params([]);
         try {
             $query = "SELECT * FROM " . $this->galleryTable . " WHERE g_id = :galleryID AND g_user = :userID";
             $stmt = $this->connection->prepare($query);
@@ -294,7 +301,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
 
     public function getPhotoByID($photoID)
     {
-        $this->set_params($app);
+        $this->set_params([]);
         try {
             $query = "SELECT * FROM " . $this->photoTable . " WHERE p_id = :photoID";
             $stmt = $this->connection->prepare($query);
@@ -311,7 +318,7 @@ class GalleryGroupModel extends \Opensitez\Simplicity\DBLayer
     }
     public function getGalleryPhotosByID($galleryID)
     {
-        $this->set_params($app);
+        $this->set_params([]);
         try {
             $query = "SELECT * FROM " . $this->photoTable . " WHERE g_id = :galleryID";
             $stmt = $this->connection->prepare($query);

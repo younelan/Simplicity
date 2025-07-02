@@ -4,8 +4,8 @@ namespace Opensitez\Simplicity\Plugins;
 
 use \PDO;
 
-//require __DIR__ . "/GalleryController.php";
-//require_once(dirname(__FILE__) . "/GalleryGroupModel.php");
+    require __DIR__ . "/GalleryController.php";
+    require_once(dirname(__FILE__) . "/GalleryGroupModel.php");
 
 class Gallery extends \Opensitez\Simplicity\Plugin
 {
@@ -27,25 +27,30 @@ class Gallery extends \Opensitez\Simplicity\Plugin
     function on_render_admin_page($app)
     {
         $page = $app['page'] ?? "list";
-        $galleries = new \Opensitez\Plugins\GalleryController($this->config_object);
+        print "Page: $page<br/>";
+        $galleries = new \Opensitez\Simplicity\Plugins\GalleryController($this->config_object);
         //print(get_class($galleries));
         $galleries->set_handler($this->framework);
         //$galleries->set_config($this->config);
         $galleries->connect();
         if ($_POST['gallery_id'] ?? false) {
-            $galleryID = filter_input(INPUT_POST, 'gallery_id', FILTER_SANITIZE_STRING);
+            $galleryID = filter_input(INPUT_POST, 'gallery_id', FILTER_VALIDATE_INT);
+            $galleryID = ($galleryID !== false && $galleryID > 0) ? $galleryID : false;
         } elseif ($_GET['gallery_id'] ?? false) {
             //print "ho";
-            $galleryID = filter_input(INPUT_GET, 'gallery_id', FILTER_SANITIZE_STRING);
+            $galleryID = filter_input(INPUT_GET, 'gallery_id', FILTER_VALIDATE_INT);
+            $galleryID = ($galleryID !== false && $galleryID > 0) ? $galleryID : false;
         } else {
             $galleryID = false;
         }
         //print $galleryID;exit;
         if ($_POST['photo_id'] ?? false) {
-            $photoID = filter_input(INPUT_POST, 'photo_id', FILTER_SANITIZE_STRING);
+            $photoID = filter_input(INPUT_POST, 'photo_id', FILTER_VALIDATE_INT);
+            $photoID = ($photoID !== false && $photoID > 0) ? $photoID : false;
         } elseif ($_GET['photo_id'] ?? false) {
             //print "ho";
-            $photoID = filter_input(INPUT_GET, 'photo_id', FILTER_SANITIZE_STRING);
+            $photoID = filter_input(INPUT_GET, 'photo_id', FILTER_VALIDATE_INT);
+            $photoID = ($photoID !== false && $photoID > 0) ? $photoID : false;
         } else {
             $photoID = false;
         }
@@ -63,7 +68,7 @@ class Gallery extends \Opensitez\Simplicity\Plugin
                 return $galleries->uploadPhoto($galleryID);
                 break;
             case "delete_gallery":
-                return $galleries->deleteGallery($galeryID);
+                return $galleries->deleteGallery($galleryID);
                 break;
             case "upload":
                 return $this->on_upload_page($app);
