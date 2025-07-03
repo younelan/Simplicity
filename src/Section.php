@@ -28,7 +28,7 @@ class Section extends \Opensitez\Simplicity\Plugin
     {
         $this->section_options = $options;
         //print "Setting section options: " . print_r($options, true) . "\n";
-        if ($options['file']) {
+        if ($options['file']?? false) {
             $this->template = $this->load_template("sections/" . $options['file']);
         }
         $this->section_name = $options['name'] ?? 'content';
