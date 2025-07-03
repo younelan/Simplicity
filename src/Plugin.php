@@ -51,7 +51,10 @@ class Plugin extends Base
             return null;
         }
     }
-    
+    function add_route($route_name, $route_data)
+    {
+        $this->config_object->set('site.definition.routes.' . $route_name, $route_data);
+    }    
     public function add_section($idx, $new_section=[])
     {
             $section_options = $this->config_object->get('site.sections.' . $idx, false);
