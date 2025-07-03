@@ -15,11 +15,29 @@ class Redirect extends \Opensitez\Simplicity\Plugin
             case MSG::PluginLoad:
                 // Register this plugin as a route type handler for redirects
                 $this->framework->register_type('routetype', 'redirect');
+                $this->framework->register_type("routeprovider", "redirect");
                 break;
         }
         return parent::on_event($event);
     }
-    
+    public function parseRoute(): void
+    {
+        $redirects = $this->config_object->get('site.definition.redirects') ?? [];
+        foreach ($redirects as $route_name => $url) {
+            $new_route = [
+                'type' => 'redirect',
+                'url' => $url ?? '/',
+                'code' => 301,
+            ];
+            $this->add_route($route_name , $new_route);
+        }
+
+    }  
+    function add_route($route_name, $route_data)
+    {
+        // Register the route with the framework
+        $this->config_object->set('site.definition.routes.' . $route_name, $route_data);
+    }
     function get_menus($app = [])
     {
         $menus = [
