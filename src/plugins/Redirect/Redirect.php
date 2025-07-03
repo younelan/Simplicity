@@ -33,11 +33,7 @@ class Redirect extends \Opensitez\Simplicity\Plugin
         }
 
     }  
-    function add_route($route_name, $route_data)
-    {
-        // Register the route with the framework
-        $this->config_object->set('site.definition.routes.' . $route_name, $route_data);
-    }
+
     function get_menus($app = [])
     {
         $menus = [
