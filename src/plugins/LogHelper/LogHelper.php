@@ -2,66 +2,35 @@
 namespace Opensitez\Simplicity\Plugins;
 use Symfony\Component\Yaml\Yaml;
 
-$colorCycle=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
-
 class LogHelper extends \Opensitez\Simplicity\Plugin
 {
-    private $filename;
     private $filters;
-    private $total_engines;
-    private $total_tools=0;
-    private $total_scans=0;
-    private $total_others=0;
-    private $total_visitors;
     private $default_stats=['Visitors'=>0,'Scan'=>0,'Engines'=>0,'Tool'=>0];
-    private $engine_stats;
     private $parsedLog;
     private $filteredLog;
-    private $ruleStats;
     private $columns;
-    private $rules;
-    private $families;
-    private $filter_count;
-    private $domaincache;	
     private $customGraphs;
     private $results;
-    private $graphid=0;
     private $rule_engine;
     private $defaultcolors=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
 
     function init()
     {
-        $this->filename=$this->config_object->get('filename');
-        $this->total_engines=0;
-        $this->total_visitors=0;
-        $this->total_others=0;
-        $this->filter_count=0;
-        $this->total_engines=0;
-        $this->total_tools=0;
         $this->parsedLog="";
-        $this->ruleStats=array(); // Changed from "" to array()
         $this->results=[
             'engine_stats' => ["label"=>"Engine Stats","type"=>"pie","data"=>$this->default_stats],
             'rule_stats' => ["label"=>"Rule Stats", "type"=>"bar", "data"=>[]]
         ];
-
-        $this->engine_stats = $this->default_stats;
         if (!isset($this->columns)) {
             $this->setDefaultColumns();
         }
-        //print "LogHelper initialized with columns: " . json_encode($this->columns) . "\n";
         $this->rule_engine = new \Opensitez\Simplicity\RuleEngine($this->config_object);
         $this->rule_engine->init();
     }
     function loadRules($filename, $category = 'engines')
     {
         $this->rule_engine->loadEngineRules($category);
-        $this->rules = $this->rule_engine->getEngineRules();
-        // if ($category === 'families') {
-        //     $this->families = $this->rule_engine->getFamilies();
-        // }
-    }
-    
+    }    
     function setDefaultColumns()
     {
         $logformat = $this->config_object->get('logformat') ?? "apache";
@@ -79,8 +48,9 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                 7 => ['referer', 'Referer'],
                 8 => ['user_agent', 'User Agent']
             ];
-        } else {
-            // Tab-separated format
+        } 
+        else // Tab-separated format
+        {
             $this->columns = $this->config_object->get('columns', [
                 0 => ['date', 'Date'],
                 1 => ['ip', 'IP'],
@@ -123,7 +93,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             if ($type === 'line') {
                 // Handle matrix data (x => [y => count])
                 $field = $graph_rule['x'] ?? null;
-                //print "Processing line chart data for $graph_name $field\n";
                 if ($field && isset($entry[$field])) {
                     $graph_value = trim($entry[$field]);
                     if (isset($this->results[$graph_name]['data'][$graph_value])) {
@@ -144,14 +113,11 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                     }
                 }
             }
-
-            // Sort data by count in descending order
             arsort($this->results[$graph_name]['data']);
         }
     }
     function parseLog()
     {
-
         $filenames = $this->config_object->get('file');
         if (is_array($filenames)) {
             foreach ($filenames as $filename) {
@@ -185,8 +151,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         $idx=0;
 
         $logformat = $this->config_object->get('logformat') ?? "combined";
-
-        // Get Apache log parser plugin
         $logParser = $this->get_component('apachelogline');
         if (!$logParser) {
             $logParser = new \Opensitez\Simplicity\Plugins\ApacheLogLine($this->config_object);
@@ -198,18 +162,20 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         }
         foreach($log_lines as $line)
         {
+            $coloredLine = "";
+            $curcolor=0;
+            $idx=0;            
             if(trim($line) != "")
             {
                 if( $logformat=="space" )
                 {
                     $logline = $logParser->splitWhitespaceLine($line);
-                } elseif ($logformat=="combined" || $logformat=="vhost_combined"|| $logformat == "common")
+                } 
+                elseif ($logformat=="combined" || $logformat=="vhost_combined"|| $logformat == "common")
                 {
                     $logline = $logParser->splitCustomLine($line,$logformat);
                     $entry = $logline;
-                    $coloredLine = "";
-                    $curcolor=0;
-                    $idx=0;
+
                     foreach($logline as $key=>$value)
                     {
                         $idx++;
@@ -228,7 +194,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                     $idx+=1;
                     foreach($this->columns as $col_id=>$col_details)
                     {
-
                         $col_name = $col_details[0] ?? $col_id;
                         if(isset($logline[$col_id]))
                         $entry[$col_name]=trim($logline[$col_id]);
@@ -241,7 +206,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                         $coloredLine .="<font color=" . $color . ">" . $entry_var . "</font>&nbsp;\t\n";
                         $curcolor++;
                     }
-
                 }
                 $coloredLine .= "<br/>";
 
@@ -253,30 +217,24 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                     $newval = $this->results['engine_stats']['data'][ucfirst($rule['category'])] ?? 0;
                     $this->results['engine_stats']['data'][ucfirst($rule['category'])] = $newval + 1;
                     $isEngine=true;
-
                 }
 
                 if($isEngine===false)
                 {
                     $this->filteredLog = $coloredLine . "<br>" . $this->filteredLog;
-                    $this->total_visitors++;
                     @$this->results['engine_stats']['Visitors']++;
                 }
                 else
                 {
                     @$this->results['engine_stats'][ucfirst($rule['category'])]++;
-                    $this->total_engines ++;
                     $rule_name=$rule['name'];
                     $newstat = $this->results['rule_stats']['data'][trim($rule_name)]??0;
                     $this->results['rule_stats']['data'][trim($rule_name)] = $newstat+1;
-
                 }
                 $this->processCustomGraphs($entry);
-
             }
         }
     }
-
     function get($var) {
         switch($var) {
             case 'css':
@@ -298,13 +256,9 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             default:
                 return $this->config_object->get($var);
         }
-
-
     }
     function getResults()
     {
         return $this->results;
     }
-
-
 }
