@@ -3,6 +3,7 @@ namespace Opensitez\Simplicity\Plugins;
 use Symfony\Component\Yaml\Yaml;
 
 $colorCycle=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
+
 class LogHelper extends \Opensitez\Simplicity\Plugin
 {
     private $filename;
@@ -25,6 +26,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
     private $customGraphs;
     private $results;
     private $graphid=0;
+    private $rule_engine;
     private $defaultcolors=array("darkblue","black","blue","green","darkgreen","darkred","red","orange");
 
     function init()
@@ -47,6 +49,17 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
         if (!isset($this->columns)) {
             $this->setDefaultColumns();
         }
+        //print "LogHelper initialized with columns: " . json_encode($this->columns) . "\n";
+        $this->rule_engine = new \Opensitez\Simplicity\RuleEngine($this->config_object);
+        $this->rule_engine->init();
+    }
+    function loadRules($filename, $category = 'engines')
+    {
+        $this->rule_engine->loadEngineRules($category);
+        $this->rules = $this->rule_engine->getEngineRules();
+        // if ($category === 'families') {
+        //     $this->families = $this->rule_engine->getFamilies();
+        // }
     }
     
     function setDefaultColumns()
@@ -79,11 +92,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             ]);
         }
     }
-    function setFilter($filter_field,$filter_type,$filter_value)
-    {
-        $this->rules["filters"][]=array("field"=>$filter_field,"type"=>$filter_type,
-            "value"=>$filter_value,"name"=>"$filter_field $filter_type $filter_value","class"=>"filters");
-    }
     function setCustomGraphs($customGraphs)
     {
         $this->customGraphs=$customGraphs;
@@ -92,25 +100,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
     {
         $this->columns=$columnNames;
     }    
-    function loadRules($category='engines')
-    {
-        $filename = $this->config_object->get('paths.engine_file');
-        if ($filename && $this->config_object->mergeYaml('engines', $filename)) {
-            $rules = $this->config_object->get('engines.rules', []);
-            
-            foreach ($rules as $rule) {
-                if ($rule['class'] === $category) {
-                    $this->rules[$category][] = [
-                        "class" => $rule['class'],
-                        "field" => $rule['field'],
-                        "value" => $rule['name'],
-                        "type" => "like",
-                        "name" => $rule['description']
-                    ];
-                }
-            }
-        }
-    }
 
     function processCustomGraphs($entry) {
         foreach ($this->customGraphs ?? [] as $graph_name => $graph_rule) {
@@ -256,7 +245,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                 }
                 $coloredLine .= "<br/>";
 
-                $rule = $this->match_rule($entry);
+                $rule = $this->rule_engine->match_rule($entry);
                 if($rule===false) {
                     $isEngine=false;
                     $this->results['engine_stats']['data']['Visitors']++;
@@ -266,11 +255,6 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
                     $isEngine=true;
 
                 }
-
-                // if(isset($this->rules["filters"]) && $isFilter===false)
-                // {
-                //     $this->filter_count++;
-                // }
 
                 if($isEngine===false)
                 {
@@ -292,52 +276,7 @@ class LogHelper extends \Opensitez\Simplicity\Plugin
             }
         }
     }
-    function match_rule( $log_entry )
-    {
-        $retval=false;
-        $rules = $this->config_object->get('engines', []);
-        //print_r($rules['engines']);exit;
-        //print_r($log_entry);exit;
-        foreach($rules as $category=>$ruleset)
-        {
-            foreach($rules[$category] as $rule_id=>$rule)
-            {
-                $ref_string=$rule["value"];
-                switch($rule["type"] ?? "like")
-                {
-                case "like":
-                    if(@preg_match("|$ref_string|i",$log_entry[$rule["field"]]))
-                    {
-                        $retval= $rule;
-                        $retval["rule"]="$category.$rule_id";
-                        $retval["category"]=$category;
-                        return $retval;
-                    } 
-                }
-            }
 
-        }
-
-        return false;
-
-    }
-    function match_filter( $log_entry)
-    {
-        $retval=false;
-        foreach($this->filters as $rule_id=>$rule)
-        {
-            $ref_string=$rule["value"];
-            if(preg_match("|$ref_string|i",$log_entry[$rule["field"]]))
-            {
-                $retval=$rule_id;
-            } 
-        }
-        //print("retval: $retval");
-
-        //	exit;
-        return $retval;
-
-    }
     function get($var) {
         switch($var) {
             case 'css':
