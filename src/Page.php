@@ -65,37 +65,7 @@ class Page extends \Opensitez\Simplicity\Plugin
                                 $current_site['definition']['default-section'] ?? $defaults['default-section'] ?? "content";
     }
 
-    function add_blocks($blocks = false, $section = false)
-    {
-        $defaults = $this->config_object->get('defaults');
-        $current_site = $this->config_object->get('site');
-        if(!$section) {
-            $section = $this->default_section;
-        }
-        $section = $section ?? $this->default_section;
 
-        if (!$blocks) {
-            $blocks = $this->blocks;
-        }
-        foreach ($blocks ?? [] as $block_name => $block_content) {
-            print "Adding block: " . $block_name . " to section: " . $section . " \n";
-            $block_content['name'] = $block_name;
-            $this->add_block($block_content);
-        }
-    }
-    function old_add_block($block_name, $block)
-    {
-        print "----Adding block: " . $block['name'] . " to section: " . $section . "\n";
-        $block_name = $block['name'];
-        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9-]*$/', $block_name)) {
-            print "Invalid block name: " . $block_name . " (must match pattern [a-zA-Z][a-zA-Z0-9-]*)\n";
-            return;
-        }
-        if ($section == false)
-            $section = $this->default_section;
-        if (isset($this->sections[$section]))
-            $this->sections[$section]->add_block($block);
-    }
     public function prepare($app = false)
     {
         $this->defaults = $this->config_object->get('defaults');

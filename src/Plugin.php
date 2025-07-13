@@ -78,38 +78,6 @@ class Plugin extends Base
             return false;
         }
     }
-    public function add_block($block)
-    {
-        if (!$this->valid_var_name($block['name'])) {
-            print "Invalid block name: " . $block['name'] . " (must match pattern [a-zA-Z][a-zA-Z0-9-]*)\n";
-            return;
-        }
-        $defaults = $this->config_object->get('defaults');
-        $block['type'] = $block['type'] ?? 'text';
-        $block['content'] = $block['content'] ?? '';
-        $block['content-type'] = $block['content-type'] ?? 'html';
-        $block['template'] = $block['template'] ?? 'default.tpl';
-
-        $block_name = $block['name'] ;
-        $section = $block['section'] ?? $defaults['section'] ?? "content";
-        if (!$this->valid_var_name($section)) {
-            print "Invalid section name: " . $section . " (must match pattern [a-zA-Z][a-zA-Z0-9-]*)\n";
-            $section = 'content';
-        }
-        $block['section'] = $section;
-
-        if (!$this->config_object->get('site.sections.' . $section)) {
-            $this->add_section($section);
-        }
-
-        $block_instance = new Block($this->config_object);
-        print "Adding block: " . $block_name . " to section: " . $section . "\n";
-        $block_instance->set_block_options($block);
-        $block_instance->set_handler($this->framework);
-
-        $this->config_object->set("site.blocks.$block_name", $block_instance);
-    }
-
 
     function anchor($url, $param, $rel = 'rel=external')
     {
