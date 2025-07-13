@@ -3,7 +3,7 @@
 namespace Opensitez\Simplicity\Plugins;
 
 use Opensitez\Simplicity\MSG;
-use \Parsedown;
+use League\CommonMark\CommonMarkConverter;
 
 class MarkdownBlock extends \Opensitez\Simplicity\Plugin
 {
@@ -17,9 +17,14 @@ class MarkdownBlock extends \Opensitez\Simplicity\Plugin
         }
         parent::on_event($event);
     }
+    function temp ()
+    {
 
+
+    }
     function render($block_config)
     {
+
         if(!$block_config) {
             $block_config = $this->options;
         }
@@ -28,8 +33,13 @@ class MarkdownBlock extends \Opensitez\Simplicity\Plugin
         if (is_array($text)) {
             $text = implode("\n", $text);
         }
-        
-        $Parsedown = new Parsedown();
-        return $Parsedown->text($text);
+
+        $converter = new CommonMarkConverter([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+        $retval = $converter->convert($text);
+
+        return $retval;
     }
 }
