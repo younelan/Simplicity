@@ -2,11 +2,22 @@
 
 namespace Opensitez\Simplicity\Plugins;
 
+use Opensitez\Simplicity\MSG;
 
 class SocialShare extends \Opensitez\Simplicity\Plugin
 {
     public $name = "Social Share Button";
     public $description = "Gets Social media share";
+
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::PluginLoad:
+                $this->framework->register_type('blocktype', 'socialshare');
+                break;
+        }
+        return parent::on_event($event);
+    }
 
     public function facebook_share($url, $text = "")
     {
