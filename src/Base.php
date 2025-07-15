@@ -41,6 +41,17 @@ class Base
     public function set_options ($options) {
         $this->options = $options;
     }
+
+    // Debug function with optional debug level
+    public function debug($msg, $level = 2) {
+        // For now, just print anything
+        $current_level = $this->config_object->get('debug.level', 0);
+        //$current_level = 0;
+        if ($current_level>=$level) {
+            echo $msg;
+        }
+    }
+
     function load_template($file,$default_folder = false)
     {
         $paths = $this->config_object->get('paths');
