@@ -64,6 +64,12 @@ class SimpleDebug
                 $non_array_values = [];
                 foreach ($value as $child_key => $child_value) {
                     if (!is_array($child_value)) {
+                        $var_type = gettype($child_value);
+                        if ($var_type === 'object') {
+                            $child_value = '<<Object of class ' . get_class($child_value) . '>>';
+                            //print_r($child_value);
+                        }
+                        //print gettype($child_value) . "<br/>\n";
                         $child_value_str = htmlentities($child_value??"");
                         $key_html = "<div class=child-key>" . htmlentities($child_key) . '</div>';
                         
