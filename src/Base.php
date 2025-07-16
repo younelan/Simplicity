@@ -46,12 +46,17 @@ class Base
     public function debug($msg, $level = 2) {
         // For now, just print anything
         $current_level = $this->config_object->get('debug.level', 0);
-        //$current_level = 0;
+        $current_level = 0;
         if ($current_level>=$level) {
             echo $msg;
         }
     }
+    function replace_paths($string)
+    {
+        $paths = $this->config_object->get('paths');
 
+        return $this->substitute_vars($string, $paths);        
+    }
     function load_template($file,$default_folder = false)
     {
         $paths = $this->config_object->get('paths');
