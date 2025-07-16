@@ -57,6 +57,34 @@ class Base
 
         return $this->substitute_vars($string, $paths);        
     }
+    function validate_folder_path($path, $maxdepth = 3, $maxpartlength = 50, $options = [])
+    {
+
+        $maxpartlength = $options['maxparthlength'] ?? 50;
+        $default = [
+            'matchstring' => "/^[a-zA-Z0-9][a-zA-Z0-9\'\ \+\.\(\)\-\_]{0,$maxpartlength}$/",
+            'maxdepth' => 3,
+        ];
+        $maxdepth = $options['maxdepth'] ?? $default['maxdepth'];
+        $matchstring = $matchstring ?? $default['matchstring'];
+        //print $matchstring;
+        $path = trim($path, "/");
+        if (!$path)
+            $path = "";
+        $idx = 0;
+        foreach (explode("/", $path) as $part) {
+            $idx += 1;
+            if (!preg_match($matchstring, $part)) {
+                $path = "";
+            }
+        }
+        if ($idx > $maxdepth) {
+            $path = "";
+        }
+
+        return $path;
+    }
+
     function load_template($file,$default_folder = false)
     {
         $paths = $this->config_object->get('paths');

@@ -3,33 +3,6 @@
 namespace Opensitez\Simplicity\Plugins;
 use Opensitez\Simplicity\MSG;
 
-function validate_folder_path($path, $maxdepth = 3, $maxpartlength = 50, $options = [])
-{
-
-    $maxpartlength = $options['maxparthlength'] ?? 50;
-    $default = [
-        'matchstring' => "/^[a-zA-Z0-9][a-zA-Z0-9\'\ \+\.\(\)\-\_]{0,$maxpartlength}$/",
-        'maxdepth' => 3,
-    ];
-    $maxdepth = $options['maxdepth'] ?? $default['maxdepth'];
-    $matchstring = $matchstring ?? $default['matchstring'];
-    //print $matchstring;
-    $path = trim($path, "/");
-    if (!$path)
-        $path = "";
-    $idx = 0;
-    foreach (explode("/", $path) as $part) {
-        $idx += 1;
-        if (!preg_match($matchstring, $part)) {
-            $path = "";
-        }
-    }
-    if ($idx > $maxdepth) {
-        $path = "";
-    }
-
-    return $path;
-}
 
 class Folder extends \Opensitez\Simplicity\Plugin
 {
@@ -132,7 +105,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
         if ($allowindex) {
             foreach ($flist as $fname) {
                 $fname = trim($fname, "/");
-                if (validate_folder_path($fname) && (!in_array($fname, $hide))) {
+                if ($this->validate_folder_path($fname) && (!in_array($fname, $hide))) {
                     $parsed_name = $replacements[$fname] ?? $fname;
                     $parsed_name = preg_replace("/[-\ ]/", " ", $parsed_name);
                     //$parsed_name= str_replace("-"," ",$parsed_name);
@@ -198,8 +171,8 @@ class Folder extends \Opensitez\Simplicity\Plugin
         if ($relative_basedir) {
             $basedir = $basedir . "/" . $relative_basedir;
         }
-        
-        if (!validate_folder_path($relative_basedir)) {
+
+        if (!$this->validate_folder_path($relative_basedir)) {
             return "invalid Base Dir";
         }
         $replacements = $app['replacements'] ?? [];
@@ -207,7 +180,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
         if (!is_array($extensions)) {
             $extensions = [$extensions];
         }
-        $app_path = validate_folder_path(urldecode($app['path'] ?? ""));
+        $app_path = $this->validate_folder_path(urldecode($app['path'] ?? ""));
         $full_path = "$basedir/$app_path";
         $allowindex = $app['allowindex'] ?? "yes";
         $extensions = $app['extensions'] ?? "yes";
