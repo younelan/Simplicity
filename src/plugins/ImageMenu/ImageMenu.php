@@ -149,7 +149,7 @@ class ImageMenu extends \Opensitez\Simplicity\Plugin
             if (is_array($imagedir)) {
                 $imagedir = reset($imagedir);
             }
-            $imagedir = '/' . $paths['sitepath'] . '/' . $imagedir;
+            $imagedir =  $this->replace_paths($imagedir);
 
             if ($show['group-image'] && ($group['image'] ?? "")) {
                 //print "hi";exit;
