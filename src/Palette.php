@@ -12,14 +12,14 @@ class Palette extends \Opensitez\Simplicity\Plugin
         $current_site = $this->config_object->get('site');   
 
         $basedir = $palette_definition['folder'];
-        //print_r($palette_definition);exit;
+        // $this->debug(print_r($palette_definition, true)); //exit;
         $css = $palette_definition['css'] ?? [];
         $styles = $palette_definition['style'] ?? [];
         $content = "";
         if ($css) {
             $content .= $this->include_files("$basedir", $css)  ;
         }
-        //print_r($vars);
+        // $this->debug(print_r($vars, true));
         if ($styles) {
             $styles_content = $this->make_style_rules($styles);
         } else {
@@ -30,13 +30,15 @@ class Palette extends \Opensitez\Simplicity\Plugin
             $styles_content = $this->substitute_vars($styles_content, $vars);
         }
         $content .= "<!--fun-->" . $styles_content;
-        //print $content;
+        // $this->debug($content);
         return $content;
 
     }
     function include_files($basedir, $files = [])
     {
         $retval = "";
+        $systempaths = $this->config_object->get('system.paths');
+
         if ($files) {
             if (!is_array($files)) {
                 $files = [$files];
@@ -44,11 +46,23 @@ class Palette extends \Opensitez\Simplicity\Plugin
             foreach ($files as $file) {
                 $fname = "$basedir/$file";
                 if (file_exists($fname)) {
+                    $this->debug("Loading palette file: $fname<br/>\n");
                     $retval .= "<style>\n" . file_get_contents($fname) . "</style>\n";
-                } else {
-                    echo "File not found: $fname<br/>\n";
+                } elseif (file_exists($systempaths['palettes'] . "/$file")) {
+                    $this->debug("Loading palette file: $file<br/>\n");
+                    $fname = $systempaths['palettes'] . "/$file";
+                    $retval .= "<style>\n" . file_get_contents($fname) . "</style>\n";
+                } 
+                // elseif (file_exists($this->basedir . "/$file")) {
+                //     $fname = $this->basedir . "/$file";
+                //     $retval .= "<style>\n" . file_get_contents($fname) . "</style>\n";
+                // } 
+                else {
+                    $this->debug("File not found: $fname<br/>\n");
+                    $this->debug("File not found: " . $systempaths['palettes'] . "/$file<br/>\n");
                 }
             }
+            //exit;
         }
         return $retval;
     }
@@ -81,7 +95,7 @@ class Palette extends \Opensitez\Simplicity\Plugin
             "dark-red"
         );
         $current_palette_name = $this->config_object->get(
-            "site.definition.palette",
+            "site.definition.vars.palette",
             $default_palette_name
         );
 
@@ -142,11 +156,11 @@ class Palette extends \Opensitez\Simplicity\Plugin
             }
             foreach ($style_files as $style_file) {
                 $fname = "$this->basedir/css/$style_file";
-                //                    print "$fname<br/>";
+                // $this->debug("$fname<br/>");
                 $styles .=  file_get_contents($fname) . "\n";
             }
         }
-        // print_r($style_files);
+        // $this->debug(print_r($style_files, true));
         // exit;
         $custom_css = "\n/*** Custom palette **/\n\n";
         $palette_styles = $palette_details["style"] ?? [];
