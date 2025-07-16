@@ -85,12 +85,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
 
 
     }
-    function replace_paths($string)
-    {
-        $paths = $this->config_object->get('paths');
-        $paths['themepath'] = $this->themepath;
-        return $this->substitute_vars($string, $paths);        
-    }
+
     function assign_template_vars()
     {
         $defaults = $this->config_object->get('defaults');
@@ -115,6 +110,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
             "linkclass" => "nav-link",
             "menuclass" => "nav-item",
         ];
+        $this->template_engine->assign("webroot", $this->paths['webroot']);
 
         if ($this->current_site['vars']['skipmenu'] ?? []) {
             $menuopts['skip'] = $this->current_site['vars']['skipmenu'] ?? false;
@@ -136,20 +132,37 @@ class Theme extends \Opensitez\Simplicity\Plugin
         }
         $this->pagestyle = "<!-- YOW -->$palette\n<style>\n$this->pagestyle\n</style>\n\n";
 
+        $this->config_object->set("paths.themepath", $this->themepath);
+        //print_r($this->config_object->get("paths"));exit;
         foreach ($this->current_site['theme']['js'] ?? [] as $script) {
+            $script = $this->replace_paths($script);
+            $this->pagestyle .= "<script src='$script'></script>\n";
+        }
+        foreach ($this->current_site['definition']['js'] ?? [] as $script) {
             $script = $this->replace_paths($script);
             $this->pagestyle .= "<script src='$script'></script>\n";
         }
 
         foreach ($this->current_site['theme']["css"] ?? [] as $sheet) {
+            //print $sheet . "<br/>\n";
             $sheet = $this->replace_paths($sheet);
             $this->pagestyle .= "<link href='$sheet' type='text/css' rel='stylesheet'>\n";
         }
+        //print_r($this->current_site['definition']['css'] ?? []);
+        //print "<hr/>CSS files in definition:<br/>";
+        //make sure CSS Works in any order (wedp bootstrap icons)
+        foreach ($this->current_site['definition']['css'] ?? [] as $sheet) {
+            //print $sheet . "<br/>\n";
+            $sheet = $this->replace_paths($sheet);
+            $this->pagestyle .= "<link href='$sheet' type='text/css' rel='stylesheet'>\n";
+        }
+        //exit;
 
         $template_arrays = [
              "colors" => $this->defaults["colors"] ?? [],
                          "vars" => $this->current_site['vars'] ?? [], "var2s" => $this->current_site['definition']['vars'] ?? [],
         ];
+
         $this->template_engine->assign("pagestyle", $this->pagestyle);
         $this->template_engine->assign("title", $this->current_site['definition']['vars']['title']??"");
         foreach ($template_arrays as $array_name => $tmp_array) {
@@ -158,8 +171,8 @@ class Theme extends \Opensitez\Simplicity\Plugin
                 //print "<hr/><h3 tyle=\"color:red;background-color:yellow\">Assigning $array_name.$idx = $value</h3><hr/>\n";
             }
         }
-        $this->template_engine->assign("content", $this->current_site['vars']['content'] ?? "");
-        
+        $this->template_engine->assign("content", $this->replace_paths($this->current_site['vars']['content'] ?? ""));
+
     }
     function on_render_templates($app)
     {
