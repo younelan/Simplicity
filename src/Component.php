@@ -4,17 +4,23 @@ namespace Opensitez\Simplicity;
 
 enum MSG
 {
-    case Init;
-    case ParseSite;
-    case RenderPage;
-    case RenderBlock;
-    case Shutdown;
-    case RegisterTemplateEngine;
-    case RegisterDirective;
-    case Authenticate;
-    case RouteNotFound;
-    case Error;
-    case PluginLoad;
+    case onInit;
+    case onParseSite;
+    case onParseRoute;
+    case onRenderAdminPage;
+    case onSetLayout;
+    case onSetPalette;
+    case onSetBlocks;
+    case onSetMenus;
+    case onRenderPage;
+    case onRenderBlock;
+    case onShutdown;
+    case onRegisterTemplateEngine;
+    case onRegisterDirective;
+    case onHandleAuth;
+    case onRouteNotFound;
+    case onError;
+    case onComponentLoad;
 }
 class Plugin extends Base
 {
@@ -101,17 +107,17 @@ class Plugin extends Base
     function on_event($event)
     {
         switch ($event["type"]) {
-            case MSG::Init:
+            case MSG::onInit:
                 break;
-            case MSG::ParseSite:
+            case MSG::onParseSite:
                 break;
-            case MSG::RenderPage:
+            case MSG::onRenderPage:
                 break;
-            case MSG::Shutdown:
+            case MSG::onShutdown:
                 break;
-            case MSG::Error:
+            case MSG::onError:
                 break;
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 // Override in child classes to handle plugin registration
                 break;
         }
@@ -131,7 +137,7 @@ class Plugin extends Base
     {
         // Called when plugin is loaded, override in child classes
         // Use this to register services, content providers, etc.
-        // DEPRECATED: Use on_event(['type' => MSG::PluginLoad]) instead
+        // DEPRECATED: Use on_event(['type' => MSG::onComponentLoad]) instead
     }
     function get_route_types()
     {

@@ -134,7 +134,7 @@
             $basedir = __DIR__;
             $this->settings['system']['paths'] = [
                 'base' => $basedir,
-                'plugins' => $basedir . '/plugins',
+                'components' => $basedir . '/components',
                 'templates' => $basedir . '/templates',
                 'palettes' => $basedir . '/templates/css',
                 'themes' => $basedir . '/themes',
@@ -275,6 +275,19 @@
         
         return $path;
     }
+    function getUser()
+    {
+        $user = $_SESSION['user_data'];
+        $user['username'] = $_SESSION['user'];
+        // $user = [
+        //     'username' => "default" ?? '',
+        //     'id' => 1 ?? 0,
+        //     'email' => "default@example.com" ?? '',
+        //     'role' => "admin" ?? '',
+        //     'status' => "active" ?? ''
+        // ];
+        return $user; 
+    } 
     /**
      * Set the web root path in the paths configuration
      * This method sets the 'paths.webroot' configuration
