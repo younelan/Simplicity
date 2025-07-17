@@ -9,7 +9,7 @@ class Checklist extends \Opensitez\Simplicity\FormField
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 $this->framework->register_type('widget', 'checklist');
                 break;
         }
