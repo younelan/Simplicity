@@ -9,7 +9,7 @@ class Menu extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 // Register this plugin as a content provider for WordPress
                 $this->framework->register_type('blocktype', 'menu');
 

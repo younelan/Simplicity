@@ -26,7 +26,7 @@ class LinkDirectory extends \Opensitez\Simplicity\Plugin
 	";
 	public function on_event($event)
 	{
-		if ($event['type'] === MSG::PluginLoad) {
+		if ($event['type'] === MSG::onComponentLoad) {
 			$this->framework->register_type('routetype', 'linkdirectory');
 			$this->framework->register_type('blocktype', 'linkdirectory');
 		}

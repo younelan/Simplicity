@@ -12,7 +12,7 @@ class Folder extends \Opensitez\Simplicity\Plugin
 
     function on_event($event)
     {
-        if ($event['type'] === MSG::PluginLoad) {
+        if ($event['type'] === MSG::onComponentLoad) {
             error_log("DEBUG: Folder plugin registering route types");
             $this->framework->register_type('contentprovider', 'folder');
             $this->framework->register_type('routetype', 'folder');

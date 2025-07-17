@@ -148,6 +148,7 @@ class Theme extends \Opensitez\Simplicity\Plugin
             $sheet = $this->replace_paths($sheet);
             $this->pagestyle .= "<link href='$sheet' type='text/css' rel='stylesheet'>\n";
         }
+        
         //print_r($this->current_site['definition']['css'] ?? []);
         //print "<hr/>CSS files in definition:<br/>";
         //make sure CSS Works in any order (wedp bootstrap icons)

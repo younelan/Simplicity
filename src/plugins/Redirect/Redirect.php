@@ -12,7 +12,7 @@ class Redirect extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 // Register this plugin as a route type handler for redirects
                 $this->framework->register_type('routetype', 'redirect');
                 $this->framework->register_type("routeprovider", "redirect");

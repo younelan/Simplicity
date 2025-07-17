@@ -13,7 +13,7 @@ class LineChartBlock extends \Opensitez\Simplicity\Plugin
 
     function on_event($event)
     {
-        if ($event['type'] === MSG::PluginLoad) {
+        if ($event['type'] === MSG::onComponentLoad) {
             $this->framework->register_type('blocktype', 'linechart');
             $this->framework->register_type('contentprovider', 'linechart');
         }

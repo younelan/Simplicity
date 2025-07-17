@@ -18,7 +18,7 @@ class Form extends \Opensitez\Simplicity\Plugin
 	function on_event($event)
 	{
 		switch ($event['type']) {
-			case MSG::PluginLoad:
+			case MSG::onComponentLoad:
 				$widget_dir =dirname(dirname(__DIR__)) . "/widgets";
 				$this->framework->load_plugins($widget_dir, 'Opensitez\\Simplicity\\Plugins', 'widgets');
 

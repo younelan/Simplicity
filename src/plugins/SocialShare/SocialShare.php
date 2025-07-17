@@ -12,7 +12,7 @@ class SocialShare extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 $this->framework->register_type('blocktype', 'socialshare');
                 break;
         }

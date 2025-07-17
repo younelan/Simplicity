@@ -9,7 +9,7 @@ class OSZContent extends \Opensitez\Simplicity\DBLayer
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
+            case MSG::onComponentLoad:
                 // Register this plugin as a content provider for OpenSite
                 $this->framework->register_type('contentprovider', 'opensite');
                 break;
