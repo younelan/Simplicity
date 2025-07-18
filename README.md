@@ -12,7 +12,7 @@ The framework is meant to centralize code I have used on other projects to maxim
     - **SimpleCache**: caches a file for a specified amount of time
     - **SimpleHttpRequest**: uses curl to fetch a file
     - **CSRF** : Simple CSRF class, see Qrcode demo for example 
-- **src/plugins** directory: Plugins for the Simplicity Cms/Plugin Handler
+- **src/components** directory: Plugins for the Simplicity Cms/Plugin Handler
     - **Block** - The basic element on a page is a block, there are multiple types of blocks
     - **TextBlock** - Specific block which provides text
     - **Section** - There can be multiple blocks in one section. Like header, content, footer
