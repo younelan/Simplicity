@@ -1,7 +1,7 @@
 <?php
 
-namespace Opensitez\Plugins;
-class Gallery extends \Opensitez\Cms\Plugin
+namespace Opensitez\Components;
+class Gallery extends \Opensitez\Cms\Component
 {
     function old__construct(&$config)
     {

@@ -10,7 +10,6 @@ class Select extends \Opensitez\Simplicity\FormField
     {
         switch ($event['type']) {
             case MSG::onComponentLoad:
-                // Register this plugin as a route type handler for blogs
                 $this->framework->register_type('widget', 'select');
                 break;
         }
