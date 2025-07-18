@@ -170,7 +170,7 @@ class Base
             //     "text"=>"Menu name",
             //     "weight"=> 0,
             //     "children"=> [
-            //        "menuentry"=> ["plugin"=>"gallery","page"=>"pageid","text"=>"Menu Text","category"=>"all"],
+            //        "menuentry"=> ["component"=>"gallery","page"=>"pageid","text"=>"Menu Text","category"=>"all"],
             //     ]
             // ],
 
