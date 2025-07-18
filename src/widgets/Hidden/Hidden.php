@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Plugins;
+namespace Opensitez\Simplicity\Components;
 use Opensitez\Simplicity\MSG;
 
 class Hidden extends \Opensitez\Simplicity\FormField
@@ -10,7 +10,6 @@ class Hidden extends \Opensitez\Simplicity\FormField
     {
         switch ($event['type']) {
             case MSG::onComponentLoad:
-                // Register this plugin as a route type handler for blogs
                 $this->framework->register_type('widget', 'hidden');
                 break;
         }

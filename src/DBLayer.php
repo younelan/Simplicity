@@ -4,7 +4,7 @@ namespace Opensitez\Simplicity;
 
 use \PDO;
 
-class DBLayer extends \Opensitez\Simplicity\Plugin
+class DBLayer extends \Opensitez\Simplicity\Component
 {
     protected $config = [];
     protected $connection = null;

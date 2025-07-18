@@ -1,0 +1,10 @@
+<tr>
+    <td>{{photo_name}}</td>
+    <td>
+        <a href='?component=gallery&page=update_photo&photo_id={{photo_id}}' class="btn btn-info">Update</a>
+        <form method="POST" action="?component=gallery&page=delete_photo">
+            <input type="hidden" name="gallery_id" value="{{photo_id}}">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </td>
+</tr>

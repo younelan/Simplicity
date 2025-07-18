@@ -1,13 +1,27 @@
 <?php
 
 namespace Opensitez\Simplicity;
+use Opensitez\Simplicity\MSG;
 
-class Palette extends \Opensitez\Simplicity\Plugin
+class Palette extends \Opensitez\Simplicity\Component
 {
     var $current_site = [];
     var $basedir = false;
     var $paths=".";
     var $defaults = false;
+    function on_event($event)
+    {
+        switch ($event['type']) {
+            case MSG::onComponentLoad:
+                // Register this component as a palette provider
+                $this->framework->register_type('paletteprovider', 'palette');
+                break;
+            case MSG::onSetPalette:
+                $this->setPalette();
+                break;
+        }
+        return parent::on_event($event);
+    }   
     function get_palette($app, $palette_definition = [],$vars = []) {
         $current_site = $this->config_object->get('site');   
 
@@ -70,9 +84,13 @@ class Palette extends \Opensitez\Simplicity\Plugin
     {
         $retval = "";
         if ($styles) {
-            foreach ($styles as $rule_name => $style) {
+            foreach ($styles ?? [] as $rule_name => $style) {
                 $rule = "";
-                foreach ($style as $attr => $arr_value) {
+                if(!is_array($style)) {
+                    print "Style for $rule_name is not an array: " . print_r($style, true) . "<br/>\n";
+                    continue;
+                }
+                foreach ($style ?? [] as $attr => $arr_value) {
                     $rule .= "    $attr: $arr_value;\n";
                 }
                 $retval .= "$rule_name {\n$rule}\n";

@@ -2,7 +2,7 @@
 
 namespace Opensitez\Simplicity;
 
-class Menu extends \Opensitez\Simplicity\Plugin
+class Menu extends \Opensitez\Simplicity\Component
 {
     function make_menu($menus, $params = [])
     {

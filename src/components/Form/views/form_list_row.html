@@ -1,0 +1,11 @@
+<tr>
+    <td>{{form_name}}</td>
+    <td>
+        <form method="POST" action="?component=form&page=delete_form">
+            <input type="hidden" id="form_id" name="form_id" value="{{fid}}">
+            <a href='?component=form&page=update_form&form_id={{fid}}' class="btn btn-info">Update</a>
+            <a href='?component=form&page=view_form&form_id={{fid}}' class="btn btn-info">View</a>
+                <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </td>
+</tr>

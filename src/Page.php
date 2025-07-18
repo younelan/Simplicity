@@ -3,7 +3,7 @@
 namespace Opensitez\Simplicity;
 use Opensitez\Simplicity\MSG;
 
-class Page extends \Opensitez\Simplicity\Plugin
+class Page extends \Opensitez\Simplicity\Component
 {
     private $sections = [];
     private $default_section;
@@ -18,8 +18,7 @@ class Page extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
-                // Register this plugin as a route type handler for redirects
+            case MSG::onComponentLoad:
                 $this->framework->register_type('routetype', 'page');
                 break;
         }
@@ -34,7 +33,7 @@ class Page extends \Opensitez\Simplicity\Plugin
                 "image" => "genimgpage.png",
                 "weight" => -2,
                 "children" => [
-                    "page" => ["plugin" => "page", "page" => "default", "text" => "Pages", "category" => "all"],
+                    "page" => ["component" => "page", "page" => "default", "text" => "Pages", "category" => "all"],
                 ],
             ],
         ];

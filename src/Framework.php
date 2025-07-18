@@ -6,7 +6,7 @@ class Framework extends Base
 {
     private $components = [];
     private $registry = [];
-    private $core_plugins = ['Page',"Block","Section","Palette"];
+    private $core_components = ['Page',"Block","Section","Palette"];
 
     function __construct($config_object = null)
     {
@@ -36,7 +36,7 @@ class Framework extends Base
         if (!$this->config_object) {
             $this->config_object = new \Opensitez\Simplicity\Config($default_config);
         }
-        $this->load_default_plugins();
+        $this->load_default_components();
     }
     function getConfigObject()
     {
@@ -44,63 +44,63 @@ class Framework extends Base
     }
     function on_event($event)
     {
-        foreach ($this->components ?? [] as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $plugin) {
-                if ($plugin->enabled) {
-                    $plugin->on_event($event);
+        foreach ($this->components ?? [] as $group => $group_components) {
+            foreach ($group_components as $name => $component) {
+                if ($component->enabled) {
+                    $component->on_event($event);
                 }
             }
         }
     }
     function on_action($action)
     {   
-        foreach ($this->components ?? [] as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $plugin) {
-                if ($plugin->enabled) {
-                    $plugin->on_action(["p" => $name, "a" => $action]);
+        foreach ($this->components ?? [] as $group => $group_components) {
+            foreach ($group_components as $name => $component) {
+                if ($component->enabled) {
+                    $component->on_action(["p" => $name, "a" => $action]);
 
                 }
             }
         }
     } 
-    function set_handler($plugin_handler)
+    function set_handler($component_handler)
     {
-        foreach ($this->components ?? [] as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $plugin) {
-                if ($plugin) {
-                    $plugin->set_handler($plugin_handler);
+        foreach ($this->components ?? [] as $group => $group_components) {
+            foreach ($group_components as $name => $component) {
+                if ($component) {
+                    $component->set_handler($component_handler);
                 }
             }
         }
     }
     function on_render_page()
     {
-        $render_plugin = "routing";
+        $render_component = "routing";
 
  
         if (!isset($no_template_output)) {
-            $render = $this->components[$render_plugin] ?? false;
+            $render = $this->components[$render_component] ?? false;
             echo $render->show_page();
         }
     }
-    function load_default_plugins()
+    function load_default_components()
     {
-        // Load plugins from the default library plugins folder into 'core' group
-        $default_plugins_path = __DIR__ . '/plugins';
-        foreach($this->core_plugins as $plugin) {
-            $new_plugin_name = 'Opensitez\\Simplicity\\' . $plugin;
-            $instance = new $new_plugin_name($this->config_object);
+        // Load components from the default library components folder into 'core' group
+        $default_components_path = __DIR__ . '/components';
+        foreach($this->core_components as $component) {
+            $new_component_name = 'Opensitez\\Simplicity\\' . $component;
+            $instance = new $new_component_name($this->config_object);
             $instance->set_handler($this);
-            $this->components['core'][strtolower($plugin)] = $instance;
+            $this->components['core'][strtolower($component)] = $instance;
             if (method_exists($instance, 'on_event')) {
-                $instance->on_event(['type' => MSG::PluginLoad]);  
+                $instance->on_event(['type' => MSG::onComponentLoad]);  
             }
         }
-        if (is_dir($default_plugins_path)) {
-            $this->load_plugins($default_plugins_path, 'Opensitez\\Simplicity\\Plugins', 'core');
+        if (is_dir($default_components_path)) {
+            $this->load_components($default_components_path, 'Opensitez\\Simplicity\\Components', 'core');
         }
     }
-    function load_plugins($curpath, $namespace = 'Opensitez\\Plugins', $group = 'local')
+    function load_components($curpath, $namespace = 'Opensitez\\components', $group = 'local')
     {
         if (!is_dir($curpath)) {
             return false;
@@ -117,51 +117,51 @@ class Framework extends Base
                 continue;
             }
 
-            $plugin_dir = $curpath . DIRECTORY_SEPARATOR . $file;
-            $plugin_file = $plugin_dir . DIRECTORY_SEPARATOR . $file . '.php';
+            $component_dir = $curpath . DIRECTORY_SEPARATOR . $file;
+            $component_file = $component_dir . DIRECTORY_SEPARATOR . $file . '.php';
 
-            if (is_dir($plugin_dir) && file_exists($plugin_file)) {
+            if (is_dir($component_dir) && file_exists($component_file)) {
                 try {
-                    include_once $plugin_file;
+                    include_once $component_file;
                     $classname = $namespace . '\\' . $file;
 
                     if (class_exists($classname)) {
-                        $plugin_instance = new $classname($this->config_object);
-                        $this->components[$group][strtolower($file)] = $plugin_instance;
-                        $plugin_instance->set_handler($this);
-                        if ($plugin_instance && method_exists($plugin_instance, 'on_event')) {
-                            $plugin_instance->on_event(['type' => MSG::PluginLoad]);
+                        $component_instance = new $classname($this->config_object);
+                        $this->components[$group][strtolower($file)] = $component_instance;
+                        $component_instance->set_handler($this);
+                        if ($component_instance && method_exists($component_instance, 'on_event')) {
+                            $component_instance->on_event(['type' => MSG::onComponentLoad]);
                         }
                     } else {
-                        echo "Class $classname not found in $plugin_file\n<br/>";
+                        echo "Class $classname not found in $component_file\n<br/>";
                     }
                 } catch (Exception $e) {
-                    echo "Error loading plugin $file: " . $e->getMessage() . "\n<br/>";
+                    echo "Error loading component $file: " . $e->getMessage() . "\n<br/>";
                 }
             }
         }
         return true;
     }
-    function initialize_plugins()
+    function initialize_components()
     {
-        foreach ($this->components as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $plugin) {
-                if ($plugin && method_exists($plugin, 'on_event')) {
-                    $plugin->on_event(['type' => MSG::PluginLoad]);
+        foreach ($this->components as $group => $group_components) {
+            foreach ($group_components as $name => $component) {
+                if ($component && method_exists($component, 'on_event')) {
+                    $component->on_event(['type' => MSG::onComponentLoad]);
                 }
             }
         }
     }
-    function load_external_plugins($plugin_paths = [])
+    function load_external_components($component_paths = [])
     {
-        foreach ($plugin_paths as $path_config) {
+        foreach ($component_paths as $path_config) {
             $path = $path_config['path'] ?? '';
-            $namespace = $path_config['namespace'] ?? 'Opensitez\\Plugins';
+            $namespace = $path_config['namespace'] ?? 'Opensitez\\Components';
             $group = $path_config['group'] ?? 'local';
 
             if ($path && is_dir($path)) {
-                //echo "Loading external plugins from: $path with namespace: $namespace into group: $group\n<br/>";
-                $this->load_plugins($path, $namespace, $group);
+                //echo "Loading external components from: $path with namespace: $namespace into group: $group\n<br/>";
+                $this->load_components($path, $namespace, $group);
             }
         }
     }
@@ -179,16 +179,16 @@ class Framework extends Base
         }
         return $this->config_object->get('site');
     }
-    function register_type($type, $key, $plugin_name = null)
+    function register_type($type, $key, $component_name = null)
     {
-        // If no plugin name provided, use the calling plugin
-        if (!$plugin_name) {
-            // Find which plugin is calling this by looking at the backtrace
+        // If no component name provided, use the calling component
+        if (!$component_name) {
+            // Find which component is calling this by looking at the backtrace
             $backtrace = debug_backtrace();
-            foreach ($this->components as $group => $group_plugins) {
-                foreach ($group_plugins as $name => $plugin) {
-                    if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $plugin) {
-                        $plugin_name = "$group.$name";
+            foreach ($this->components as $group => $group_components) {
+                foreach ($group_components as $name => $component) {
+                    if (isset($backtrace[1]['object']) && $backtrace[1]['object'] === $component) {
+                        $component_name = "$group.$name";
                         break 2;
                     }
                 }
@@ -197,14 +197,14 @@ class Framework extends Base
         if (!isset($this->registry[$type])) {
             $this->registry[$type] = [];
         }
-        
-        $this->registry[$type][$key] = ['plugin' => $plugin_name];
+
+        $this->registry[$type][$key] = ['component' => $component_name];
     }
     function get_registered_type($type, $key)
     {
         if (isset($this->registry[$type][$key])) {
-            $plugin_name = $this->registry[$type][$key]['plugin'];
-            return $this->get_component($plugin_name);
+            $component_name = $this->registry[$type][$key]['component'];
+            return $this->get_component($component_name);
         }
         return null;
     }
@@ -214,11 +214,11 @@ class Framework extends Base
     }
     function get_component($name)
     {
-        // Check if name contains dot notation (group.plugin)
+        // Check if name contains dot notation (group.component)
         if (strpos($name, '.') !== false) {
-            list($group, $plugin_name) = explode('.', $name, 2);
-            if (isset($this->components[$group][$plugin_name])) {
-                return $this->components[$group][$plugin_name];
+            list($group, $component_name) = explode('.', $name, 2);
+            if (isset($this->components[$group][$component_name])) {
+                return $this->components[$group][$component_name];
             }
             return false;
         }
@@ -247,9 +247,9 @@ class Framework extends Base
     {
         $newmenu = "";
         $menu = [];
-        //Gather Menus from plugins
-        foreach ($this->components as $group => $group_plugins) {
-            foreach ($group_plugins as $name => $component) {
+        //Gather Menus from components
+        foreach ($this->components as $group => $group_components) {
+            foreach ($group_components as $name => $component) {
                 foreach ($component->get_menus() as $menuname => $tmpmenu) {
                     if (!isset($menu[$menuname])) {
                         $menu[$menuname] = $tmpmenu;
@@ -265,7 +265,7 @@ class Framework extends Base
             $link = '#';
             if (isset($menudetails['url'])) {
                 $link = $menudetails['url'];
-            } elseif (isset($menudetails['plugin'])) {
+            } elseif (isset($menudetails['component'])) {
                 $link = $this->gen_link($menudetails);
             }
             $newmenu[$menuid] = [
@@ -280,9 +280,9 @@ class Framework extends Base
                 if (isset($childmenu['url'])) {
                     $childtext = $childmenu['text'];
                     $childlink = $childmenu['url'];
-                } elseif (isset($childmenu['plugin'])) {
+                } elseif (isset($childmenu['component'])) {
                     $query = [
-                        'plugin' => $childmenu['plugin'],
+                        'component' => $childmenu['component'],
                         'page' => $childmenu['page'] ?? "",
                     ];
                     if ($childmenu['action'] ?? "") {
@@ -312,9 +312,9 @@ class Framework extends Base
             if (isset($childmenu['url'])) {
                 $childtext = $childmenu['text'];
                 $childlink = $childmenu['url'];
-            } elseif (isset($childmenu['plugin'])) {
+            } elseif (isset($childmenu['component'])) {
                 $query = [
-                    'plugin' => $childmenu['plugin'],
+                    'component' => $childmenu['component'],
                     'page' => $childmenu['page'] ?? "",
                 ];
                 if ($childmenu['action'] ?? "") {

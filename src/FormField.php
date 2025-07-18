@@ -2,7 +2,7 @@
 
 namespace Opensitez\Simplicity;
 
-class FormField extends \Opensitez\Simplicity\Plugin
+class FormField extends \Opensitez\Simplicity\Component
 {
 	protected $colspan = 1;
 	protected $field_def = [];

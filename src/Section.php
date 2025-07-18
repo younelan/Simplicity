@@ -4,7 +4,7 @@ namespace Opensitez\Simplicity;
 use Opensitez\Simplicity\MSG;
 
 
-class Section extends \Opensitez\Simplicity\Plugin
+class Section extends \Opensitez\Simplicity\Component
 {
     private $contents = [];
     private $style = "";
@@ -16,8 +16,8 @@ class Section extends \Opensitez\Simplicity\Plugin
     function on_event($event)
     {
         switch ($event['type']) {
-            case MSG::PluginLoad:
-                // Register this plugin as a route type handler for redirects
+            case MSG::onComponentLoad:
+                // Register this component as a route type handler for redirects
                 $this->framework->register_type('routetype', 'section');
                 break;
         }
@@ -80,7 +80,7 @@ class Section extends \Opensitez\Simplicity\Plugin
         $style = $app['style'] ?? $this->style;
         $class = $app['class'] ?? "";
         $class = "section " . $this->class;
-        $block_plugin = $this->framework->get_component("block");
+        $block_component = $this->framework->get_component("block");
         $paths = $this->config_object->get('paths');
         $content = "";
 
@@ -97,7 +97,7 @@ class Section extends \Opensitez\Simplicity\Plugin
             }
             $inctype = $incblock['type'] ?? "text";
 
-            $current_plugin = $this->framework->get_component($inctype);
+            $current_component = $this->framework->get_component($inctype);
             if (!isset($incblock['type'])) {
                 $incblock = ['content' => $incblock];
                 $incblock['type'] = $inctype ?? "text";
@@ -112,9 +112,9 @@ class Section extends \Opensitez\Simplicity\Plugin
                 }
             }
 
-            if ($current_plugin) {
-                $plugin_content = $current_plugin->on_render_page($incblock);
-                $content .= $plugin_content;
+            if ($current_component) {
+                $component_content = $current_component->on_render_page($incblock);
+                $content .= $component_content;
             } else {
 
                 switch (strtolower($inctype)) {
@@ -125,7 +125,7 @@ class Section extends \Opensitez\Simplicity\Plugin
                         $options = ["content-type" => $incblock['content-type'] ?? "html"];
                         if (is_file($full_path)) {
                             $fcontents = @file_get_contents($full_path);
-                            $fcontents = $block_plugin->render_insert_text($fcontents ?? "", $options, $incblock);
+                            $fcontents = $block_component->render_insert_text($fcontents ?? "", $options, $incblock);
                             $content .= $fcontents;
                         }
                         break;
@@ -135,7 +135,7 @@ class Section extends \Opensitez\Simplicity\Plugin
                         $text_content = $incblock['content'] ?? $incblock;
                         $text_content = $i18n->get_i18n_value($text_content);
 
-                        $content .= $block_plugin->render_insert_text($text_content, $options, $incblock);
+                        $content .= $block_component->render_insert_text($text_content, $options, $incblock);
                         break;
                 }
             }

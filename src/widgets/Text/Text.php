@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Plugins;
+namespace Opensitez\Simplicity\Components;
 use Opensitez\Simplicity\MSG;
 
 class Text extends \Opensitez\Simplicity\FormField
@@ -9,7 +9,6 @@ class Text extends \Opensitez\Simplicity\FormField
     {
         switch ($event['type']) {
             case MSG::onComponentLoad:
-                // Register this plugin as a route type handler for blogs
                 $this->framework->register_type('widget', 'text');
                 break;
         }

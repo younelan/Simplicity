@@ -3,7 +3,7 @@
 
     use Opensitez\Simplicity\MSG;
 
-    class Block extends \Opensitez\Simplicity\Plugin {
+    class Block extends \Opensitez\Simplicity\Component {
         public $name="Block";
         public $block_options=[];
         public $block_name="";
@@ -27,8 +27,8 @@
         function on_event($event)
         {
             switch ($event['type']) {
-                case MSG::PluginLoad:
-                    // Register this plugin as a route type handler for redirects
+                case MSG::onComponentLoad:
+                    // Register this component as a route type handler for redirects
                     $this->framework->register_type('sectiontype', 'block');
                     $this->framework->register_type('sectiontype', 'include');
                     $this->framework->register_type('routetype', 'block');
@@ -43,12 +43,12 @@
 
             $content_type = $options['content-type'] ?? $this->options['content-type'] ?? 'html';
 
-            $block_plugin = $this->framework->get_registered_type('blocktype', $content_type);
+            $block_component = $this->framework->get_registered_type('blocktype', $content_type);
             
-            if ($block_plugin && method_exists($block_plugin, 'render')) {
+            if ($block_component && method_exists($block_component, 'render')) {
                 $block_config = ['content' => $text];
                 $block_config = array_merge($block_config, $options);
-                return $block_plugin->render($block_config, $options);
+                return $block_component->render($block_config, $options);
             }
 
             // Fallback to default text handling
@@ -131,7 +131,7 @@
                 }
             }
             /* render the content */
-            // First try to get a registered block type plugin
+            // First try to get a registered block type component
             if($app['type']== 'include') {
                 $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
                 $content = $this->fetch_file("$datafolder/$fname", $app);
@@ -139,29 +139,29 @@
             }
             $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
             
-            $block_plugin = $this->framework->get_registered_type('blocktype', $content_type);
-            // print get_class($block_plugin) . " - " . $this->content_type . "\n";
+            $block_component = $this->framework->get_registered_type('blocktype', $content_type);
+            // print get_class($block_component) . " - " . $this->content_type . "\n";
             // print "Types: " . print_r($this->framework->get_registered_type_list("blocktype"), true) . "\n";
-            if ($block_plugin && method_exists($block_plugin, 'render')) {
+            if ($block_component && method_exists($block_component, 'render')) {
                 //print "Rendering block type: $content_type\n";
-                $retval .= $block_plugin->render($app, $blockoptions);
+                $retval .= $block_component->render($app, $blockoptions);
                 //print $retval . "\n";
   
             } else {
-                print "No block plugin found for type: $content_type\n";
-                $block_plugin = $this->framework->get_registered_type('blocktype', "text");
-                if ($block_plugin && method_exists($block_plugin, 'render')) {
+                print "No block component found for type: $content_type\n";
+                $block_component = $this->framework->get_registered_type('blocktype', "text");
+                if ($block_component && method_exists($block_component, 'render')) {
                     $app['content-type'] = $app['content-type'] ?? 'text';
-                    $retval .= $block_plugin->render($app, $blockoptions);
+                    $retval .= $block_component->render($app, $blockoptions);
                 } else {
                     $retval .= "";
                 }
             }
             // else {
-            //     $current_plugin = $this->framework->get_component($this->content_type); 
-            //     if($current_plugin ) {
-            //         $plugin_content =$current_plugin->on_render_page($section);
-            //         $retval .= $plugin_content;
+            //     $current_component = $this->framework->get_component($this->content_type); 
+            //     if($current_component ) {
+            //         $component_content =$current_component->on_render_page($section);
+            //         $retval .= $component_content;
             //     } else {
             //         // Final fallback to legacy switch statement
             //         switch($this->content_type) {
@@ -180,10 +180,10 @@
             //             case "include":
             //                 $options = ['content-type'=>$section['content-type']??"html"];
             //                 $incfile = $section['file']??"";
-            //                 // Use the include block type plugin
-            //                 $include_plugin = $this->framework->get_registered_type('blocktype', 'include');
-            //                 if ($include_plugin) {
-            //                     $retval .= $include_plugin->render($incfile, $options);
+            //                 // Use the include block type component
+            //                 $include_component = $this->framework->get_registered_type('blocktype', 'include');
+            //                 if ($include_component) {
+            //                     $retval .= $include_component->render($incfile, $options);
             //                 }
             //                 break; 
             //         }

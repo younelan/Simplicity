@@ -22,7 +22,7 @@ enum MSG
     case onError;
     case onComponentLoad;
 }
-class Plugin extends Base
+class Component extends Base
 {
     public $name;
     public $description;
@@ -118,7 +118,7 @@ class Plugin extends Base
             case MSG::onError:
                 break;
             case MSG::onComponentLoad:
-                // Override in child classes to handle plugin registration
+                // Override in child classes to handle component registration
                 break;
         }
 
@@ -133,9 +133,9 @@ class Plugin extends Base
     {
         $this->framework = &$handler;
     }
-    function on_plugin_load()
+    function on_component_load()
     {
-        // Called when plugin is loaded, override in child classes
+        // Called when component is loaded, override in child classes
         // Use this to register services, content providers, etc.
         // DEPRECATED: Use on_event(['type' => MSG::onComponentLoad]) instead
     }
@@ -162,10 +162,10 @@ class Plugin extends Base
         return $this->debug;
     }
     
-    function get_component($plugin_name)
+    function get_component($component_name)
     {
-        $plugins = $this->framework;
-        return $plugins->get_component($plugin_name);
+        $components = $this->framework;
+        return $components->get_component($component_name);
     }
     function set_app($app)
     {

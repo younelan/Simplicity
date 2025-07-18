@@ -2,9 +2,9 @@
 
 namespace Opensitez\Simplicity;
 //require_once("base.php");
-//require_once("plugin.php");
+//require_once("component.php");
 
-class PHPTemplate extends Plugin
+class PHPTemplate extends Component
 {
     private $template;
     private $data = [];

@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Plugins;
+namespace Opensitez\Simplicity\Components;
 
 class Matrix extends \Opensitez\Simplicity\FormField
 {

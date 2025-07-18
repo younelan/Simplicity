@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Plugins;
+namespace Opensitez\Simplicity\Components;
 
 class OptionList extends \Opensitez\Simplicity\FormField
 {

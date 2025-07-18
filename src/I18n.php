@@ -1,8 +1,8 @@
 <?php
 
-namespace Opensitez\Plugins;
+namespace Opensitez\Components;
 
-class I18n extends \Opensitez\Simplicity\Plugin
+class I18n extends \Opensitez\Simplicity\Component
 {
     function accepted_langs()
     {
