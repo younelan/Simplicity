@@ -1,9 +1,9 @@
 <?php
 namespace Opensitez\Simplicity;
+
 class SimpleAuth extends Base
 {
-    private $config = [];
-    private $users;
+    private $user_manager;
     private $translations;
     private $template;
     private $vars = [];
@@ -16,106 +16,56 @@ class SimpleAuth extends Base
     private $errors = [];
     public function set_users($users)
     {
-        $this->users = $users;
+        $this->user_manager->set_users($users);
     }
-    public function __construct($config)
+    public function __construct($config_object = null)
     {
-
-        if(!$config) {
-            $config = new \Opensitez\Simplicity\Config();
-        } elseif (is_array($config)) {
-            $config = new \Opensitez\Simplicity\Config($config);
-        } 
-
-        $this->config = $config;
-        $this->users = $config->get('users') ?? [];
-
-        $this->vars = $config->get('vars') ?? [];
-        $this->lang = $config->get('lang') ?? 'en';
-
-        $this->translations = $config->get('translations') ?? [];
-
-        $this->template = $config->get('template') ?? '{{content}}';  // Default page template
-        $this->form_template = '
-            <h1 class="widgetheader">{{Please Login}}</h1>
-			<table class="loginform">
-            <form method="POST" action="">
-                <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
-                <tr><td><label>{{Login}}</label></td><td><input type="text" name="login" /></td></tr>
-                <tr><td><label>{{Password}}</label></td><td><input type="password" name="password" /></td></tr>
-                <tr class=trailer><td colspan=2>{{trailer}}</td></tr>
-                <tr><td colspan=2 align=right><button type="submit">{{Connect}}</button></td></tr>
-            </form>
-			</table>
-        ';
-        $this->edit_password_template = '
-            <h1 class="widgetheader">{{Update Password}}</h1>
-            <form method="POST" action="?action=change_password">
-                <input type="hidden" name="csrf_token" value="{{csrf_token}}" />
-                <table class="loginform">
-                <tr><td><label>{{Current_Password}}</label></td><td><input type="password" name="current_password" /></td></tr>
-                <tr><td><label>{{New_Password}}</label></td><td><input type="password" name="new_password" /></td></tr>
-                <tr><td><label>{{Confirm_Password}}</label></td><td><input type="password" name="confirm_password" /></td></tr>
-                <tr><td colspan=2 align=right><button type="submit">{{Update_Password}}</button></td></tr>
-                <tr class=trailer><td colspan=2>{{trailer}}</td></tr>
-                </table>
-            </form>
-        ';
+        parent::__construct($config_object);
+        $this->user_manager = new SimpleUser($this->config_object);
+        $this->vars = $this->config_object ? $this->config_object->get('vars') ?? [] : [];
+        $this->lang = $this->config_object ? $this->config_object->get('lang') ?? 'en' : 'en';
+        $this->translations = $this->config_object ? $this->config_object->get('translations') ?? [] : [];
+        $this->template = $this->config_object ? $this->config_object->get('template') ?? '{{content}}' : '{{content}}';
+        $this->edit_password_template = $this->load_template('login/edit_password.tpl');
+        $this->form_template = $this->load_template('login/login_template.tpl');
 
         session_start();
         $this->generate_csrf_token();
     }
-
-    // Set the template string
     public function set_template($template_str)
     {
         $this->template = $template_str;
     }
-
-    // Set the form template string
     public function set_form_template($template_str)
     {
         $this->form_template = $template_str;
     }
-
-    // Set the edit password form template string
     public function set_edit_password_template($template_str)
     {
         $this->edit_password_template = $template_str;
     }
-
-    // Set the variables for substitution
     public function set_vars($vars)
     {
         $this->vars = $vars;
     }
-
-    // Generate a CSRF token and store it in the session
     private function generate_csrf_token()
     {
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
     }
-
-    // Validate the CSRF token
     private function validate_csrf_token($token)
     {
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
-
-    // Display the login form
     public function show_login_form()
     {
-        $users = $this->users;
         $vars = $this->vars;
         $vars['csrf_token'] = $_SESSION['csrf_token'];
         $vars['content'] = $this->substitute_vars($this->form_template, $vars);
-        //print($this->vars['content']);exit;
-
         $vars['content'] = $this->substitute_vars($vars['content'], $this->translations[$this->lang ?? "en"]);
         $vars['trailer'] = $this->translations[$this->lang]['Login Required'] ?? 'Login Required';
-        $vars['content'] = $this->substitute_vars($vars['content'], $vars );
+        $vars['content'] = $this->substitute_vars($vars['content'], $vars);
         if ($this->errors) {
             foreach ($this->errors as $idx => $error) {
                 $this->errors[$idx] = $this->translations[$this->lang][$error] ?? $error;
@@ -130,8 +80,6 @@ class SimpleAuth extends Base
         echo $template;
         exit;
     }
-
-    // Display the edit password form
     public function show_edit_password_form()
     {
         $this->vars['csrf_token'] = $_SESSION['csrf_token'];
@@ -146,26 +94,18 @@ class SimpleAuth extends Base
         $template = $this->substitute_vars($template, $this->vars);
         echo $template;
     }
-
-    // Try to login
     public function login($redirect_url = null)
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf_token']) && $this->validate_csrf_token($_POST['csrf_token'])) {
-            //print "<div> this is a post, checking";
             if (isset($_POST['login']) && isset($_POST['password'])) {
-                //print "<div>Both login and password provided to login</div>";
                 $login = $_POST['login'];
                 $password = $_POST['password'];
-                $valid_auth = $this->check_password($login, $password);
-                //print_r($this->users);
-                //print "$login $password $valid_auth";exit;
-                //print "<div>pass $password $crypted_password</div>";
-                if (isset($this->users[$login]) && password_verify($password, $this->users[$login][$this->password_field])) {
-                    //print "<div>Login success</div>";
+                $valid_auth = $this->user_manager->check_password($login, $password);
+                if ($valid_auth) {
                     $_SESSION[$this->user_field] = $login;
-                    $_SESSION['password'] = $this->users[$login][$this->password_field];
+                    $_SESSION['password'] = $this->user_manager->get_user($login)[$this->password_field];
                     $_SESSION['login_time'] = time();
-                    $_SESSION['user_data'] = $this->users[$login];
+                    $_SESSION['user_data'] = $this->user_manager->get_user($login);
                     session_regenerate_id(true); // Regenerate session ID
                     if ($redirect_url) {
                         header("Location: $redirect_url");
@@ -175,8 +115,6 @@ class SimpleAuth extends Base
                 } else {
                     $this->errors[] = "Failed Login";
                     return false;
-                    // Log the failed login attempt
-                    //error_log("Failed login attempt for user: $login");
                 }
             }
         } else {
@@ -211,15 +149,10 @@ class SimpleAuth extends Base
             // print "<div>is logged in</div>";
         }
     }
-
-    // Check if user is logged in
     public function is_logged_in()
     {
-        return isset($_SESSION[$this->user_field]) && isset($_SESSION['password']) &&
-            isset($this->users[$_SESSION[$this->user_field]]) && $_SESSION['password'] === $this->users[$_SESSION[$this->user_field]][$this->password_field];
+        return $this->user_manager->is_logged_in($_SESSION);
     }
-
-    // Log off
     public function logoff($redirect_url = null)
     {
         session_destroy();
@@ -231,37 +164,15 @@ class SimpleAuth extends Base
     }
     function check_password($user, $password)
     {
-        $crypt_pass = crypt($user, $password);
-        //print_r($this->users[$user]);
-        //print "<div>Received $password, crypted: $crypt_pass= " . $this->users[$user][$this->password_field] . "</div>";
-        if (isset($this->users[$user]) && password_verify($password, $this->users[$user][$this->password_field])) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->user_manager->check_password($user, $password);
     }
-
-    // Edit password
     public function generate_password_file()
     {
-        $htpasswd = "<?php \n\n";
-        foreach ($this->users as $key => $value) {
-            $htpasswd .= "  \$pref_users['$key']=array(";
-            foreach ($value as $key2 => $value2) {
-                $htpasswd .= " '$key2' => '$value2' ,";
-            }
-            $htpasswd = substr($htpasswd, 0, (strlen($htpasswd) - 1));
-            $htpasswd .= ");\n";
-        }
-        $htpasswd .= "\n\n?>";
-        return $htpasswd;
+        return $this->user_manager->generate_password_file();
     }
     public function write_password_file()
     {
-        $passwords = $this->generate_password_file();
-        $fh = fopen($this->password_file, 'w') or die($this->get_translations('Check Permissions'));
-        fwrite($fh, $htpasswd);
-        fclose($fh);
+        $this->user_manager->write_password_file();
     }
     public function edit_password()
     {
@@ -275,21 +186,17 @@ class SimpleAuth extends Base
                     $this->errors[] = $this->get_translation("New password and confirm password do not match");
                     return false;
                 }
-
                 if (!$this->validate_password($new_password)) {
-
                     return false;
                 }
-
                 $user = $_SESSION[$this->user_field];
-                if (password_verify($current_password, $this->users[$user][$this->password_field])) {
-                    //if ($this->check_password($current_password, $this->users[$user][$this->password_field])) {
-                    $this->users[$user][$this->password_field] = password_hash($new_password, PASSWORD_DEFAULT);
-                    $_SESSION['password'] = $this->users[$user]; // Update session password
+                if ($this->user_manager->check_password($user, $current_password)) {
+                    $this->user_manager->set_password($user, $new_password);
+                    $_SESSION['password'] = $this->user_manager->get_user($user)[$this->password_field]; // Update session password
                     $this->message = $this->get_translation("Password changed successfully");
                     return true;
                 } else {
-                    $this->this[] = $this->get_translation("Current password is incorrect");
+                    $this->errors[] = $this->get_translation("Current password is incorrect");
                     return false;
                 }
             }
@@ -298,28 +205,6 @@ class SimpleAuth extends Base
         }
         return false;
     }
-    // private function get_translation($untranslated)
-    // {
-    //     return $this->translations[$untranslated] ?? $untranslated;
-    // }
-    // Validate password complexity
-
-
-    // private function substitute_vars($template, $vars = false)
-    // {
-    //     //print_r($vars) ;exit;
-    //     if (!$vars) {
-    //         $vars = $this->vars ?? [];
-    //     }
-    //     foreach ($vars ?? [] as $key => $value) {
-    //         if (!is_array($value)) {
-    //             $template = str_replace('{{' . $key . "}}", $value, $template);
-    //         }
-    //     }
-    //     $template = str_replace("{{nocache}}", "", $template);
-    //     $template = str_replace("{{/nocache}}", " ", $template);
-    //     return $template;
-    // }
     private function validate_password($password)
     {
         if (strlen($password) < 8) {
