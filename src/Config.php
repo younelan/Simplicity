@@ -8,7 +8,7 @@
             "defaults" => "defaults.json",
             "system.palettes" => "palettes.json",
             "vars" => "vars.json",
-            "auth" => "auth.json"
+            "translations" => "translations.json"
         ];
 
         function __construct($config = [])
@@ -22,6 +22,8 @@
         }
         public function on_init() {
             $this->loadPrimaryConfig();
+            $this->setTranslations();
+            
             $this->setSiteVars();
             $this->setWebRoot();
             $this->setDefaultLanguage();
@@ -88,6 +90,15 @@
             }
             return $default_lang;
         }
+        function setTranslations()
+        {
+            $translations = $this->settings['translations'] ?? [];
+            if (!isset($translations['en'])) {
+                $keys = array_keys($translations['fr'] ?? []);
+                $translations['en'] = array_combine($keys, $keys);
+            }
+            $this->settings['translations'] = $translations;
+        }
         /**
          * Get the current domain
          * @return string The domain (e.g., "localhost", "example.com")
@@ -115,6 +126,7 @@
                 }
 
             }
+
         }
         /**
          * Set site variables from the configuration
@@ -279,13 +291,7 @@
     {
         $user = $_SESSION['user_data'];
         $user['username'] = $_SESSION['user'];
-        // $user = [
-        //     'username' => "default" ?? '',
-        //     'id' => 1 ?? 0,
-        //     'email' => "default@example.com" ?? '',
-        //     'role' => "admin" ?? '',
-        //     'status' => "active" ?? ''
-        // ];
+
         return $user; 
     } 
     /**
