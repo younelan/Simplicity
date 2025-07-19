@@ -30,7 +30,7 @@ class Gallery extends \Opensitez\Simplicity\Component
         print "Page: $page<br/>";
         $galleries = new \Opensitez\Simplicity\Components\GalleryController($this->config_object);
         //print(get_class($galleries));
-        $galleries->set_handler($this->framework);
+        $galleries->set_framework($this->framework);
         //$galleries->set_config($this->config);
         $galleries->connect();
         if ($_POST['gallery_id'] ?? false) {

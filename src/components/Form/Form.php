@@ -93,7 +93,7 @@ class Form extends \Opensitez\Simplicity\Component
 						try {
 							$current_class_name = "\\Opensitez\\Components\\" . $this->available_fields[$field_type];
 							$new_field = new $current_class_name($this->config_object);
-							$new_field->set_handler($this->framework);
+							$new_field->set_framework($this->framework);
 							$new_field->set_fields($field_def);
 							$this->fields[] = $new_field;
 						} catch (Exception $e) {
@@ -168,7 +168,7 @@ class Form extends \Opensitez\Simplicity\Component
 		$page = $app['page'] ?? "list";
 		$app['form_id'] = $_POST['form_id'] ?? $_GET['form_id'] ?? false;
 		$forms = new FormController($this->config_object);
-		$forms->set_handler($this->framework);
+		$forms->set_framework($this->framework);
 		$forms->set_field_types($this->available_fields);
 		$forms->connect();
 		switch ($page) {

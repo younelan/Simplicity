@@ -118,7 +118,7 @@ class Template extends \Opensitez\Simplicity\Component
         $this->init_paths();
         $this->get_template($app);
         $menumaker = new Menu($this->config_object);
-        $menumaker->set_handler($this->framework);
+        $menumaker->set_framework($this->framework);
         // print_r($current_site);exit;
 
         $menuopts = [
@@ -206,7 +206,7 @@ class Template extends \Opensitez\Simplicity\Component
             default:
                 $this->template_engine = new \Opensitez\Simplicity\Components\SimpleTemplate($this->config_object);
         }
-        $this->template_engine->set_handler($this->framework);
+        $this->template_engine->set_framework($this->framework);
         $this->template_engine->engine_init();
         $this->on_render_template($app);
 

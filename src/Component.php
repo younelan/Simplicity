@@ -13,10 +13,6 @@ class Component extends Base
     protected $config_object = null;
     protected $debug = null;
 
-    function __construct($config_object = null)
-    {
-        $this->config_object = $config_object;
-    }
     function str_replace_once($search, $replace, $subject)
     {
         $pos = strpos($subject, $search);
@@ -48,7 +44,7 @@ class Component extends Base
                 $value['name'] = $idx;
                 $section_options = $new_section;
                 $new_section = new Section($this->config_object);
-                $new_section->set_handler($this->framework);
+                $new_section->set_framework($this->framework);
                 $new_section->set_section_options($section_options);
                 $this->config_object->set('site.sections.' . $idx, $new_section);
             }
@@ -110,15 +106,9 @@ class Component extends Base
         $form = $this->get_component("form");
         return $form->generate_input($data);
     }
-    function set_handler(&$handler)
+    function set_framework(&$framework)
     {
-        $this->framework = &$handler;
-    }
-    function on_component_load()
-    {
-        // Called when component is loaded, override in child classes
-        // Use this to register services, content providers, etc.
-        // DEPRECATED: Use on_event(['type' => MSG::onComponentLoad]) instead
+        $this->framework = &$framework;
     }
     function get_route_types()
     {
@@ -155,7 +145,7 @@ class Component extends Base
     public function get_palette($app)
     {
         $palette = new Palette($this->config_object);
-        $palette->set_handler($this->framework);
+        $palette->set_framework($this->framework);
         $palette = $palette->render($app);
         return $palette;
     }

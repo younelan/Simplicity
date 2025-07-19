@@ -103,7 +103,7 @@ class Theme extends \Opensitez\Simplicity\Component
 
     
         $menumaker = new Menu($this->config_object);
-        $menumaker->set_handler($this->framework);
+        $menumaker->set_framework($this->framework);
         // print_r($current_site);exit;
 
         $menuopts = [
@@ -232,7 +232,7 @@ class Theme extends \Opensitez\Simplicity\Component
             }
         }
         
-        $this->template_engine->set_handler($this->framework);
+        $this->template_engine->set_framework($this->framework);
         $this->template_engine->engine_init();
         $this->assign_template_vars();
         $rendered = $this->on_render_templates($app);

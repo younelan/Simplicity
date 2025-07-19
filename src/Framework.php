@@ -63,12 +63,12 @@ class Framework extends Base
             }
         }
     } 
-    function set_handler($component_handler)
+    function set_framework($component_framework)
     {
         foreach ($this->components ?? [] as $group => $group_components) {
             foreach ($group_components as $name => $component) {
                 if ($component) {
-                    $component->set_handler($component_handler);
+                    $component->set_framework($component_framework);
                 }
             }
         }
@@ -90,7 +90,7 @@ class Framework extends Base
         foreach($this->core_components as $component) {
             $new_component_name = 'Opensitez\\Simplicity\\' . $component;
             $instance = new $new_component_name($this->config_object);
-            $instance->set_handler($this);
+            $instance->set_framework($this);
             $this->components['core'][strtolower($component)] = $instance;
             if (method_exists($instance, 'on_event')) {
                 $instance->on_event(['type' => MSG::onComponentLoad]);  
@@ -128,7 +128,7 @@ class Framework extends Base
                     if (class_exists($classname)) {
                         $component_instance = new $classname($this->config_object);
                         $this->components[$group][strtolower($file)] = $component_instance;
-                        $component_instance->set_handler($this);
+                        $component_instance->set_framework($this);
                         if ($component_instance && method_exists($component_instance, 'on_event')) {
                             $component_instance->on_event(['type' => MSG::onComponentLoad]);
                         }

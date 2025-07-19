@@ -15,7 +15,7 @@ class FormController extends \Opensitez\Simplicity\Component
     {
         //print_r($this->config);exit;
         $this->formManager = new FormModel($this->config_object);
-        $this->formManager->set_handler($this->framework);
+        $this->formManager->set_framework($this->framework);
         $this->formManager->connect();
     }
     function addForm($app = [])

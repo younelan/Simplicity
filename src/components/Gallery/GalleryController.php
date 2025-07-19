@@ -18,7 +18,7 @@ class GalleryController extends \Opensitez\Simplicity\Component
     {
         //print_r($this->config);exit;
         $this->galleryManager = new \Opensitez\Components\GalleryGroupModel($this->config_object);
-        $this->galleryManager->set_handler($this->framework);
+        $this->galleryManager->set_framework($this->framework);
         $this->galleryManager->connect();
     }
 
