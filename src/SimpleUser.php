@@ -1,16 +1,16 @@
 <?php
 namespace Opensitez\Simplicity;
-// Simple list of user auth
+// Simple list of user auth, default auth for SimpleAuth
 class SimpleUser extends Base {
     private $password_file = "adminprefs.php";
     private $users = [];
     private $password_field = 'password';
     private $user_field = 'user';
 
-    public function generate_password_file()
+    public function generatePasswordFile()
     {
         $htpasswd = "<?php \n\n";
-        foreach ($this->get_users() as $key => $value) {
+        foreach ($this->getUsers() as $key => $value) {
             $htpasswd .= "  \$pref_users['$key']=array(";
             foreach ($value as $key2 => $value2) {
                 $htpasswd .= " '$key2' => '$value2' ,";
@@ -22,42 +22,54 @@ class SimpleUser extends Base {
         return $htpasswd;
     }
 
-    public function write_password_file()
+    public function writePasswordFile()
     {
-        $htpasswd = $this->generate_password_file();
+        $htpasswd = $this->generatePasswordFile();
         $fh = fopen($this->password_file, 'w') or die('Check Permissions');
         fwrite($fh, $htpasswd);
         fclose($fh);
     }
     public function __construct($config_object = null) {
         parent::__construct($config_object);
-        $users = $this->config_object ? $this->config_object->get('users') : [];
-        $this->set_users($users);
+        $users = $this->config_object->get('site.current-route.auth.users', $this->config_object->get('site.auth.users'));
+        if (!$users) {
+            $users = [];
+        }
+        $format = $this->config_object->get('site.current-route.auth.format', $this->config_object->get('site.auth.format', 'plaintext'));
+        if($format === 'plaintext') {
+            $users = array_map(function($user) {
+                $user[$this->password_field] = md5($user[$this->password_field]);
+                return $user;
+            }, $users);
+        }
+
+        // print_r($users);exit;
+        $this->setUsers($users);
     }
-    public function set_users($users) {
+    public function setUsers($users) {
         $this->users = $users;
     }
-    public function get_user($username) {
+    public function getUser($username) {
         return $this->users[$username] ?? null;
     }
-    public function check_password($user, $password) {
+    public function checkPassword($user, $password) {
         if (isset($this->users[$user]) && password_verify($password, $this->users[$user][$this->password_field])) {
             return true;
         }
         return false;
     }
-    public function is_logged_in($session) {
+    public function isLoggedIn($session) {
         return isset($session[$this->user_field]) && isset($session['password']) &&
             isset($this->users[$session[$this->user_field]]) && $session['password'] === $this->users[$session[$this->user_field]][$this->password_field];
     }
-    public function set_password($user, $new_password) {
+    public function setPassword($user, $new_password) {
         if (isset($this->users[$user])) {
             $this->users[$user][$this->password_field] = password_hash($new_password, PASSWORD_DEFAULT);
             return true;
         }
         return false;
     }
-    public function get_users() {
+    public function getUsers() {
         return $this->users;
     }
 }

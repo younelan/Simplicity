@@ -1,7 +1,7 @@
 <?php
 namespace Opensitez\Simplicity;
 
-class SimpleAuth extends Base
+class SimpleAuth extends \Opensitez\Simplicity\Component
 {
     private $user_manager;
     private $translations;
@@ -13,24 +13,57 @@ class SimpleAuth extends Base
     private $user_field = 'user';
     private $password_field = 'password';
     private $password_file = "adminprefs.php";
+    private $currentRoute = [];
+    private $domain = '';
+    private $defaults = [];
+    private $login_template = '';
+    private $authType = 'simple';
     private $errors = [];
-    public function set_users($users)
+    public function setUsers($users)
     {
-        $this->user_manager->set_users($users);
+        $this->user_manager->setUsers($users);
     }
     public function __construct($config_object = null)
     {
         parent::__construct($config_object);
-        $this->user_manager = new SimpleUser($this->config_object);
-        $this->vars = $this->config_object ? $this->config_object->get('vars') ?? [] : [];
+    }
+    public function initAuth() {
+        session_start();
+        $this->generate_csrf_token();
+        $this->currentRoute = $this->config_object->get('site.current-route', []);
+        print "<strong>Debug:</strong> Initializing SimpleAuth component.<br/>\n";
+        $this->login_template = $this->load_template("login/login_template.tpl");
+        $this->domain = $this->config_object->get('site.host', '');
+        $this->defaults = $this->config_object->get('auth.defaults', []);
+        $auth = $this->config_object->get('site.current-route.auth', $this->config_object->get('site.auth'));
+        $this->vars = $auth['vars'] ??[];
+
+        $auth_type = $auth['type'] ?? 'simple';
+
+       
+        if ($auth) {
+            $this->authType = $auth['type'] ?? $defaults['type'] ?? 'simple';
+            $this->user_manager = $this->framework->get_registered_type('userprovider', strtolower($this->authType));
+
+            if ($this->user_manager) {
+                $this->debug("<strong>Debug:</strong> Found auth component: $this->authType<br/>");
+                $this->user_manager->on_event(['type' => MSG::onAuth, 'domain' => $this->domain]);
+            } else {
+                $this->debug("<strong>Debug:</strong> No auth component found for type: $this->authType, using default<br/>");
+                //$this->user_manager = $this->framework->get_registered_type("userprovider", "simple");
+                 $this->user_manager = new SimpleUser($this->config_object);
+            }
+        }	else {
+            $this->debug("<strong>Debug:</strong> No auth configuration found, using default simple user manager.<br/>");
+        }
+
         $this->lang = $this->config_object ? $this->config_object->get('lang') ?? 'en' : 'en';
         $this->translations = $this->config_object ? $this->config_object->get('translations') ?? [] : [];
         $this->template = $this->config_object ? $this->config_object->get('template') ?? '{{content}}' : '{{content}}';
+
         $this->edit_password_template = $this->load_template('login/edit_password.tpl');
         $this->form_template = $this->load_template('login/login_template.tpl');
 
-        session_start();
-        $this->generate_csrf_token();
     }
     public function set_template($template_str)
     {
@@ -60,6 +93,7 @@ class SimpleAuth extends Base
     }
     public function show_login_form()
     {
+        print "<div>Showing login form</div>";
         $vars = $this->vars;
         $vars['csrf_token'] = $_SESSION['csrf_token'];
         $vars['content'] = $this->substitute_vars($this->form_template, $vars);
@@ -100,12 +134,12 @@ class SimpleAuth extends Base
             if (isset($_POST['login']) && isset($_POST['password'])) {
                 $login = $_POST['login'];
                 $password = $_POST['password'];
-                $valid_auth = $this->user_manager->check_password($login, $password);
+                $valid_auth = $this->user_manager->checkPassword($login, $password);
                 if ($valid_auth) {
                     $_SESSION[$this->user_field] = $login;
-                    $_SESSION['password'] = $this->user_manager->get_user($login)[$this->password_field];
+                    $_SESSION['password'] = $this->user_manager->getUser($login)[$this->password_field];
                     $_SESSION['login_time'] = time();
-                    $_SESSION['user_data'] = $this->user_manager->get_user($login);
+                    $_SESSION['user_data'] = $this->user_manager->getUser($login);
                     session_regenerate_id(true); // Regenerate session ID
                     if ($redirect_url) {
                         header("Location: $redirect_url");
@@ -124,7 +158,7 @@ class SimpleAuth extends Base
     }
 
     // Require login or die
-    public function require_login($redirect_url = null)
+    public function requireLogin($redirect_url = null)
     {
         $action = $_GET['action'] ?? "";
         if ($action == "logoff") {
@@ -141,8 +175,7 @@ class SimpleAuth extends Base
             // }
         }
         if (!$this->is_logged_in()) {
-            // print "<div>yeah 
-            // requiring in</div>";
+             print "<div>yeah requiring in</div>";
             $this->show_login_form();
             die();
         } else {
@@ -151,7 +184,7 @@ class SimpleAuth extends Base
     }
     public function is_logged_in()
     {
-        return $this->user_manager->is_logged_in($_SESSION);
+        return $this->user_manager->isLoggedIn($_SESSION);
     }
     public function logoff($redirect_url = null)
     {
@@ -164,15 +197,15 @@ class SimpleAuth extends Base
     }
     function check_password($user, $password)
     {
-        return $this->user_manager->check_password($user, $password);
+        return $this->user_manager->checkPassword($user, $password);
     }
     public function generate_password_file()
     {
-        return $this->user_manager->generate_password_file();
+        return $this->user_manager->generatePasswordFile();
     }
     public function write_password_file()
     {
-        $this->user_manager->write_password_file();
+        $this->user_manager->writePasswordFile();
     }
     public function edit_password()
     {
@@ -190,9 +223,9 @@ class SimpleAuth extends Base
                     return false;
                 }
                 $user = $_SESSION[$this->user_field];
-                if ($this->user_manager->check_password($user, $current_password)) {
-                    $this->user_manager->set_password($user, $new_password);
-                    $_SESSION['password'] = $this->user_manager->get_user($user)[$this->password_field]; // Update session password
+                if ($this->user_manager->checkPassword($user, $current_password)) {
+                    $this->user_manager->setPassword($user, $new_password);
+                    $_SESSION['password'] = $this->user_manager->getUser($user)[$this->password_field]; // Update session password
                     $this->message = $this->get_translation("Password changed successfully");
                     return true;
                 } else {
