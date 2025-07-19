@@ -2,26 +2,6 @@
 
 namespace Opensitez\Simplicity;
 
-enum MSG
-{
-    case onInit;
-    case onParseSite;
-    case onParseRoute;
-    case onRenderAdminPage;
-    case onSetLayout;
-    case onSetPalette;
-    case onSetBlocks;
-    case onSetMenus;
-    case onRenderPage;
-    case onRenderBlock;
-    case onShutdown;
-    case onRegisterTemplateEngine;
-    case onRegisterDirective;
-    case onHandleAuth;
-    case onRouteNotFound;
-    case onError;
-    case onComponentLoad;
-}
 class Component extends Base
 {
     public $name;
@@ -109,6 +89,9 @@ class Component extends Base
         switch ($event["type"]) {
             case MSG::onInit:
                 break;
+            case MSG::onComponentLoad:
+                // Override in child classes to handle component registration
+                break;
             case MSG::onParseSite:
                 break;
             case MSG::onRenderPage:
@@ -117,9 +100,7 @@ class Component extends Base
                 break;
             case MSG::onError:
                 break;
-            case MSG::onComponentLoad:
-                // Override in child classes to handle component registration
-                break;
+
         }
 
         return false;
