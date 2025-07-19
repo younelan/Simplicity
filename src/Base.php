@@ -10,7 +10,15 @@ class Base
     protected $options = [];
     function __construct($config_object=null)
     {
+        if(!$config_object) {
+            $config_object = new \Opensitez\Simplicity\Config();
+        } elseif (is_array($config_object)) {
+            $config_object = new \Opensitez\Simplicity\Config($config_object);
+        } elseif (is_object($config_object)) {
+            $config_object = $config_object;
+        }
         $this->config_object = $config_object;
+
     }
     // Substitute variables in the template
     public function substitute_vars($content, $vars, $blocks = [])
@@ -87,13 +95,24 @@ class Base
 
     function load_template($file,$default_folder = false)
     {
-        $paths = $this->config_object->get('paths');
-        $syspath = $this->config_object->get('system.paths');
-        
-        $site_template_path = $paths['datafolder'] . "/templates" . "/" . $file;
-        $full_path = $paths['core-templates'] . "/" . $file;
+        if($this->config_object) {
+            $paths = $this->config_object->get('paths');
+            $syspath = $this->config_object->get('system.paths', []);
+            $core_templates = $this->config_object->get('core-templates', __DIR__ . "/templates" . "/");
+            $datafolder = $this->config_object->get('paths.datafolder', __DIR__ . "/data" . "/");
+            $site_template_path = $datafolder . "/templates" . "/" . $file;
 
-        $sys_template_path = $syspath['templates'] . "/" . $file;
+            $full_path = $core_templates     . "/" . $file;
+            $sys_template_path = $syspath['templates'] . "/" . $file;
+        } else {
+            $core_templates = __DIR__ . "/templates" . "/";
+            $paths = [];
+            $syspath = [];
+            $sys_template_path =  $core_templates . "/" . $file;
+            $full_path =  $core_templates . "/" . $file;
+        }
+        
+
 
         if (is_file($site_template_path)) {
             //print "Loading site template file: $site_template_path\n";
@@ -121,7 +140,6 @@ class Base
     }
     function translate_page($page, $lang = "")
     {
-        
         $lang = "fr";
         if($this->config_object) {
             $lang = $this->config_object->get("site.lang") ?? "fr";
@@ -138,8 +156,6 @@ class Base
 
         return $page;
     }
-
-    
     /**
      * Get a translation for a given string in the specified language.
      * If no language is specified, defaults to French ('fr').
@@ -159,7 +175,6 @@ class Base
                 $lang = $this->config_object->get("lang") ?? "fr";
             }
         }
-        //$translations = $this->config['translations'] ?? [];
         $retval = $translations[$lang][$i18nstr] ?? $i18nstr;
         return $retval;
     }
