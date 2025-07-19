@@ -54,7 +54,7 @@ class Base
     public function debug($msg, $level = 2) {
         // For now, just print anything
         $current_level = $this->config_object->get('debug.level', 0);
-        $current_level = 0;
+        $current_level = 2;
         if ($current_level>=$level) {
             echo $msg;
         }
@@ -93,8 +93,21 @@ class Base
         return $path;
     }
 
-    function load_template($file,$default_folder = false)
+    function load_template($file,$paths = false)
     {
+        // print "Loading template file: $file\n";
+        // print_r($paths);
+        // exit;
+        if($paths) {
+            foreach ($paths as $path) {
+                if (is_file($path . "/" . $file)) {
+                    $full_path = $path . "/" . $file;
+                    $template_contents = @file_get_contents($full_path);
+                    return $template_contents;
+                    break;
+                }
+            }
+        }
         if($this->config_object) {
             $paths = $this->config_object->get('paths');
             $syspath = $this->config_object->get('system.paths', []);
@@ -111,7 +124,7 @@ class Base
             $sys_template_path =  $core_templates . "/" . $file;
             $full_path =  $core_templates . "/" . $file;
         }
-        
+        $default_folder = $paths['datafolder'] ?? __DIR__ . "/data" . "/";
 
 
         if (is_file($site_template_path)) {
@@ -246,7 +259,7 @@ class Base
         $block_instance = new Block($this->config_object);
         print "Adding block: " . $block_name . " to section: " . $section . "\n";
         $block_instance->set_block_options($block);
-        $block_instance->set_handler($this->framework);
+        $block_instance->set_framework($this->framework);
 
         $this->config_object->set("site.blocks.$block_name", $block_instance);
     }
