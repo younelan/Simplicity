@@ -8,6 +8,15 @@ class Base
     protected $leftdelim = "{{";
     protected $rightdelim = "}}";
     protected $options = [];
+    // Debug function with optional debug level
+    public function debug($msg, $level = 2) {
+        // For now, just print anything
+        $current_level = $this->config_object->get('debug.level', 0);
+        $current_level = 0;
+        if ($current_level>=$level) {
+            echo $msg;
+        }
+    }
     function __construct($config_object=null)
     {
         if(!$config_object) {
@@ -50,15 +59,7 @@ class Base
         $this->options = $options;
     }
 
-    // Debug function with optional debug level
-    public function debug($msg, $level = 2) {
-        // For now, just print anything
-        $current_level = $this->config_object->get('debug.level', 0);
-        $current_level = 2;
-        if ($current_level>=$level) {
-            echo $msg;
-        }
-    }
+
     function replace_paths($string)
     {
         $paths = $this->config_object->get('paths');
@@ -92,7 +93,14 @@ class Base
 
         return $path;
     }
-
+    public function isLoggedIn($session=false) {
+        if (!$session) {
+            $session = $_SESSION ?? [];
+        }
+        return isset($session["login"]) && isset($session['password']) ;
+        //to do reimplement if passwords changed during session
+        //&& isset($this->users[$session["login"]]) && $session['password'] === $this->users[$session["login"]][$this->password_field];
+    }
     function load_template($file,$paths = false)
     {
         // print "Loading template file: $file\n";
