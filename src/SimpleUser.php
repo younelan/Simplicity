@@ -7,6 +7,7 @@ class SimpleUser extends Base {
     private $password_field = 'password';
     private $user_field = 'user';
 
+
     public function generatePasswordFile()
     {
         $htpasswd = "<?php \n\n";
@@ -52,16 +53,13 @@ class SimpleUser extends Base {
     public function getUser($username) {
         return $this->users[$username] ?? null;
     }
-    public function checkPassword($user, $password) {
+    public function checkCredentials($user, $password) {
         if (isset($this->users[$user]) && password_verify($password, $this->users[$user][$this->password_field])) {
             return true;
         }
         return false;
     }
-    public function isLoggedIn($session) {
-        return isset($session[$this->user_field]) && isset($session['password']) &&
-            isset($this->users[$session[$this->user_field]]) && $session['password'] === $this->users[$session[$this->user_field]][$this->password_field];
-    }
+
     public function setPassword($user, $new_password) {
         if (isset($this->users[$user])) {
             $this->users[$user][$this->password_field] = password_hash($new_password, PASSWORD_DEFAULT);
