@@ -31,7 +31,7 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
         session_start();
         $this->generate_csrf_token();
         $this->currentRoute = $this->config_object->get('site.current-route', []);
-        print "<strong>Debug:</strong> Initializing SimpleAuth component.<br/>\n";
+        //print "<strong>Debug:</strong> Initializing SimpleAuth component.<br/>\n";
         $this->login_template = $this->load_template("login/login_template.tpl");
         $this->domain = $this->config_object->get('site.host', '');
         $this->defaults = $this->config_object->get('auth.defaults', []);
@@ -91,9 +91,9 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
     {
         return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
     }
-    public function show_login_form()
+    public function showLoginForm()
     {
-        print "<div>Showing login form</div>";
+        //print "<div>Showing login form</div>";
         $vars = $this->vars;
         $vars['csrf_token'] = $_SESSION['csrf_token'];
         $vars['content'] = $this->substitute_vars($this->form_template, $vars);
@@ -134,12 +134,15 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
             if (isset($_POST['login']) && isset($_POST['password'])) {
                 $login = $_POST['login'];
                 $password = $_POST['password'];
-                $valid_auth = $this->user_manager->checkPassword($login, $password);
+                $valid_auth = $this->user_manager->checkCredentials($login, $password);
                 if ($valid_auth) {
+                    //print "<div>Valid auth for user: $login</div>";
+                    //$login = $valid_auth['username'] ?? $login; // Ensure we have the username
                     $_SESSION[$this->user_field] = $login;
-                    $_SESSION['password'] = $this->user_manager->getUser($login)[$this->password_field];
+                    $_SESSION['login'] = $login;
+                    $_SESSION['password'] = $valid_auth[$this->password_field];
                     $_SESSION['login_time'] = time();
-                    $_SESSION['user_data'] = $this->user_manager->getUser($login);
+                    $_SESSION['user_data'] = $valid_auth;
                     session_regenerate_id(true); // Regenerate session ID
                     if ($redirect_url) {
                         header("Location: $redirect_url");
@@ -160,6 +163,7 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
     // Require login or die
     public function requireLogin($redirect_url = null)
     {
+        //print_r($_SESSION);
         $action = $_GET['action'] ?? "";
         if ($action == "logoff") {
             $this->logoff();
@@ -168,23 +172,18 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $status = $this->login($redirect_url);
-            // if($status) {
-            //     print "<div>Woohoo, we're in</div>";
-            // } else {
-            //     print "<div>not in, will need requiring in</div>";
-            // }
         }
-        if (!$this->is_logged_in()) {
-             print "<div>yeah requiring in</div>";
-            $this->show_login_form();
+        if (!$this->isLoggedIn()) {
+            //print "<div>yeah requiring in</div>";
+            $this->showLoginForm();
             die();
         } else {
-            // print "<div>is logged in</div>";
+             //print "<div>is logged in</div>";
         }
     }
-    public function is_logged_in()
+    public function isLoggedIn($session = false)
     {
-        return $this->user_manager->isLoggedIn($_SESSION);
+        return $this->user_manager->isLoggedIn();
     }
     public function logoff($redirect_url = null)
     {
@@ -195,19 +194,19 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
             exit;
         }
     }
-    function check_password($user, $password)
+    function checkCredentials($user, $password)
     {
-        return $this->user_manager->checkPassword($user, $password);
+        return $this->user_manager->checkCredentials($user, $password);
     }
-    public function generate_password_file()
+    public function generatePasswordFile()
     {
         return $this->user_manager->generatePasswordFile();
     }
-    public function write_password_file()
+    public function writePasswordFile()
     {
         $this->user_manager->writePasswordFile();
     }
-    public function edit_password()
+    public function editPassword()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csrf_token']) && $this->validate_csrf_token($_POST['csrf_token'])) {
             if (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_password'])) {
@@ -223,7 +222,7 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
                     return false;
                 }
                 $user = $_SESSION[$this->user_field];
-                if ($this->user_manager->checkPassword($user, $current_password)) {
+                if ($this->user_manager->checkCredentials($user, $current_password)) {
                     $this->user_manager->setPassword($user, $new_password);
                     $_SESSION['password'] = $this->user_manager->getUser($user)[$this->password_field]; // Update session password
                     $this->message = $this->get_translation("Password changed successfully");
@@ -238,7 +237,7 @@ class SimpleAuth extends \Opensitez\Simplicity\Component
         }
         return false;
     }
-    private function validate_password($password)
+    private function validatePassword($password)
     {
         if (strlen($password) < 8) {
             $this->errors[] = "Password must be at least 8 characters long.";
