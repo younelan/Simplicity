@@ -98,7 +98,9 @@ class Routing extends \Opensitez\Simplicity\Component
      */
     function legacyShowPage()
     {
-
+        $section_object = $this->framework->get_plugin("section");
+        return $section_object->render_section_contents($inserts, $app);
+        
         $this->app = $this->config_object->getApp();
         $current_site = $this->config_object->getCurrentSite();
 
@@ -115,10 +117,10 @@ class Routing extends \Opensitez\Simplicity\Component
             $before = $this->app['before'] ?? [];
             $after = $this->app['after'] ?? [];
             $footer = $this->app['footer'] ?? $current_site['footer'] ?? [];
-            $content = $page->render_inserts($before, $this->app);
+            $content = $section_object->render_section_contents($before, $this->app);
             $content .= $current_plugin->on_render_page($this->app);
-            $content .= $page->render_inserts($after, $this->app);
-            $content .= $page->render_inserts($footer, $this->app);
+            $content .= $section_object->render_section_contents($after, $this->app);
+            $content .= $section_object->render_section_contents($footer, $this->app);
             $this->config_object->setVar('content', $content);
         }
         if (!isset($no_template_output)) {
@@ -169,13 +171,24 @@ class Routing extends \Opensitez\Simplicity\Component
         $routeData["segments"] = $siteConfig["segments"] ?? [];
         $routeData["domain"] = $siteConfig["host"] ?? "";
 
+        $page_before  = $routeData['before'] ?? [];
+        $page_after  = $routeData['after'] ?? [];
+
+        $section_object = $this->framework->get_component("section");
+        $content_before = $section_object->render_section_contents($page_before, $this->app);
+        $content_after = $section_object->render_section_contents($page_after, $this->app);
+
+        // print_r($content_before);
+        // // print_r($page_after);
+        //  exit;
+
         if (method_exists($routeHandler, "on_render_page")) {
             $routeHandler->set_options($routeData);
-            $content = $routeHandler->on_render_page($routeData);
+            $content = $content_before . $routeHandler->on_render_page($routeData) . $content_after;
             $this->config_object->set("site.current-route", $routeData);
         } else {
             $this->debug("<strong>Debug:</strong> Handler for route type '$routeType' does not have on_render_page method<br/>");
-            $content = "";
+            $content = $content_before . "" . $content_after;
         }
         if (!isset($no_template_output)) {
             $template = $this->framework->get_component("theme");
