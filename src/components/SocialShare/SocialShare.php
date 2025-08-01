@@ -71,9 +71,9 @@ class SocialShare extends \Opensitez\Simplicity\Component
             ".social-share-item img {width:$width;height:$height;}\n" .
             "</style>\n<div class='social-share'>\n";
 
-        $server = $this->config_object->getServerVars();
+        //$server = $this->config_object->getServerVars();
 
-        $domain = $server['HTTP_HOST'];
+        $domain = $_SERVER['HTTP_HOST'];
         $routestr = $app['route'] ?? "";
         if ($routestr == "default")
             $routestr = "";
