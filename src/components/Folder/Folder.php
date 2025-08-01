@@ -13,10 +13,10 @@ class Folder extends \Opensitez\Simplicity\Component
     function on_event($event)
     {
         if ($event['type'] === MSG::onComponentLoad) {
-            error_log("DEBUG: Folder component registering route types");
+            //error_log("DEBUG: Folder component registering route types");
             $this->framework->register_type('contentprovider', 'folder');
             $this->framework->register_type('routetype', 'folder');
-            error_log("DEBUG: Folder component registration complete");
+            //error_log("DEBUG: Folder component registration complete");
         }
         parent::on_event($event);
     }

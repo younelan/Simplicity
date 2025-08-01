@@ -75,8 +75,22 @@ class Section extends \Opensitez\Simplicity\Component
     //     foreach($contentafter as $tmp) {
     //         $outputs[$section] .= $tmp ."\n"; 
     // }
-    function render_section_contents($inserts, $app)
+    function new_render_section_contents($inserts,$app=null) {
+        $content = "";
+;
+        $block_component = $this->framework->get_component("block");
+        foreach ($inserts as $id=>$block) {
+            print "$id<br/>" . print_r($block,true);
+            $content .= $block_component->on_render_section($block);
+        };        
+        return $content;
+    }
+    function render_section_contents($inserts, $app = null)
     {
+        if(!$app) {
+            $app = $this->config_object->get('site.current-route');
+        }
+
         $style = $app['style'] ?? $this->style;
         $class = $app['class'] ?? "";
         $class = "section " . $this->class;
@@ -95,12 +109,13 @@ class Section extends \Opensitez\Simplicity\Component
             if (!is_array($incblock)) {
                 $incblock = ["content" => $incblock];
             }
-            $inctype = $incblock['type'] ?? "text";
+            //print "$id<br/>";
+            $inctype = $incblock['type'] ?? "block";
 
             $current_component = $this->framework->get_component($inctype);
             if (!isset($incblock['type'])) {
                 $incblock = ['content' => $incblock];
-                $incblock['type'] = $inctype ?? "text";
+                $incblock['type'] = $inctype ?? "block";
             }
             $gallerylink = $incblock['link'] ?? "";
             if (isset($incblock['title'])) {
