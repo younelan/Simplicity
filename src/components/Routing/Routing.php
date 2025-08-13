@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Cms\Components;
+namespace Opensitez\Simplicity\Components;
 use Opensitez\Simplicity\MSG;
 
 class Routing extends \Opensitez\Simplicity\Component

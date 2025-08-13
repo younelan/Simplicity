@@ -1,5 +1,5 @@
 <?php
-namespace Opensitez\Cms\Components;
+namespace Opensitez\Simplicity\Components;
 use Opensitez\Simplicity\MSG;
 
 require_once __DIR__     . "/FilePassthrough.php";
