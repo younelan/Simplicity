@@ -1,5 +1,5 @@
 <?php
-namespace Opensitez\Simplicity\Components;
+namespace Opensitez\Simplicity;
 
 class FilePassthrough
 {

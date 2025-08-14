@@ -2,7 +2,6 @@
 namespace Opensitez\Simplicity\Components;
 use Opensitez\Simplicity\MSG;
 
-require_once __DIR__     . "/FilePassthrough.php";
 
 class ContentRoute extends \Opensitez\Simplicity\Component
 {
@@ -90,7 +89,7 @@ class ContentRoute extends \Opensitez\Simplicity\Component
                             'type' => $ext
                         ]);
                         $this->debug("<strong>Debug ContentRoute:</strong> Serving file: '$filePath' with extension '$ext'<br/>");
-                        $passthrough = new \Opensitez\Cms\Components\FilePassthrough();
+                        $passthrough = new \Opensitez\Simplicity\FilePassthrough();
                         $options = [
                             'filename' => $filePath,
                             'extension' => $ext,
