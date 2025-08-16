@@ -90,7 +90,7 @@
 
             return $fcontents;
         }
-        function on_render_section($app) {
+        function on_render_block($app) {
             $options = $this->block_options;
 
             return $this->render($options);
