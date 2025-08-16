@@ -112,7 +112,7 @@ class Section extends \Opensitez\Simplicity\Component
             //print "$id<br/>";
             $inctype = $incblock['type'] ?? "block";
 
-            $current_component = $this->framework->get_component($inctype);
+            $current_component = $this->framework->get_registered_type("blocktype", $inctype);
             if (!isset($incblock['type'])) {
                 $incblock = ['content' => $incblock];
                 $incblock['type'] = $inctype ?? "block";
