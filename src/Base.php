@@ -313,6 +313,9 @@ class Base
             $inctype = $incblock['type'] ?? "block";
 
             $current_component = $this->framework->get_registered_type("blocktype", $inctype);
+            if(!$current_component) {
+                $current_component = $this->framework->get_component("block");
+            }
             if (!isset($incblock['type'])) {
                 $incblock = ['content' => $incblock];
                 $incblock['type'] = $inctype ?? "block";

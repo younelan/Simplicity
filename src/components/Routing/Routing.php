@@ -179,7 +179,7 @@ class Routing extends \Opensitez\Simplicity\Component
         $content_after = $section_object->render_block_list($page_after, $this->app);
 
         // print_r($content_before);
-        // // print_r($page_after);
+        // print_r($page_after);
         //  exit;
 
         if (method_exists($routeHandler, "on_render_page")) {
