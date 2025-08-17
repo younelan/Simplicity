@@ -290,5 +290,48 @@ class Base
             $this->add_block($block_content);
         }
     }
+    function render_block_list($inserts, $app = null)
+    {
+        if(!$app) {
+            $app = $this->config_object->get('site.current-route');
+        }
+        $style = $app['style'] ?? $this->style;
+        $class = $app['class'] ?? "";
+        $class = "section " . $this->class;
+        $block_component = $this->framework->get_component("block");
+        $paths = $this->config_object->get('paths');
+        $content = "";
 
+        $i18n = $this->framework->get_component('i18n');
+        if (!is_array($inserts)) {
+            $inserts = [$inserts];
+        }
+        foreach ($inserts as $id => $incblock) {
+            if (!is_array($incblock)) {
+                $incblock = ["content" => $incblock];
+            }
+            $inctype = $incblock['type'] ?? "block";
+
+            $current_component = $this->framework->get_registered_type("blocktype", $inctype);
+            if (!isset($incblock['type'])) {
+                $incblock = ['content' => $incblock];
+                $incblock['type'] = $inctype ?? "block";
+            }
+            $gallerylink = $incblock['link'] ?? "";
+            if (isset($incblock['title'])) {
+                $cur_title = $i18n->get_i18n_value($incblock['title']);
+                if ($gallerylink) {
+                    $content .= "<h2 class='block-title'><a href='/'>" . $cur_title . "</a></h2>";
+                } else {
+                    $content .= "<h2 class='block-title'>" . $cur_title . "</h2>";
+                }
+            }
+
+            if ($current_component) {
+                $component_content = $current_component->on_render_page($incblock);
+                $content .= $component_content;
+            }
+        }
+        return $content;
+    }
 }

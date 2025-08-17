@@ -171,7 +171,7 @@ class ImageMenu extends \Opensitez\Simplicity\Component
                 $output .= "<div id='$groupid' class='gallery-group'>\n";
             }
             $section_object = $this->framework->get_component("section");
-            $before_inserts = $section_object->render_section_contents($before, $app);
+            $before_inserts = $section_object->render_block_list($before, $app);
             $output .= "<div class='gallery-before'>\n" . $before_inserts . "\n</div>\n";
             $output .= "<div class='gallery-content'>";
             //exit;
@@ -264,7 +264,7 @@ class ImageMenu extends \Opensitez\Simplicity\Component
                     $output .= "</div>"; //end child div
                 }
             }
-            $after_inserts = $section_object->render_section_contents($after, $app);
+            $after_inserts = $section_object->render_block_list($after, $app);
             $output .= "<div class='gallery-after'>\n" . $after_inserts . "\n</div>\n";
 
             $output .= "</div>\n";

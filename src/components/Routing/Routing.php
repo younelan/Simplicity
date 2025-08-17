@@ -99,7 +99,7 @@ class Routing extends \Opensitez\Simplicity\Component
     function legacyShowPage()
     {
         $section_object = $this->framework->get_plugin("section");
-        return $section_object->render_section_contents($inserts, $app);
+        return $section_object->render_block_list($inserts, $app);
         
         $this->app = $this->config_object->getApp();
         $current_site = $this->config_object->getCurrentSite();
@@ -117,10 +117,10 @@ class Routing extends \Opensitez\Simplicity\Component
             $before = $this->app['before'] ?? [];
             $after = $this->app['after'] ?? [];
             $footer = $this->app['footer'] ?? $current_site['footer'] ?? [];
-            $content = $section_object->render_section_contents($before, $this->app);
+            $content = $section_object->render_block_list($before, $this->app);
             $content .= $current_plugin->on_render_page($this->app);
-            $content .= $section_object->render_section_contents($after, $this->app);
-            $content .= $section_object->render_section_contents($footer, $this->app);
+            $content .= $section_object->render_block_list($after, $this->app);
+            $content .= $section_object->render_block_list($footer, $this->app);
             $this->config_object->setVar('content', $content);
         }
         if (!isset($no_template_output)) {
@@ -175,8 +175,8 @@ class Routing extends \Opensitez\Simplicity\Component
         $page_after  = $routeData['after'] ?? [];
 
         $section_object = $this->framework->get_component("section");
-        $content_before = $section_object->render_section_contents($page_before, $this->app);
-        $content_after = $section_object->render_section_contents($page_after, $this->app);
+        $content_before = $section_object->render_block_list($page_before, $this->app);
+        $content_after = $section_object->render_block_list($page_after, $this->app);
 
         // print_r($content_before);
         // // print_r($page_after);

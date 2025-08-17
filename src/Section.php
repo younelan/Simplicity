@@ -5,13 +5,13 @@ use Opensitez\Simplicity\MSG;
 
 class Section extends \Opensitez\Simplicity\Component
 {
-    private $contents = [];
-    private $style = "";
-    private $class = "section";
-    private $section_name = "content";
-    private $blocks = [];
-    private $template = "";
-    private $section_options = [];
+    protected $contents = [];
+    protected $style = "";
+    protected $class = "section";
+    protected $section_name = "content";
+    protected $blocks = [];
+    protected $template = "";
+    protected $section_options = [];
     function on_event($event)
     {
         switch ($event['type']) {
@@ -74,48 +74,5 @@ class Section extends \Opensitez\Simplicity\Component
     //         $outputs[$section] .= $tmp ."\n"; 
     // }
 
-    function render_section_contents($inserts, $app = null)
-    {
-        if(!$app) {
-            $app = $this->config_object->get('site.current-route');
-        }
-        $style = $app['style'] ?? $this->style;
-        $class = $app['class'] ?? "";
-        $class = "section " . $this->class;
-        $block_component = $this->framework->get_component("block");
-        $paths = $this->config_object->get('paths');
-        $content = "";
 
-        $i18n = $this->framework->get_component('i18n');
-        if (!is_array($inserts)) {
-            $inserts = [$inserts];
-        }
-        foreach ($inserts as $id => $incblock) {
-            if (!is_array($incblock)) {
-                $incblock = ["content" => $incblock];
-            }
-            $inctype = $incblock['type'] ?? "block";
-
-            $current_component = $this->framework->get_registered_type("blocktype", $inctype);
-            if (!isset($incblock['type'])) {
-                $incblock = ['content' => $incblock];
-                $incblock['type'] = $inctype ?? "block";
-            }
-            $gallerylink = $incblock['link'] ?? "";
-            if (isset($incblock['title'])) {
-                $cur_title = $i18n->get_i18n_value($incblock['title']);
-                if ($gallerylink) {
-                    $content .= "<h2 class='block-title'><a href='/'>" . $cur_title . "</a></h2>";
-                } else {
-                    $content .= "<h2 class='block-title'>" . $cur_title . "</h2>";
-                }
-            }
-
-            if ($current_component) {
-                $component_content = $current_component->on_render_page($incblock);
-                $content .= $component_content;
-            }
-        }
-        return $content;
-    }
 }
