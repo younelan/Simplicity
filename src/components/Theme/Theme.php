@@ -115,8 +115,8 @@ class Theme extends \Opensitez\Simplicity\Component
         if ($this->current_site['vars']['skipmenu'] ?? []) {
             $menuopts['skip'] = $this->current_site['vars']['skipmenu'] ?? false;
         }
-        $menus= $this->current_site['definition']['navigation'] ?? [];
-
+        $menus= $this->current_site['definition']['data']['navigation'] ?? [];
+ 
         $navigation = $menumaker->make_menu($menus ?? [], $menuopts);
         $this->template_engine->assign("themepath", $this->current_site['themepath']);
         $this->template_engine->assign("sitepath", $this->paths['sitepath'], true);
@@ -214,7 +214,6 @@ class Theme extends \Opensitez\Simplicity\Component
     }
     function on_render_page($app) {
         $this->init_paths();
-        //$this->show_debug();exit;
         $engine = $this->config_object->get('site.theme.engine') ?? 'simpletemplate';
         $this->app = $app;
         $template_engine = $this->framework->get_registered_type('templateengine', strtolower($engine));
@@ -231,10 +230,12 @@ class Theme extends \Opensitez\Simplicity\Component
                 throw new \Exception("Template engine '$engine' not found and no default available.");
             }
         }
-        
+     
         $this->template_engine->set_framework($this->framework);
         $this->template_engine->engine_init();
         $this->assign_template_vars();
+        //$this->show_debug();exit;
+   
         $rendered = $this->on_render_templates($app);
 
         //$this->render($app);
