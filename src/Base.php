@@ -265,13 +265,44 @@ class Base
         }
 
         $block_instance = new Block($this->config_object);
-        print "Adding block: " . $block_name . " to section: " . $section . "\n";
+        // print "<pre>";
+        // print "Adding block: " . $block_name . " to section: " . $section . "\n";
+        // print_r($block);
+        // print "\n</pre>\n";
         $block_instance->set_block_options($block);
         $block_instance->set_framework($this->framework);
 
         $this->config_object->set("site.blocks.$block_name", $block_instance);
     }
+    public function add_section($idx, $section_details=[])
+    {
+            $section_options = $this->config_object->get('site.sections.' . $idx, false);
+            if($section_details) {
+                $section_details['name'] = $idx;
+            } else {
+                $section_details = [
+                    'name' => $idx,
+                ];
+            }
+            //print "<br/>----Adding section: " . $idx . " \n";
+            //print_r($section_details);
+            $new_section = new Section($this->config_object);
+            $new_section->set_framework($this->framework);
+            $new_section->set_section_options($section_details);
+            $this->config_object->set('site.sections.' . $idx, $new_section);
 
+            return $new_section;
+    
+    }
+    public function render_section($section_name, $app = false)
+    {
+        $section = $this->config_object->get('site.sections.' . $section_name, false);
+        if ($section) {
+            return $section->on_render_page($app);
+        } else {
+            return "";
+        }
+    }
     public function add_blocks($blocks = false, $section = false)
     {
         $defaults = $this->config_object->get('defaults');
@@ -284,12 +315,15 @@ class Base
         if (!$blocks) {
             $blocks = $current_site['blocks'] ?? [];
         }
+        //print_r($blocks);exit;
         foreach ($blocks ?? [] as $block_name => $block_content) {
-            print "Adding block: " . $block_name . " to section: " . $section . " \n";
+            //print "<br/>Adding block: " . $block_name . " to section: " . $section . " \n";
+            //print_r($block_content);
             $block_content['name'] = $block_name;
             $this->add_block($block_content);
         }
     }
+
     function render_block_list($inserts, $app = null)
     {
         if(!$app) {

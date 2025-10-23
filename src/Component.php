@@ -37,20 +37,7 @@ class Component extends Base
     {
         $this->config_object->set('site.definition.routes.' . $route_name, $route_data);
     }    
-    public function add_section($idx, $new_section=[])
-    {
-            $section_options = $this->config_object->get('site.sections.' . $idx, false);
-            if(!$section_options) {
-                $value['name'] = $idx;
-                $section_options = $new_section;
-                $new_section = new Section($this->config_object);
-                $new_section->set_framework($this->framework);
-                $new_section->set_section_options($section_options);
-                $this->config_object->set('site.sections.' . $idx, $new_section);
-            }
-            return $new_section;
-    
-    }
+
     public function valid_var_name($block_name)
     {
         if (preg_match('/^[a-zA-Z][a-zA-Z0-9-]*$/', $block_name)) {
