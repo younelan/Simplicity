@@ -29,6 +29,9 @@ class Section extends \Opensitez\Simplicity\Component
         if ($options['file']?? false) {
             $this->template = $this->load_template("sections/" . $options['file']);
         }
+        if (isset($options['blocks'] )) {
+            $this->set_blocks($options['blocks']);
+        }
         $this->section_name = $options['name'] ?? 'content';
         $this->class = $options['class'] ?? "";
         $this->style = $options['style'] ?? "";
@@ -39,6 +42,11 @@ class Section extends \Opensitez\Simplicity\Component
     }
     function on_render_page($app)
     {
+        // print "!-- Rendering section: $this->section_name --<br/>\n";
+        // print "<pre>";
+        // print_r($app);
+        // print_r($this->blocks);
+        // print "</pre>";
         $style = $this->style;
 
         $output = "";
@@ -48,6 +56,15 @@ class Section extends \Opensitez\Simplicity\Component
         $output = "<div id='$this->section_name' class='section $this->class'>";
         //$output .= "<h1 class='footer'>section $this->section_name</h1>";
         foreach ($this->blocks as $block) {
+            $current_block = $this->config_object->get("site.blocks." . $block,false);
+            if( $current_block ) {
+                //print "Your block: " . $block . " found!\n";
+                $block = $current_block;
+            }
+            if( is_string($block)) {
+                //print "Your block: " . $block . " not found!\n";
+                continue;
+            }
             $output .= $block->on_render_block($app);
         };
         $output .= "</div>";

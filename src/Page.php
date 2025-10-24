@@ -42,12 +42,17 @@ class Page extends \Opensitez\Simplicity\Component
     public function set_layout($app = false)
     {
         $defaults = $this->config_object->get('defaults');
+        $current_route = $this->config_object->get('site.current-route', []);
         $current_site = $this->config_object->get('site');
-        $default_layout_name = $defaults['default-layout'] ?? "system";
+
+        $default_layout_name =  $defaults['default-layout'] ?? "system";
         $this->layout_name = $this->app["layout"]
-            ?? $current_site["layout"]
+            ?? $current_site['definition']['vars']["layout"]
             ?? $defaults['layout']?? $defaults['default-layout']
             ?? "system";
+        //print "-- Layout Name: {$this->layout_name} --\n";
+        //print_r($current_site);
+        //exit;
         $system = $this->config_object->get('system');
 
         $current_layout = $current_site['definition']['layouts'][$this->layout_name] 
@@ -69,20 +74,38 @@ class Page extends \Opensitez\Simplicity\Component
     {
         $this->defaults = $this->config_object->get('defaults');
         $this->current_site = $this->config_object->get('site');
+        $this->add_blocks($this->current_site['definition']['blocks'] ?? []);
 
         $this->app = $app;
         //$config_object = $this->framework->getConfigObject();
         $this->set_layout();
-
+        //print "-- Layout: {$this->layout_name} --\n<pre>";
+        //print_r($this->layout);
         foreach ($this->layout['sections'] ?? [] as $idx => $value) {
+            //print "<br/>-- Section: $idx --\n";
+            //print_r($value);
             $this->add_section($idx,$value);
+
         };
-        $this->add_blocks();
+        // foreach ($this->layout['sections'] ?? [] as $idx => $value) {
+        //     $this->add_section($idx,$value);
+        //     //print "-- Section: $idx --\n";
+        //     //print_r($value);
+        // };
+        // print "</pre>\n";
+        // print "<pre>\n-- Blocks --\n";
+        //print_r($this->current_site['definition']['blocks']);
+        // print "\n</pre>\n";
+        //print_r($this->blocks);exit;
     }
     public function render($app = false)
     {
         $content = "";
-        foreach ($this->sections as $idx => $current_section) {
+        //print "-- Rendering page with layout: $this->layout_name --><pre>\n";
+        //print_r($this->sections);
+        $sections = $this->config_object->get('site.sections', []);
+        foreach ($sections as $idx => $current_section) {
+            //print "-- Rendering section: $idx -->\n";
             $content .= $current_section->on_render_page($app);
         }
         return $content;
