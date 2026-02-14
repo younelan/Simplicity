@@ -27,10 +27,12 @@ class TextFormatBlock extends \Opensitez\Simplicity\Component
         if (!$block_config) {
             $block_config = $this->options;
         }
+        $i18n = $this->framework->get_component("i18n");
         $content_type = $block_config['content-type'] ?? $options['content-type'] ??  'html';
         $text = $block_config['content'] ?? $block_config['text'] ??"";
-        
+        $text = $i18n->get_i18n_value($text);
         if (is_array($text)) {
+            
             $text = implode("\n", $text);
         }
         
