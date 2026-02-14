@@ -121,6 +121,8 @@
             $fname = $app['file'] ?? '';
             $blocklink=$app['link']??"";
             $retval = "";
+            $i18n=$this->framework->get_component("i18n");
+
             $blockoptions = $this->default;
             if(isset($app['section']['title'])) {
                 $cur_title=$i18n->get_i18n_value($app['title']);
@@ -134,6 +136,7 @@
             // First try to get a registered block type component
             if($app['type']== 'include') {
                 $datafolder = $this->config_object->get('paths')['datafolder'] ?? '';
+                $fname = $i18n->get_i18n_value($fname);
                 $content = $this->fetch_file("$datafolder/$fname", $app);
                 $app['content'] = $app['content'] ?? $content;            
             }
