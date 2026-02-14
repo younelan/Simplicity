@@ -46,7 +46,7 @@ class Page extends \Opensitez\Simplicity\Component
         $current_site = $this->config_object->get('site');
 
         $default_layout_name =  $defaults['default-layout'] ?? "system";
-        $this->layout_name = $this->app["layout"]
+        $this->layout_name = $current_route['layout'] ?? $this->app["layout"]
             ?? $current_site['definition']['vars']["layout"]
             ?? $defaults['layout']?? $defaults['default-layout']
             ?? "system";
