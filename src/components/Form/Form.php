@@ -20,7 +20,7 @@ class Form extends \Opensitez\Simplicity\Component
 		switch ($event['type']) {
 			case MSG::onComponentLoad:
 				$widget_dir =dirname(dirname(__DIR__)) . "/widgets";
-				$this->framework->load_components($widget_dir, 'Opensitez\\Simplicity\\Components', 'widgets');
+				$this->framework->load_components($widget_dir, 'Opensitez\\Simplicity\\Widgets', 'widgets');
 
 				$this->framework->register_type('routetype', 'form');
 				$this->framework->register_type('blocktype', 'form');
@@ -91,7 +91,7 @@ class Form extends \Opensitez\Simplicity\Component
 				if (isset($this->available_fields[$field_type]) && $this->available_fields[$field_type]) {
 					if (isset($this->available_fields[$field_type])) {
 						try {
-							$current_class_name = "\\Opensitez\\Components\\" . $this->available_fields[$field_type];
+							$current_class_name = "\\Opensitez\\Simplicity\\Widgets\\" . $this->available_fields[$field_type];
 							$new_field = new $current_class_name($this->config_object);
 							$new_field->set_framework($this->framework);
 							$new_field->set_fields($field_def);

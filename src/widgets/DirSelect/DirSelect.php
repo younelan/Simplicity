@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Components;
+namespace Opensitez\Simplicity\Widgets;
 use Opensitez\Simplicity\MSG;
 
 class DirSelect extends \Opensitez\Simplicity\FormField

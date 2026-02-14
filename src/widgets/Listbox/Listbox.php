@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Components;
+namespace Opensitez\Simplicity\Widgets;
 
 class Listbox extends \Opensitez\Simplicity\FormField
 {

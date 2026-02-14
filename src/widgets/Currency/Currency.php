@@ -1,6 +1,6 @@
 <?php
 
-namespace Opensitez\Simplicity\Components;
+namespace Opensitez\Simplicity\Widgets;
 use Opensitez\Simplicity\MSG;
 
 class Currency extends \Opensitez\Simplicity\FormField
