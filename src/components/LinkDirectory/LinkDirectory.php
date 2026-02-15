@@ -4,7 +4,6 @@ namespace Opensitez\Simplicity\Components;
 use \Opensitez\Simplicity\Component;
 use \Opensitez\Simplicity\MSG;
 $root=dirname(dirname(__DIR__));
-//require_once("$root/core.php");
 require_once(__DIR__ . "/ExplorerModel.php");
 
 
@@ -352,6 +351,12 @@ class LinkDirectory extends \Opensitez\Simplicity\Component
 		} elseif ($action == 'item') {
 			$data =	$this->get_item($dest);
 			$retval = $this->render_item($data);
+		} else if (!$action) {
+			$data =	$this->categories($dest, $feature_id);
+			$retval = $this->render_category($data);
+			$retval .=  $this->render_links($data);
+		} else {
+			$retval = "Unknown";
 		}
 		return $retval;
 	}
