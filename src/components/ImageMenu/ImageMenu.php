@@ -182,10 +182,11 @@ class ImageMenu extends \Opensitez\Simplicity\Component
                         continue;
                         //exit;
                     }
-                    //print_r ($child); print "<pre></n>";
+                    //print_r ($child); exit;
+                    //print "<pre></n>";
                     $childurl = $child['url'] ?? "";
                     $childurl = $i18n->get_i18n_value($childurl);
-                    $childname = $child['text'] ?? "";
+                    $childname = $i18n->get_i18n_value($child['text']) ?? "";
                     $childglyph = $child['glyph'] ?? "";
                     $childicon = $child['icon'] ?? "";
                     $childname = $i18n->get_i18n_value($childname);
