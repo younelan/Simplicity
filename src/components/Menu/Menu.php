@@ -47,10 +47,8 @@ class Menu extends \Opensitez\Simplicity\Component
             if ($filter && !in_array($navid, $filter)) {
                 continue;
             }
-            // print_r($navblock);exit;
             if ($skip && in_array($navid, $skip)) {
                 continue;
-                //exit;
             }
             $navz = '
            <div class="collapse navbar-collapse" id="navbarNav">

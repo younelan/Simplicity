@@ -22,6 +22,7 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 		}
 	}
 	function getcategories($site,$categoryid=0) {
+
 		$tree_table = $this->osz_fields['tbl_tree'];
 		$node_table = $this->osz_fields['tbl_nodes'];
 		$feature = $this->osz_fields['node_group'];
@@ -43,7 +44,6 @@ class ExplorerModel extends \Opensitez\Simplicity\DBLayer {
 			$categoryid = intval($categoryid);
 		}
 		$site = intval($site);
-
 		
 		if($categoryid)
 			$sort=' order by catname';
