@@ -22,6 +22,7 @@ class Theme extends \Opensitez\Simplicity\Component
     protected $charset;
     protected $app;
     protected $site;
+    protected $debug_obj;
     protected $themepath;
     function init_paths()
     {
@@ -65,6 +66,7 @@ class Theme extends \Opensitez\Simplicity\Component
             //print "Theme configuration file not found at $themefile. Using default theme configuration.<br/>";
             $theme_config = [];
         }
+ 
         foreach ($theme_config['sections'] ?? [] as $section => $details) {
             if (isset($details['file'])) {
                 $fullpath = $this->themedir . "/" . $details['file'];
@@ -77,6 +79,8 @@ class Theme extends \Opensitez\Simplicity\Component
             }
         }
 
+
+        
         $masterfile = $theme_config['vars']['master-template'] ?? 'master.tpl';
         $masterpath = $this->themedir . "/$masterfile";
         $this->master = file_get_contents($masterpath);
@@ -91,7 +95,7 @@ class Theme extends \Opensitez\Simplicity\Component
         $defaults = $this->config_object->get('defaults');
         $left_delim = $this->template_engine->getLeftDelim();
         $right_delim = $this->template_engine->getRightDelim();
-        $debug_obj = $this->framework->get_component('debug');
+        $this->debug_obj = $this->framework->get_component('debug');
         $palette_definition = $this->current_site['palette'] ?? [];
         $palette_component = new \Opensitez\Simplicity\Palette( $this->config_object);
         $palette_vars = $this->current_site['definition']['style'] ?? [];
@@ -130,7 +134,7 @@ class Theme extends \Opensitez\Simplicity\Component
         foreach ($this->current_site["style"] ?? [] as $key => $value) {
             $this->pagestyle .= "      $key {" . $value . ";}\n";
         }
-        $this->pagestyle = "<!-- YOW -->$palette\n<style>\n$this->pagestyle\n</style>\n\n";
+        $this->pagestyle = "<!-- Palette -->$palette\n<style>\n$this->pagestyle\n</style>\n\n";
 
         $this->config_object->set("paths.themepath", $this->themepath);
         //print_r($this->config_object->get("paths"));exit;
@@ -178,11 +182,14 @@ class Theme extends \Opensitez\Simplicity\Component
     function on_render_templates($app)
     {
         $theme = $this->config_object->get('site.theme');
+        //$page_sections = $this->current_site['sections'] ?? [];
         $sections = [];
         foreach ( $theme['sections'] ?? [] as $section => $details) {
             $sections[$section] = $this->template_engine->render($details['contents'] ?? '',false) ;
+
             $this->template_engine->assign($section, $sections[$section]);
-            //print "<!-- $section -->\n";
+            print "<!-- $section -->\n";
+
             //print $sections[$section] . "<br/>\n";
             //print $section . " - " . $this->template_engine->render($details['contents'] ?? '') . "<br/>\n";
         }
@@ -195,8 +202,8 @@ class Theme extends \Opensitez\Simplicity\Component
     function show_debug()
     {
         $this->init_paths();
-        
-        $debug_obj = new \Opensitez\Simplicity\SimpleDebug();
+
+        $this->debug_obj = new \Opensitez\Simplicity\SimpleDebug();
 
         print "<h3>Current Site</h3>";
         $current_site =$this->config_object->get('site');
@@ -209,8 +216,8 @@ class Theme extends \Opensitez\Simplicity\Component
             'charset' => $this->charset,
         ];
 
-        print $debug_obj->printArray($debug,3);
-        print $debug_obj->printArray($current_site,3);
+        print $this->debug_obj->printArray($debug,3);
+        print $this->debug_obj->printArray($current_site,3);
     }
     function on_render_page($app) {
         $this->init_paths();
